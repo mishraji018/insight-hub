@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
@@ -97,6 +97,21 @@
     --input: 220 20% 18%;
     --ring: 220 70% 55%;
 
+    /* Dashboard tokens — dark mode overrides */
+    --chart-blue: 220 70% 60%;
+    --chart-orange: 32 95% 58%;
+    --chart-green: 152 60% 50%;
+    --chart-red: 0 72% 58%;
+    --chart-purple: 270 60% 65%;
+
+    --severity-high: 0 72% 58%;
+    --severity-medium: 40 96% 56%;
+    --severity-low: 220 70% 60%;
+
+    --trend-up: 152 60% 50%;
+    --trend-down: 0 72% 58%;
+    --trend-neutral: 220 10% 60%;
+
     --sidebar-background: 220 25% 6%;
     --sidebar-foreground: 220 15% 80%;
     --sidebar-primary: 220 70% 55%;
@@ -106,9 +121,7 @@
     --sidebar-border: 220 20% 14%;
     --sidebar-ring: 220 70% 55%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }

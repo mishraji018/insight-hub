@@ -1,16 +1,25 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
+// FIXED: Improved ProtectedRoute with role-based access and location state
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  adminOnly?: boolean;
+  allowedRoles?: string[];
 }
 
-export function ProtectedRoute({ children, adminOnly = false }: ProtectedRouteProps) {
-  const { isAuthenticated, isAdmin } = useAuth();
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+  const token = localStorage.getItem("access_token");
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const location = useLocation();
 
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (adminOnly && !isAdmin) return <Navigate to="/dashboard" replace />;
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles && (!user || !allowedRoles.includes(user.role))) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return <>{children}</>;
 }

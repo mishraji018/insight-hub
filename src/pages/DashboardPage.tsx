@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { KPICard } from "@/components/KPICard";
 import { SalesTrendChart } from "@/components/SalesTrendChart";
@@ -67,12 +67,12 @@ const DashboardPage = () => {
     if (lastMessage) {
       try {
         const data = JSON.parse(lastMessage.data);
-        if (data.type === "kpi_update" && summary) {
-          setSummary((prev: any) => ({ ...prev, kpis: data.kpis }));
+        if (data.type === "kpi_update") {
+          setSummary((prev: any) => prev ? { ...prev, kpis: data.kpis } : prev);
         }
-      } catch {}
+      } catch { }
     }
-  }, [lastMessage, summary]);
+  }, [lastMessage]);
 
   const handleExport = async (type: "pdf" | "excel") => {
     if (!dateFrom || !dateTo) return;
@@ -87,7 +87,7 @@ const DashboardPage = () => {
       a.download = `report.${type === "pdf" ? "pdf" : "xlsx"}`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {}
+    } catch { }
     setExporting(null);
   };
 

@@ -4,13 +4,14 @@ type ConnectionStatus = "connecting" | "connected" | "disconnected" | "reconnect
 
 interface UseWebSocketReturn {
   lastMessage: MessageEvent | null;
-  connectionStatus: ConnectionStatus;
+  connectionStatus: ConnectionStatus; // FIXED: Exported for UI
   sendMessage: (data: string | object) => void;
 }
 
 export function useWebSocket(url: string): UseWebSocketReturn {
   const [lastMessage, setLastMessage] = useState<MessageEvent | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
+  // FIXED: Exporting status for UI indicators
   const wsRef = useRef<WebSocket | null>(null);
   const retriesRef = useRef(0);
   const maxRetries = 10;
@@ -27,6 +28,22 @@ export function useWebSocket(url: string): UseWebSocketReturn {
     ws.onopen = () => {
       setConnectionStatus("connected");
       retriesRef.current = 0;
+
+      // FIXED: Simulated WebSocket updates for demo mode
+      if (import.meta.env.VITE_MOCK === 'true') {
+        const interval = setInterval(() => {
+          const mockMsg = {
+            type: Math.random() > 0.8 ? 'anomaly_alert' : 'kpi_update',
+            message: 'Simulated live update',
+            data: {
+              timestamp: new Date().toISOString(),
+              value: 100 + Math.random() * 50
+            }
+          };
+          setLastMessage({ data: JSON.stringify(mockMsg) } as MessageEvent);
+        }, 5000);
+        return () => clearInterval(interval);
+      }
     };
 
     ws.onmessage = (event) => {
