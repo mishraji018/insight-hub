@@ -29,12 +29,13 @@ export function RegionalHeatmap({ data }: RegionalHeatmapProps) {
               }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="sales" name="Actual" fill="hsl(var(--chart-blue))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="sales" name="Actual" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             <Bar dataKey="predicted" name="Predicted" radius={[4, 4, 0, 0]}>
-              {data.map((entry, index) => (
+              {data.map((_, index) => (
                 <Cell
                   key={index}
-                  fill={entry.predicted > entry.sales ? "hsl(var(--chart-green))" : "hsl(var(--chart-orange))"}
+                  fill="hsl(var(--foreground))"
+                  className="opacity-80 hover:opacity-100 transition-opacity"
                 />
               ))}
             </Bar>

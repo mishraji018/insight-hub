@@ -1,81 +1,189 @@
-import { create } from "zustand";
-import { login as loginAPI } from "@/api/endpoints";
+import { create } from 'zustand';
+import { authAPI, User } from '@/api/endpoints';
 
-interface User {
-  id: string;
-  email: string;
-  username: string;
-}
-
-interface AuthState {
+export interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   refreshToken: string | null;
-  role: "admin" | "user" | null;
   isAuthenticated: boolean;
+  isApproved: boolean;
+  isStaff: boolean;
   isLoading: boolean;
   error: string | null;
+
+  setUser: (user: User | null) => void;
+  setTokens: (access: string, refresh: string) => void;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  setAuth: (data: { user: User; access: string; refresh: string; role: "admin" | "user" }) => void;
+  logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
+  initializeAuth: () => Promise<void>;
+  clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: localStorage.getItem("access_token"),
-  refreshToken: localStorage.getItem("refresh_token"),
-  role: (localStorage.getItem("user_role") as "admin" | "user") || null,
-  isAuthenticated: !!localStorage.getItem("access_token"),
+  accessToken: null,
+  refreshToken: null,
+  isAuthenticated: false,
+  isApproved: false,
+  isStaff: false,
   isLoading: false,
   error: null,
 
-  login: async (email, password) => {
+  setUser: (user: User | null) => {
+    set({
+      user,
+      isAuthenticated: !!user,
+      isApproved: user?.is_approved ?? true,
+      isStaff: user?.role === 'admin',
+    });
+  },
+
+  setTokens: (access: string, refresh: string) => {
+    sessionStorage.setItem('accessToken', access);
+    sessionStorage.setItem('refreshToken', refresh);
+    set({ accessToken: access, refreshToken: refresh, isAuthenticated: true });
+  },
+
+  login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
+
     try {
-      const { data } = await loginAPI(email, password);
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
-      localStorage.setItem("user_role", data.role || "user");
+      const response = await authAPI.login({ email, password });
+
+      // Backend returns fields directly, not nested under 'user'
+      const user: User = {
+        id: response.user_id,
+        email: response.email,
+        role: response.role,
+        first_name: response.full_name,
+        is_approved: response.is_approved,
+      };
+
+      sessionStorage.setItem('accessToken', response.access);
+      sessionStorage.setItem('refreshToken', response.refresh);
+
       set({
-        user: data.user,
-        token: data.access,
-        refreshToken: data.refresh,
-        role: data.role || "user",
+        user,
+        accessToken: response.access,
+        refreshToken: response.refresh,
         isAuthenticated: true,
+        isApproved: response.is_approved ?? true,
+        isStaff: response.is_staff ?? false,
         isLoading: false,
+        error: null,
       });
-    } catch (err: any) {
+    } catch (error) {
+      let errorMessage = 'Login failed. Please try again.';
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null && 'response' in error) {
+        const axiosError = error as any;
+        errorMessage =
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.detail ||
+          'Invalid credentials';
+      }
+
       set({
-        error: err.response?.data?.detail || "Login failed",
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isApproved: false,
+        isStaff: false,
         isLoading: false,
+        error: errorMessage,
       });
-      throw err;
+
+      throw error;
     }
   },
 
-  logout: () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_role");
-    set({
-      user: null,
-      token: null,
-      refreshToken: null,
-      role: null,
-      isAuthenticated: false,
-    });
+  logout: async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      sessionStorage.clear();
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isApproved: false,
+        isStaff: false,
+        error: null,
+      });
+    }
   },
 
-  setAuth: (data) => {
-    localStorage.setItem("access_token", data.access);
-    localStorage.setItem("refresh_token", data.refresh);
-    localStorage.setItem("user_role", data.role);
-    set({
-      user: data.user,
-      token: data.access,
-      refreshToken: data.refresh,
-      role: data.role,
-      isAuthenticated: true,
-    });
+  checkAuth: async () => {
+    const accessToken = sessionStorage.getItem('accessToken');
+
+    if (!accessToken) {
+      set({ user: null, isAuthenticated: false, isApproved: false, isStaff: false, isLoading: false });
+      return;
+    }
+
+    set({ isLoading: true });
+
+    try {
+      const user = await authAPI.getCurrentUser();
+      set({
+        user,
+        accessToken,
+        refreshToken: sessionStorage.getItem('refreshToken'),
+        isAuthenticated: true,
+        isApproved: user.is_approved ?? true,
+        isStaff: user.role === 'admin',
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      sessionStorage.clear();
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isApproved: false,
+        isStaff: false,
+        isLoading: false,
+        error: null,
+      });
+    }
+  },
+
+  initializeAuth: async () => {
+    await get().checkAuth();
+  },
+
+  clearError: () => {
+    set({ error: null });
   },
 }));
+
+export const useUserRole = (): User['role'] | null => {
+  const user = useAuthStore((state) => state.user);
+  return user?.role || null;
+};
+
+export const useIsAdmin = (): boolean => {
+  const user = useAuthStore((state) => state.user);
+  return user?.role === 'admin';
+};
+
+export const useIsPredictor = (): boolean => {
+  const user = useAuthStore((state) => state.user);
+  return user?.role === 'predictor';
+};
+
+export const useIsAnalyst = (): boolean => {
+  const user = useAuthStore((state) => state.user);
+  return user?.role === 'analyst';
+};
+
+export default useAuthStore;
