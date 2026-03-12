@@ -11,26 +11,27 @@ from analytics.services.data_processing import extract_from_csv, transform, load
 from analytics.services.forecasting import prepare_features, train_model, save_model
 from predictions.predictor import predict_sales
 
-@shared_task(bind=True, max_retries=5, autoretry_for=(Exception,), retry_backoff=True, retry_backoff_max=600)
+# FIX: Double retry conflict hataya
+@shared_task(
+    bind=True,
+    max_retries=5,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_backoff_max=600
+)
 def process_csv_upload(self, file_path):
-    """Asynchronous ETL pipeline for CSV uploads with FIXED: exponential backoff retry."""
-    try:
-        df = extract_from_csv(file_path)
-        df_clean = transform(df)
-        result = load_to_db(df_clean)
-        
-        # Cleanup
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            
-        # Trigger follow-up tasks
-        recalculate_predictions.delay()
-        retrain_model_if_needed.delay()
-        
-        return result
-    except Exception as exc:
-        # Exponential backoff retry
-        raise self.retry(exc=exc, countdown=2 ** self.request.retries)
+    """Async ETL pipeline — autoretry handles retries automatically."""
+    df = extract_from_csv(file_path)
+    df_clean = transform(df)
+    result = load_to_db(df_clean)
+
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    recalculate_predictions.delay()
+    retrain_model_if_needed.delay()
+
+    return result
 
 @shared_task
 def retrain_model_if_needed():

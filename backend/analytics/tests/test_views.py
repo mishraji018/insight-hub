@@ -14,13 +14,19 @@ def api_client():
 @pytest.fixture
 def executive_user(db):
     return User.objects.create_user(
-        username='exec', password='password123', role='executive'
+        email='exec@test.com',
+        password='Test@1234',
+        role='executive',
+        is_approved=True,   
     )
 
 @pytest.fixture
 def analyst_user(db):
     return User.objects.create_user(
-        username='analyst', password='password123', role='analyst'
+        email='analyst@test.com',
+        password='Test@1234',
+        role='analyst',
+        is_approved=True,
     )
 
 @pytest.fixture

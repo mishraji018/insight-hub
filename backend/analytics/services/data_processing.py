@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from django.core.exceptions import ValidationError
 from analytics.models import SalesData
+from analytics.services.forecasting import get_season
 
 def extract_from_csv(file_path: str) -> pd.DataFrame:
     """Reads a CSV file and validates required columns."""
@@ -20,16 +21,6 @@ def extract_from_csv(file_path: str) -> pd.DataFrame:
         raise ValidationError(f"Missing required columns: {', '.join(missing_cols)}")
         
     return df
-
-def get_season(month):
-    if month in [12, 1, 2]:
-        return 'winter'
-    elif month in [3, 4, 5]:
-        return 'spring'
-    elif month in [6, 7, 8]:
-        return 'summer'
-    else:
-        return 'autumn'
 
 def transform(df: pd.DataFrame) -> pd.DataFrame:
     """Cleans data and performs feature engineering."""
