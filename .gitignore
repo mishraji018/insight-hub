@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment files (SENSITIVE!)
+.env
+.env.development
+.env.mock
+.env.production
+.env.local
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+backend/db.sqlite3
+*.sqlite3
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+tsc_errors.txt
+
+# Docker (if not using)
+# backend/Dockerfile
+# backend/docker-compose.yml
