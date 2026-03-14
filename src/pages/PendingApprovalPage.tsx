@@ -5,7 +5,10 @@ import { Hourglass, LogOut, RefreshCw, Mail } from "lucide-react";
 import toast from "react-hot-toast";
 
 const PendingApprovalPage = () => {
-    const { user, logout, initializeAuth, isApproved } = useAuthStore();
+    const user = useAuthStore(s => s.user);
+  const logout = useAuthStore(s => s.logout);
+  const initializeAuth = useAuthStore(s => s.initializeAuth);
+  const isApproved = useAuthStore(s => s.isApproved);
     const navigate = useNavigate();
 
     useEffect(() => {

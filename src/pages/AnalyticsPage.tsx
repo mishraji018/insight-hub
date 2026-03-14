@@ -23,10 +23,8 @@ const AnalyticsPage = () => {
     setUploading(true);
     setProgress(0);
     try {
-      const { data } = await uploadCSV(file, (e) => {
-        if (e.total) setProgress(Math.round((e.loaded / e.total) * 100));
-      });
-      toast.success(`Uploaded: ${data.inserted} inserted, ${data.skipped} skipped`);
+      const data = await uploadCSV(file);
+      toast.success(`Uploaded: ${(data as any).inserted} inserted, ${(data as any).skipped} skipped`);
       fetchData(1);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Upload failed");
@@ -39,9 +37,9 @@ const AnalyticsPage = () => {
     setLoadingTable(true);
     try {
       const ordering = sortDir === "desc" ? `-${sortField}` : sortField;
-      const { data } = await getSalesData({ page: p, page_size: 10, ordering });
-      setTableData(data.results || []);
-      setTotalPages(Math.ceil((data.count || 0) / 10));
+      const data = await getSalesData({ page: p, page_size: 10, ordering });
+      setTableData((data as any).results || []);
+      setTotalPages(Math.ceil(((data as any).count || 0) / 10));
       setPage(p);
     } catch {
       // Use mock data

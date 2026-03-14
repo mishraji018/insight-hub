@@ -1,0 +1,93 @@
+﻿
+src\components\AppLayout.t
+sx:39:  useEffect(() => {
+src\components\AppLayout.t
+sx:60:  useEffect(() => {
+src\components\KPICard.tsx
+:18:  useEffect(() => {
+src\components\PWAInstallP
+rompt.tsx:8:  
+useEffect(() => {
+src\components\SearchModal
+.tsx:26:  useEffect(() => 
+{
+src\components\SearchModal
+.tsx:56:  useEffect(() => 
+{
+src\hooks\use-mobile.tsx:8
+:  React.useEffect(() => {
+src\pages\AdminDashboardPa
+ge.tsx:68:    
+useEffect(() => {
+src\pages\AdminDashboardPa
+ge.tsx:123:    
+useEffect(() => {
+src\pages\AdminPanelPage.t
+sx:72:    useEffect(() => 
+{
+src\pages\AdminTrainModelP
+age.tsx:37:  useEffect(() 
+=> { fetchModels(); }, 
+[]);
+src\pages\DashboardPage.ts
+x:29:  useEffect(() => {
+src\pages\DashboardPage.ts
+x:79:  useEffect(() => {
+src\pages\DeveloperPage.ts
+x:32:    useEffect(() => {
+src\pages\EmailVerificatio
+nPage.tsx:17:  
+useEffect(() => {
+src\pages\EmailVerificatio
+nPage.tsx:28:  
+useEffect(() => {
+src\pages\ForgotPasswordPa
+ge.tsx:17:  useEffect(() 
+=> {
+src\pages\LoginPage.tsx:34
+:  useEffect(() => {
+src\pages\LoginPage.tsx:41
+:  useEffect(() => {
+src\pages\NotFound.tsx:7: 
+ useEffect(() => {
+src\pages\OfflinePage.tsx:
+27:  useEffect(() => {
+src\pages\PendingApprovalP
+age.tsx:11:    
+useEffect(() => {
+src\pages\PendingApprovalP
+age.tsx:19:    
+useEffect(() => {
+src\pages\ProfilePage.tsx:
+67:    useEffect(() => {
+src\pages\ProfilePage.tsx:
+76:    useEffect(() => {
+src\pages\RegisterPage.tsx
+:42:    useEffect(() => {
+src\pages\TeamPage.tsx:34:
+    useEffect(() => {
+src\pages\TeamPage.tsx:38:
+    useEffect(() => {
+src\components\ui\carousel
+.tsx:83:    
+React.useEffect(() => {
+src\components\ui\carousel
+.tsx:91:    
+React.useEffect(() => {
+src\components\ui\sidebar.
+tsx:79:  
+React.useEffect(() => {
+mobile\src\screens\EmailVe
+rifyScreen.tsx:20:  
+useEffect(() => {
+mobile\src\screens\Notific
+ationsScreen.tsx:12:  
+useEffect(() => {
+mobile\src\screens\Session
+sScreen.tsx:12:  
+useEffect(() => {
+mobile\src\screens\SplashS
+creen.tsx:13:  
+useEffect(() => {
+
+

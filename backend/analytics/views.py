@@ -88,6 +88,16 @@ class SalesPredictionView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsExecutiveOrAnalyst]
 
     def post(self, request):
+        user = request.user
+        plan = user.subscription_plan
+        limit = plan.max_queries if plan else 100
+
+        if user.query_usage_count >= limit:
+            return Response(
+                {"error": "Monthly query limit reached. Please upgrade your plan."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         input_data = request.data
         try:
             result = predict_sales(input_data)
@@ -98,6 +108,10 @@ class SalesPredictionView(views.APIView):
                 model_version="1.0.0",
                 trend=result['trend'],
             )
+            # Increment usage
+            user.query_usage_count += 1
+            user.save()
+            
             return Response(result)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -107,12 +121,27 @@ class WeeklyForecastView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsExecutiveOrAnalyst]
 
     def get(self, request):
+        user = request.user
+        plan = user.subscription_plan
+        limit = plan.max_queries if plan else 100
+
+        if user.query_usage_count >= limit:
+            return Response(
+                {"error": "Monthly query limit reached. Please upgrade your plan."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         start_date = request.query_params.get(
             'start_date', timezone.now().date().strftime('%Y-%m-%d'))
         product_id = request.query_params.get('product_id')
         region = request.query_params.get('region')
         try:
             forecast = forecast_week(start_date, product_id, region)
+            
+            # Increment usage
+            user.query_usage_count += 1
+            user.save()
+
             return Response(forecast)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -142,12 +171,20 @@ class ExportPDFReportView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsExecutiveOrAnalyst]
 
     def get(self, request):
+        user = request.user
+        plan = user.subscription_plan
+        if not plan or not plan.can_export:
+            return Response(
+                {"error": "PDF export is only available for Pro and Enterprise plans."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         date_from = request.query_params.get(
             'from', timezone.now().date().strftime('%Y-%m-%d'))
         date_to = request.query_params.get(
             'to', timezone.now().date().strftime('%Y-%m-%d'))
         try:
-            pdf_buffer = generate_pdf_report(date_from, date_to, request.user.role)
+            pdf_buffer = generate_pdf_report(date_from, date_to, user.role)
             return FileResponse(
                 pdf_buffer, as_attachment=True,
                 filename=f"sales_report_{date_from}_{date_to}.pdf")
@@ -159,6 +196,14 @@ class ExportExcelReportView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsExecutiveOrAnalyst]
 
     def get(self, request):
+        user = request.user
+        plan = user.subscription_plan
+        if not plan or not plan.can_export:
+            return Response(
+                {"error": "Excel export is only available for Pro and Enterprise plans."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
         date_from = request.query_params.get(
             'from', timezone.now().date().strftime('%Y-%m-%d'))
         date_to = request.query_params.get(

@@ -102,11 +102,19 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+ 
+# FIXED: Media files (Uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+ 
+# Email configuration
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 
 # FIXED: DRF & JWT Settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'users.authentication.APIKeyAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -134,5 +142,27 @@ SIMPLE_JWT = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[
     "http://localhost:5173",
-    "http://localhost:8081", # Added current frontend port
+    "http://localhost:8081",
 ])
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY', default='')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
+# Celery Beat Schedule
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'send-weekly-digests': {
+        'task': 'users.tasks.send_weekly_digests_task',
+        'schedule': crontab(hour=9, minute=0, day_of_week='monday'),
+    },
+    'cleanup-expired-otps': {
+        'task': 'users.tasks.cleanup_expired_otps_task',
+        'schedule': crontab(hour=0, minute=0), # Daily at midnight
+    },
+    'cleanup-old-audit-logs': {
+        'task': 'users.tasks.cleanup_old_audit_logs_task',
+        'schedule': crontab(day_of_month=1, hour=1, minute=0), # Monthly first day
+    },
+}

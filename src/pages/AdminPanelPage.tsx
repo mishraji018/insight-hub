@@ -48,12 +48,10 @@ const AdminPanelPage = () => {
     const [invites, setInvites] = useState<Invite[]>([]);
     const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
     const [allUsers, setAllUsers] = useState<UserItem[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [inviteNote, setInviteNote] = useState("");
     const [generatedInvite, setGeneratedInvite] = useState<{ invite_link: string } | null>(null);
 
     const fetchData = async () => {
-        setIsLoading(true);
         try {
             if (activeTab === "invites") {
                 const res = await axiosInstance.get("/api/admin/invite/list/");
@@ -68,7 +66,6 @@ const AdminPanelPage = () => {
         } catch (e) {
             toast.error("Failed to fetch data");
         } finally {
-            setIsLoading(false);
         }
     };
 

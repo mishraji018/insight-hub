@@ -7,14 +7,10 @@ import {
     Eye,
     EyeOff,
     Check,
-    ShieldAlert,
-    UserPlus,
-    Mail,
-    ArrowRight,
-    ShieldCheck
+    ShieldAlert
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useAuthStore } from "@/store/authStore";
+import { authAPI } from "@/api/endpoints";
 
 const RegisterPage = () => {
     const [searchParams] = useSearchParams();
@@ -46,15 +42,16 @@ const RegisterPage = () => {
     useEffect(() => {
         const validateToken = async () => {
             if (!inviteToken) {
-                setValidationError("Invite token is required to register.");
                 setIsValidating(false);
                 return;
             }
 
             try {
-                await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/validate-invite/?token=${inviteToken}`);
+                await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/auth/validate-invite/?token=${inviteToken}`);
                 setIsValidating(false);
             } catch (error: any) {
+                // If token is invalid, we still allow registration but without the token benefits?
+                // Actually, if a token is present but invalid, it's better to show an error.
                 setValidationError(error.response?.data?.error || "This invite link is invalid or has expired.");
                 setIsValidating(false);
             }
@@ -81,25 +78,16 @@ const RegisterPage = () => {
 
         setIsSubmitting(true);
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register/`, {
+            const response = await authAPI.register({
                 ...formData,
                 invite_token: inviteToken
             });
 
-            const { access, refresh, user } = response.data;
-            useAuthStore.setState({
-                user,
-                accessToken: access,
-                refreshToken: refresh,
-                isAuthenticated: true,
-                isApproved: user.is_approved,
-                isStaff: user.is_staff || false
-            });
-
-            toast.success("Account created! Waiting for admin approval.");
-            navigate("/pending-approval");
+            localStorage.setItem("pending_verification_email", formData.email);
+            toast.success(response.message || "Account created! Please verify your email.");
+            navigate(`/verify-email?email=${formData.email}`);
         } catch (error: any) {
-            toast.error(error.response?.data?.email?.[0] || "Registration failed");
+            toast.error(error.response?.data?.email?.[0] || error.response?.data?.detail || "Registration failed");
         } finally {
             setIsSubmitting(false);
         }

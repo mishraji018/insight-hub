@@ -33,7 +33,7 @@ def process_csv_upload(self, file_path):
 
     return result
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), max_retries=3, retry_backoff=True)
 def retrain_model_if_needed():
     """Weekly task to check data growth and retrain model."""
     last_model = MLModel.objects.order_by('-trained_at').first()
@@ -64,7 +64,7 @@ def retrain_model_if_needed():
     
     return "No retraining needed"
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), max_retries=3, retry_backoff=True)
 def recalculate_predictions():
     """Batch inference for the last 30 days of data."""
     # Logic to refresh predictions table based on latest historical data
@@ -72,7 +72,7 @@ def recalculate_predictions():
     print("Recalculated batch predictions and sending WebSocket signal...")
     return True
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), max_retries=3, retry_backoff=True)
 def detect_anomalies():
     """Daily IQR-based anomaly detection on the last 7 days of sales."""
     seven_days_ago = timezone.now().date() - timedelta(days=7)

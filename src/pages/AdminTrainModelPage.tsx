@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { trainModel, getTaskStatus, getModels, activateModel } from "@/api/endpoints";
-import { Loader2, CheckCircle2, XCircle, Zap } from "lucide-react";
+import { Loader2, CheckCircle2, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 interface Model {
@@ -19,12 +19,11 @@ const AdminTrainModelPage = () => {
   const [training, setTraining] = useState(false);
   const [taskStatus, setTaskStatus] = useState<string | null>(null);
   const [newMetrics, setNewMetrics] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   const fetchModels = async () => {
     try {
-      const { data } = await getModels();
-      setModels(data.results || data);
+      const data = await getModels();
+      setModels((data as any).results || data);
     } catch {
       setModels([
         { id: "1", version: "v2.1", algorithm: "XGBoost", accuracy_score: 0.942, trained_at: "2026-03-08 10:00 UTC", is_active: true, metrics: { r2: 0.94, rmse: 125.3, mae: 89.2 } },
@@ -32,7 +31,6 @@ const AdminTrainModelPage = () => {
         { id: "3", version: "v1.0", algorithm: "LinearRegression", accuracy_score: 0.876, trained_at: "2026-02-15 14:00 UTC", is_active: false, metrics: { r2: 0.87, rmse: 187.6, mae: 134.2 } },
       ]);
     } finally {
-      setLoading(false);
     }
   };
 
@@ -43,20 +41,20 @@ const AdminTrainModelPage = () => {
     setTaskStatus("Queued");
     setNewMetrics(null);
     try {
-      const { data } = await trainModel();
+      const data = await trainModel({ model_type: "xgboost" });
       const taskId = data.task_id;
 
       const poll = setInterval(async () => {
         try {
-          const { data: status } = await getTaskStatus(taskId);
+          const status = await getTaskStatus(taskId);
           setTaskStatus(status.status);
-          if (status.status === "Complete") {
+          if (status.status === "SUCCESS") {
             clearInterval(poll);
             setNewMetrics(status.metrics);
             setTraining(false);
             toast.success("Model trained successfully");
             fetchModels();
-          } else if (status.status === "Failed") {
+          } else if (status.status === "FAILURE") {
             clearInterval(poll);
             setTraining(false);
             toast.error("Training failed");
@@ -80,7 +78,7 @@ const AdminTrainModelPage = () => {
 
   const handleActivate = async (id: string) => {
     try {
-      await activateModel(id);
+      await activateModel(Number(id));
       toast.success("Model activated");
       fetchModels();
     } catch {

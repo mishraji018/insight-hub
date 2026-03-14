@@ -1,74 +1,56 @@
-# Insight Hub - Predictive Analytics Dashboard
+# Insight Hub - Production Deployment Guide
 
-Insight Hub is a production-grade predictive dashboard built with Django, React, and Machine Learning. It provides real-time sales forecasting, anomaly detection, and automated reporting.
+This guide describes how to deploy Insight Hub in a production-ready environment using Docker.
 
-## 🏗 Architecture
+## Quick Start (Docker Compose)
 
-```text
-                                  +-------------------+
-                                  |      Nginx        |
-                                  |  (Reverse Proxy)  |
-                                  +---------+---------+
-                                            |
-                      +---------------------+---------------------+
-                      |                                           |
-            +---------v---------+                       +---------v---------+
-            |      React        |                       |      Django       |
-            |     Frontend      |                       |  (Gunicorn/ASGI)  |
-            +-------------------+                       +---------+---------+
-                                                                  |
-                                            +----------+----------+---------+
-                                            |          |          |         |
-                                     +------v---+  +---v------+ +--v--------v--+
-                                     | Postgres |  |  Redis   | | Celery Worker|
-                                     |  (DB)    |  | (Broker) | |    (Jobs)    |
-                                     +----------+  +----------+ +--------------+
-```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd insight-hub
+   ```
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Docker & Docker Compose
-- Node.js (for frontend development)
-
-### Development Setup
-1. Clone the repository and navigate to the project root.
-2. Initialize environment:
+2. **Configure Environment Variables**:
+   Copy the example environment file and fill in the secrets:
    ```bash
    cp backend/.env.example backend/.env
    ```
-3. Run with Makefile:
+   *Required variables*: `SECRET_KEY`, `DATABASE_URL`, `REDIS_URL`, `EMAIL_HOST_PASSWORD`, etc.
+
+3. **Build and Start**:
    ```bash
-   make dev
+   docker-compose up --build -d
    ```
-   *Access the dashboard at http://localhost*
 
-## 🛠 Project shortcuts (Makefile)
-- `make dev`: Start the full stack using Docker Compose.
-- `make test`: Run backend tests.
-- `make migrate`: Apply database migrations.
-- `make build-frontend`: Build the React production bundle.
+4. **Run Migrations**:
+   ```bash
+   docker-compose exec backend python manage.py migrate
+   ```
 
-## 🔑 Environment Variables
+5. **Create Superuser**:
+   ```bash
+   docker-compose exec backend python manage.py createsuperuser
+   ```
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DEBUG`  | Toggle debug mode | `False` |
-| `SECRET_KEY` | Django secret key | `required` |
-| `DB_NAME` | Postgres database name | `insight_db` |
-| `DB_USER` | Postgres user | `insight_user` |
-| `DB_PASSWORD` | Postgres password | `required` |
-| `CELERY_BROKER_URL` | Redis URL for Celery | `redis://redis:6379/0` |
+## Architecture
 
-## 📡 API Reference
+- **Frontend**: React + Vite (Optimized production build).
+- **Backend**: Django REST Framework + Gunicorn.
+- **Proxy/Web Server**: Nginx (Handles static files and API/WS proxying).
+- **Database**: PostgreSQL 15.
+- **Cache/Broker**: Redis 7.
+- **Task Queue**: Celery (Asynchronous emails, notifications, and auditing).
+- **Scheduler**: Celery Beat (Weekly digests, OTP cleanup).
 
-| Endpoint | Method | Description | Role |
-|----------|--------|-------------|------|
-| `/api/token/` | POST | Obtain JWT token | Public |
-| `/api/upload-csv/` | POST | Upload sales data for ETL | Executive |
-| `/api/analytics-summary/` | GET | Dashboard summary metrics | Analyst/Exec |
-| `/api/predict-sales/` | POST | Trigger ML inference | Analyst/Exec |
-| `/api/reports/pdf/` | GET | Export PDF report | analyst/Exec |
+## CI/CD Pipeline
 
-## ⚡ Real-Time
-Websocket endpoint: `ws://localhost/ws/dashboard/?token=<JWT_TOKEN>`
+- **Test**: Automated tests run on every Pull Request to `main`.
+- **Deploy**: On every push to `main`, Docker images are built, pushed to Docker Hub, and deployed to the production server via SSH.
+
+## Production Checklist
+
+- [ ] Change `SECRET_KEY`.
+- [ ] Ensure `DEBUG=False`.
+- [ ] Configure `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`.
+- [ ] Set up a real SMTP server for emails.
+- [ ] Configure SSL (Certbot/Let's Encrypt recommended for Nginx).

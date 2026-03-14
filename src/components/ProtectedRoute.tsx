@@ -13,7 +13,11 @@ export const ProtectedRoute = ({
   allowedRoles,
   requireStaff
 }: ProtectedRouteProps) => {
-  const { isAuthenticated, isApproved, isStaff, user, isLoading } = useAuthStore();
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const isApproved = useAuthStore(s => s.isApproved);
+  const isStaff = useAuthStore(s => s.isStaff);
+  const user = useAuthStore(s => s.user);
+  const isLoading = useAuthStore(s => s.isLoading);
   const location = useLocation();
 
   if (isLoading) {

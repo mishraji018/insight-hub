@@ -1,0 +1,947 @@
+﻿
+> src\components\AnomalyAl
+ert.tsx:26:      
+{alerts.map((alert, i) => 
+{
+  src\components\AnomalyAl
+ert.tsx:27:        const 
+bgClass =
+  src\components\AnomalyAl
+ert.tsx:28:          
+alert.severity === "high"
+> src\components\AppLayout
+.tsx:153:                
+{organisations.map(org => 
+(
+  src\components\AppLayout
+.tsx:154:                 
+ <button
+  src\components\AppLayout
+.tsx:155:                 
+   key={org.id}
+> src\components\AppLayout
+.tsx:200:          {filter
+edNavItems.map((item) => {
+  src\components\AppLayout
+.tsx:201:            
+const active = 
+location.pathname === 
+item.to;
+  src\components\AppLayout
+.tsx:202:            
+return (
+> src\components\AppLayout
+.tsx:273:                 
+     {[1, 2].map(i => (
+  src\components\AppLayout
+.tsx:274:                 
+       <div key={i} 
+className="h-7 w-7 
+rounded-full border-2 
+border-sidebar 
+bg-sidebar-accent flex 
+items-center 
+justify-center">
+  src\components\AppLayout
+.tsx:275:                 
+         <User 
+className="h-3 w-3 
+text-white/20" />
+> src\components\AppLayout
+.tsx:368:                 
+     
+notifications.map(notif 
+=> (
+  src\components\AppLayout
+.tsx:369:                 
+       <div 
+  src\components\AppLayout
+.tsx:370:                 
+         key={notif.id}
+> src\components\ForecastC
+hart.tsx:14:  const 
+chartData = data.map((d) 
+=> ({
+  src\components\ForecastC
+hart.tsx:15:    ...d,
+  src\components\ForecastC
+hart.tsx:16:    upper: 
+d.predicted_sales + 
+d.confidence,
+> src\components\Onboardin
+gModal.tsx:147:           
+                 
+{tourPoints.map((point, 
+idx) => (
+  src\components\Onboardin
+gModal.tsx:148:           
+                     <div 
+key={idx} className={`p-4 
+rounded-2xl border 
+transition-all flex 
+items-center gap-4 ${idx 
+=== tourStep ? 
+'bg-primary/10 
+border-primary/20' : 
+'bg-white/5 
+border-white/5 
+opacity-50'}`}>
+  src\components\Onboardin
+gModal.tsx:149:           
+                         
+<div className={`h-10 
+w-10 rounded-xl flex 
+items-center 
+justify-center ${idx === 
+tourStep ? 'bg-primary 
+text-white' : 'bg-muted 
+text-muted-foreground'}`}>
+> src\components\Onboardin
+gModal.tsx:185:           
+         {[...Array(totalS
+teps)].map((_, i) => (
+  src\components\Onboardin
+gModal.tsx:186:           
+             <div key={i} 
+className={`h-1.5 flex-1 
+rounded-full 
+transition-all 
+duration-500 ${i + 1 <= 
+step ? 'bg-primary shadow-
+[0_0_10px_rgba(var(--prima
+ry),0.5)]' : 
+'bg-white/10'}`} />
+  src\components\Onboardin
+gModal.tsx:187:           
+         ))}
+> src\components\RegionalH
+eatmap.tsx:34:            
+  {data.map((_, index) => 
+(
+  src\components\RegionalH
+eatmap.tsx:35:            
+    <Cell
+  src\components\RegionalH
+eatmap.tsx:36:            
+      key={index}
+> src\components\SearchMod
+al.tsx:128:               
+ {recentSearches.map((term
+) => (
+  src\components\SearchMod
+al.tsx:129:               
+   <Command.Item
+  src\components\SearchMod
+al.tsx:130:               
+     key={term}
+> src\components\SearchMod
+al.tsx:144:               
+ 
+{results.pages.map((page) 
+=> (
+  src\components\SearchMod
+al.tsx:145:               
+   <Command.Item
+  src\components\SearchMod
+al.tsx:146:               
+     key={page.url}
+> src\components\SearchMod
+al.tsx:165:               
+ {results.history.map((h, 
+i) => (
+  src\components\SearchMod
+al.tsx:166:               
+   <Command.Item
+  src\components\SearchMod
+al.tsx:167:               
+     key={i}
+> src\components\SearchMod
+al.tsx:181:               
+ {results.users.map((u) 
+=> (
+  src\components\SearchMod
+al.tsx:182:               
+   <Command.Item
+  src\components\SearchMod
+al.tsx:183:               
+     key={u.id}
+> src\pages\AdminDashboard
+Page.tsx:151:             
+       ].map((item, i) => 
+(
+  src\pages\AdminDashboard
+Page.tsx:152:             
+           <Card key={i} 
+className={`glass-card 
+border-none shadow-xl 
+${item.color === 
+'primary' ? 'border-l-4 
+border-l-primary' : 
+item.color === 
+'amber-500' ? 'border-l-4 
+border-l-amber-500' : 
+''}`}>
+  src\pages\AdminDashboard
+Page.tsx:153:             
+               
+<CardHeader 
+className="pb-2">
+> src\pages\AdminDashboard
+Page.tsx:240:             
+                          
+     {(stats?.most_used_fe
+atures || []).map((_, 
+index) => (
+  src\pages\AdminDashboard
+Page.tsx:241:             
+                          
+         <Cell 
+key={`cell-${index}`} 
+fill={index === 0 ? 
+'hsl(var(--primary))' : 
+'rgba(255,255,255,0.1)'} 
+/>
+  src\pages\AdminDashboard
+Page.tsx:242:             
+                          
+     ))}
+> src\pages\AdminDashboard
+Page.tsx:337:             
+                          
+     Array.from({ length: 
+5 }).map((_, i) => (
+  src\pages\AdminDashboard
+Page.tsx:338:             
+                          
+         <tr key={i}>
+  src\pages\AdminDashboard
+Page.tsx:339:             
+                          
+             <td 
+className="px-6 
+py-4"><Skeleton 
+className="h-10 w-40" 
+/></td>
+> src\pages\AdminDashboard
+Page.tsx:356:             
+                          
+     users.map((u) => (
+  src\pages\AdminDashboard
+Page.tsx:357:             
+                          
+         <tr key={u.id} cl
+assName="hover:bg-white/5 
+transition-colors group">
+  src\pages\AdminDashboard
+Page.tsx:358:             
+                          
+             <td 
+className="px-6 py-4">
+> src\pages\AdminDashboard
+Page.tsx:452:             
+                          
+         Array.from({ 
+length: 5 }).map((_, i) 
+=> (
+  src\pages\AdminDashboard
+Page.tsx:453:             
+                          
+             <tr key={i}>
+  src\pages\AdminDashboard
+Page.tsx:454:             
+                          
+                 <td 
+className="px-6 
+py-4"><Skeleton 
+className="h-6 w-32" 
+/></td>
+> src\pages\AdminDashboard
+Page.tsx:470:             
+                          
+         
+auditLogs.map((log) => (
+  src\pages\AdminDashboard
+Page.tsx:471:             
+                          
+             <tr 
+key={log.id} className="ho
+ver:bg-white/5 
+transition-colors">
+  src\pages\AdminDashboard
+Page.tsx:472:             
+                          
+                 <td 
+className="px-6 py-4">
+> src\pages\AdminPanelPage
+.tsx:233:                 
+                       
+{invites.map((inv) => (
+  src\pages\AdminPanelPage
+.tsx:234:                 
+                          
+ <tr key={inv.token} class
+Name="hover:bg-white/5 
+transition-colors group">
+  src\pages\AdminPanelPage
+.tsx:235:                 
+                          
+     <td className="px-6 
+py-4 font-mono text-xs tex
+t-primary">{inv.token}</td
+>
+> src\pages\AdminPanelPage
+.tsx:290:                 
+               
+{pendingUsers.map((u) => (
+  src\pages\AdminPanelPage
+.tsx:291:                 
+                   
+<PendingUserRow 
+key={u.id} user={u} 
+onApprove={handleApprove} 
+/>
+  src\pages\AdminPanelPage
+.tsx:292:                 
+               ))}
+> src\pages\AdminPanelPage
+.tsx:324:                 
+               
+{allUsers.map((u) => (
+  src\pages\AdminPanelPage
+.tsx:325:                 
+                   <tr 
+key={u.id} className="hove
+r:bg-white/5 
+transition-colors">
+  src\pages\AdminPanelPage
+.tsx:326:                 
+                       
+<td className="px-6 py-4">
+> src\pages\AdminTrainMode
+lPage.tsx:85:      
+setModels((prev) => 
+prev.map((m) => ({ ...m, 
+is_active: m.id === id 
+})));
+  src\pages\AdminTrainMode
+lPage.tsx:86:      
+toast.success("Model 
+activated (demo)");
+  src\pages\AdminTrainMode
+lPage.tsx:87:    }
+> src\pages\AdminTrainMode
+lPage.tsx:145:            
+      {(["r2", "rmse", 
+"mae"] as const).map((m) 
+=> (
+  src\pages\AdminTrainMode
+lPage.tsx:146:            
+        <tr key={m} 
+className="border-b 
+border-border/50">
+  src\pages\AdminTrainMode
+lPage.tsx:147:            
+          <td 
+className="px-3 py-2 
+font-mono text-xs 
+text-foreground 
+uppercase">{m}</td>
+> src\pages\AdminTrainMode
+lPage.tsx:167:            
+      {["Version", 
+"Algorithm", "Accuracy", 
+"Trained At", "Status", 
+""].map((h) => (
+  src\pages\AdminTrainMode
+lPage.tsx:168:            
+        <th key={h} 
+className="px-4 py-3 
+text-left text-xs 
+font-semibold uppercase 
+tracking-wider text-muted-
+foreground">{h}</th>
+  src\pages\AdminTrainMode
+lPage.tsx:169:            
+      ))}
+> src\pages\AdminTrainMode
+lPage.tsx:173:            
+    {models.map((m) => (
+  src\pages\AdminTrainMode
+lPage.tsx:174:            
+      <tr key={m.id} 
+className="border-b 
+border-border/50 
+hover:bg-muted/30 
+transition-colors">
+  src\pages\AdminTrainMode
+lPage.tsx:175:            
+        <td 
+className="px-4 py-3 
+font-mono text-xs text-for
+eground">{m.version}</td>
+> src\pages\AnalyticsPage.
+tsx:120:                  
+  {columns.map((col) => (
+  src\pages\AnalyticsPage.
+tsx:121:                  
+    <th
+  src\pages\AnalyticsPage.
+tsx:122:                  
+      key={col}
+> src\pages\AnalyticsPage.
+tsx:135:                  
+{tableData.map((row, i) 
+=> (
+  src\pages\AnalyticsPage.
+tsx:136:                  
+  <tr key={i} 
+className="border-b 
+border-border/50 
+hover:bg-muted/30 
+transition-colors">
+> src\pages\AnalyticsPage.
+tsx:137:                  
+    {columns.map((col) => 
+(
+  src\pages\AnalyticsPage.
+tsx:138:                  
+      <td key={col} 
+className="px-4 py-3 
+text-foreground font-mono 
+text-xs">
+  src\pages\AnalyticsPage.
+tsx:139:                  
+        {row[col]}
+> src\pages\ChangePassword
+Page.tsx:142:             
+                          
+ {[1, 2, 3, 4].map((step) 
+=> (
+  src\pages\ChangePassword
+Page.tsx:143:             
+                          
+     <div
+  src\pages\ChangePassword
+Page.tsx:144:             
+                          
+         key={step}
+> src\pages\ChangePassword
+Page.tsx:153:             
+                          
+ {requirements.map((req, 
+i) => (
+  src\pages\ChangePassword
+Page.tsx:154:             
+                          
+     <div key={i} 
+className="flex 
+items-center gap-1.5">
+  src\pages\ChangePassword
+Page.tsx:155:             
+                          
+         <div 
+className={`p-0.5 
+rounded-full ${req.test(fo
+rmData.new_password) ? 
+'bg-emerald-500/20 
+text-emerald-500' : 
+'bg-white/5 
+text-white/20'}`}>
+> src\pages\DashboardPage.
+tsx:149:          
+{(summary?.kpis || Array(4
+).fill(null)).map((kpi: 
+any, i: number) => (
+  src\pages\DashboardPage.
+tsx:150:            
+<KPICard key={i} 
+title={kpi?.title || ""} 
+value={kpi?.value || ""} 
+unit={kpi?.unit} 
+change={kpi?.change} 
+trend={kpi?.trend} 
+isLoading={loading} />
+  src\pages\DashboardPage.
+tsx:151:          ))}
+> src\pages\DeveloperPage.
+tsx:67:            
+setKeys(keys.map(k => 
+k.id === id ? { ...k, 
+is_active } : k));
+  src\pages\DeveloperPage.
+tsx:68:            
+toast.success(is_active ? 
+"Key activated" : "Key 
+deactivated");
+  src\pages\DeveloperPage.
+tsx:69:        } catch 
+(error) {
+> src\pages\DeveloperPage.
+tsx:134:                  
+                      
+Array.from({ length: 2 
+}).map((_, i) => (
+  src\pages\DeveloperPage.
+tsx:135:                  
+                          
+<div key={i} 
+className="h-20 w-full 
+rounded-2xl bg-white/5 
+animate-pulse" />
+  src\pages\DeveloperPage.
+tsx:136:                  
+                      ))
+> src\pages\DeveloperPage.
+tsx:143:                  
+                      
+keys.map(key => (
+  src\pages\DeveloperPage.
+tsx:144:                  
+                          
+<div key={key.id} 
+className="p-4 
+rounded-3xl bg-white/5 
+border border-white/5 
+flex items-center 
+justify-between group 
+hover:bg-white/[0.08] 
+transition-all">
+  src\pages\DeveloperPage.
+tsx:145:                  
+                          
+    <div className="flex 
+items-center gap-4">
+> src\pages\PricingPage.ts
+x:93:        
+{plans.map((plan) => (
+  src\pages\PricingPage.ts
+x:94:          <div 
+  src\pages\PricingPage.ts
+x:95:            
+key={plan.id}
+> src\pages\PricingPage.ts
+x:123:              {plan.
+features.map((feature, i) 
+=> (
+  src\pages\PricingPage.ts
+x:124:                <li 
+key={i} className="flex 
+items-start gap-3 text-sm 
+font-medium 
+text-gray-300">
+  src\pages\PricingPage.ts
+x:125:                  
+<div className="mt-1 h-5 
+w-5 rounded-full 
+bg-white/5 flex 
+items-center 
+justify-center border 
+border-white/5 shrink-0">
+> src\pages\ProfilePage.ts
+x:627:                    
+                    
+sessions.map(session => (
+  src\pages\ProfilePage.ts
+x:628:                    
+                        
+<div key={session.id} 
+className="p-4 
+rounded-3xl bg-white/5 
+border border-white/5 
+flex items-center 
+justify-between group">
+  src\pages\ProfilePage.ts
+x:629:                    
+                          
+  <div className="flex 
+items-center gap-4">
+> src\pages\ProfilePage.ts
+x:667:                    
+                    
+Array.from({ length: 3 
+}).map((_, i) => (
+  src\pages\ProfilePage.ts
+x:668:                    
+                        
+<div key={i} 
+className="flex 
+items-center 
+justify-between p-4 
+rounded-2xl 
+bg-background/20 border 
+border-white/5">
+  src\pages\ProfilePage.ts
+x:669:                    
+                          
+  <div className="flex 
+items-center gap-3">
+> src\pages\ProfilePage.ts
+x:684:                    
+                    
+loginHistory.slice(0, 
+5).map((login, idx) => (
+  src\pages\ProfilePage.ts
+x:685:                    
+                        
+<div key={idx} 
+className="flex 
+items-center 
+justify-between p-4 
+rounded-2xl 
+bg-background/20 border 
+border-white/5">
+  src\pages\ProfilePage.ts
+x:686:                    
+                          
+  <div className="flex 
+items-center gap-3">
+> src\pages\ProfilePage.ts
+x:767:                    
+                    
+{backupCodes.map(code => (
+  src\pages\ProfilePage.ts
+x:768:                    
+                        
+<code key={code} 
+className="text-xs 
+font-mono font-bold 
+text-center py-2 
+bg-black/20 
+rounded-lg">{code}</code>
+  src\pages\ProfilePage.ts
+x:769:                    
+                    ))}
+> src\pages\RegisterPage.t
+sx:206:                   
+                     {[1, 
+2, 3, 4].map((step) => (
+  src\pages\RegisterPage.t
+sx:207:                   
+                         
+<div
+  src\pages\RegisterPage.t
+sx:208:                   
+                          
+   key={step}
+> src\pages\RegisterPage.t
+sx:217:                   
+                     
+{requirements.map((req, 
+i) => (
+  src\pages\RegisterPage.t
+sx:218:                   
+                         
+<div key={i} 
+className="flex 
+items-center gap-1.5 
+text-[10px] font-medium 
+transition-colors">
+  src\pages\RegisterPage.t
+sx:219:                   
+                          
+   <div className={`p-0.5 
+rounded-full ${req.test(fo
+rmData.password) ? 
+'bg-emerald-500/20 
+text-emerald-500' : 
+'bg-white/5 
+text-white/10'}`}>
+> src\pages\TeamPage.tsx:1
+16:            setOrganisa
+tions(organisations.map(o 
+=> o.id === 
+selectedOrg.id ? 
+updatedOrg : o));
+  src\pages\TeamPage.tsx:1
+17:            
+toast.success("Invite 
+code generated!");
+  src\pages\TeamPage.tsx:1
+18:        } catch 
+(error) {
+> src\pages\TeamPage.tsx:1
+94:                       
+         
+organisations.map(org => (
+  src\pages\TeamPage.tsx:1
+95:                       
+             <button
+  src\pages\TeamPage.tsx:1
+96:                       
+                 
+key={org.id}
+> src\pages\TeamPage.tsx:3
+07:                       
+                          
+Array.from({ length: 3 
+}).map((_, i) => (
+  src\pages\TeamPage.tsx:3
+08:                       
+                          
+   <div key={i} 
+className="h-16 w-full 
+rounded-2xl bg-white/5 
+animate-pulse" />
+  src\pages\TeamPage.tsx:3
+09:                       
+                          
+))
+> src\pages\TeamPage.tsx:3
+11:                       
+                         
+members.map(member => (
+  src\pages\TeamPage.tsx:3
+12:                       
+                          
+   <div key={member.id} 
+className="p-4 
+rounded-3xl bg-white/5 
+border border-white/5 
+flex flex-col md:flex-row 
+md:items-center 
+justify-between gap-4 
+group 
+hover:bg-white/[0.07] 
+transition-all">
+  src\pages\TeamPage.tsx:3
+13:                       
+                          
+       <div 
+className="flex 
+items-center gap-4">
+> src\components\ui\chart.
+tsx:72:          .map(
+  src\components\ui\chart.
+tsx:73:            
+([theme, prefix]) => `
+  src\components\ui\chart.
+tsx:74:${prefix} 
+[data-chart=${id}] {
+> src\components\ui\chart.
+tsx:76:  .map(([key, 
+itemConfig]) => {
+  src\components\ui\chart.
+tsx:77:    const color = 
+itemConfig.theme?.[theme 
+as keyof typeof 
+itemConfig.theme] || 
+itemConfig.color;
+  src\components\ui\chart.
+tsx:78:    return color ? 
+`  --color-${key}: 
+${color};` : null;
+> src\components\ui\chart.
+tsx:163:          
+{payload.map((item, 
+index) => {
+  src\components\ui\chart.
+tsx:164:            const 
+key = `${nameKey || 
+item.name || item.dataKey 
+|| "value"}`;
+  src\components\ui\chart.
+tsx:165:            const 
+itemConfig = getPayloadCon
+figFromPayload(config, 
+item, key);
+> src\components\ui\chart.
+tsx:249:      
+{payload.map((item) => {
+  src\components\ui\chart.
+tsx:250:        const key 
+= `${nameKey || 
+item.dataKey || "value"}`;
+  src\components\ui\chart.
+tsx:251:        const 
+itemConfig = getPayloadCon
+figFromPayload(config, 
+item, key);
+> src\components\ui\toaste
+r.tsx:9:      
+{toasts.map(function ({ 
+id, title, description, 
+action, ...props }) {
+  src\components\ui\toaste
+r.tsx:10:        return (
+  src\components\ui\toaste
+r.tsx:11:          <Toast 
+key={id} {...props}>
+> mobile\src\screens\Analy
+ticsScreen.tsx:71:        
+    {[1, 2, 3, 
+4].map((item, i) => (
+  mobile\src\screens\Analy
+ticsScreen.tsx:72:        
+      <View key={i} 
+className={`flex-row 
+items-center 
+justify-between p-4 ${i 
+!== 3 ? 'border-b 
+border-white/5' : ''}`}>
+  mobile\src\screens\Analy
+ticsScreen.tsx:73:        
+        <View>
+> mobile\src\screens\Dashb
+oardScreen.tsx:35:        
+  {stats.map((stat, i) => 
+(
+  mobile\src\screens\Dashb
+oardScreen.tsx:36:        
+    <View key={i} classNam
+e="bg-surface-dark w-36 
+p-4 rounded-3xl mr-4 
+border border-white/5 
+justify-between">
+  mobile\src\screens\Dashb
+oardScreen.tsx:37:        
+      <View 
+className="w-10 h-10 
+rounded-2xl items-center 
+justify-center" style={{ 
+backgroundColor: 
+`${stat.color}20` }}>
+> mobile\src\screens\Dashb
+oardScreen.tsx:84:        
+    {[1, 2, 3].map((item, 
+i) => (
+  mobile\src\screens\Dashb
+oardScreen.tsx:85:        
+      <TouchableOpacity 
+key={i} 
+className={`flex-row 
+items-center p-4 ${i !== 
+2 ? 'border-b 
+border-white/5' : ''}`}>
+  mobile\src\screens\Dashb
+oardScreen.tsx:86:        
+        <View 
+className="w-10 h-10 
+rounded-xl bg-primary/10 
+items-center 
+justify-center mr-4">
+> mobile\src\screens\Email
+VerifyScreen.tsx:90:      
+      {code.map((digit, 
+idx) => (
+  mobile\src\screens\Email
+VerifyScreen.tsx:91:      
+        <TextInput
+  mobile\src\screens\Email
+VerifyScreen.tsx:92:      
+          key={idx}
+> mobile\src\screens\Forgo
+tPasswordScreen.tsx:71:   
+         {[1, 2, 3].map(i 
+=> (
+  mobile\src\screens\Forgo
+tPasswordScreen.tsx:72:   
+           <View key={i} 
+className={`h-2 
+rounded-full 
+transition-all ${step >= 
+i ? 'bg-primary w-8' : 
+'bg-white/10 w-2'}`} />
+  mobile\src\screens\Forgo
+tPasswordScreen.tsx:73:   
+         ))}
+> mobile\src\screens\Notif
+icationsScreen.tsx:64:    
+        {notifications.map
+((notif, i) => (
+  mobile\src\screens\Notif
+icationsScreen.tsx:65:    
+          <View key={i} cl
+assName="bg-surface-dark 
+border border-white/5 p-4 
+rounded-3xl flex-row 
+items-start">
+  mobile\src\screens\Notif
+icationsScreen.tsx:66:    
+            <View 
+className={`w-10 h-10 
+rounded-xl items-center 
+justify-center mr-4 ${
+> mobile\src\screens\Profi
+leScreen.tsx:89:        {m
+enuSections.map((section, 
+sIdx) => (
+  mobile\src\screens\Profi
+leScreen.tsx:90:          
+<View key={sIdx} 
+className="px-6 mb-8">
+  mobile\src\screens\Profi
+leScreen.tsx:91:          
+  <Text 
+className="text-muted 
+text-xs font-bold 
+uppercase tracking-widest 
+mb-3 ml-2">{section.title}
+</Text>
+> mobile\src\screens\Profi
+leScreen.tsx:93:          
+    
+{section.items.map((item: 
+any, i) => (
+  mobile\src\screens\Profi
+leScreen.tsx:94:          
+      <TouchableOpacity 
+  mobile\src\screens\Profi
+leScreen.tsx:95:          
+        key={i} 
+> mobile\src\screens\Searc
+hScreen.tsx:29:        
+{tabs.map(tab => (
+  mobile\src\screens\Searc
+hScreen.tsx:30:          
+<TouchableOpacity 
+  mobile\src\screens\Searc
+hScreen.tsx:31:           
+ key={tab}
+> mobile\src\screens\Searc
+hScreen.tsx:48:           
+ {[1, 2, 3].map((item, i) 
+=> (
+  mobile\src\screens\Searc
+hScreen.tsx:49:           
+   <TouchableOpacity 
+key={i} 
+className={`flex-row 
+items-center p-4 ${i !== 
+2 ? 'border-b 
+border-white/5' : ''}`}>
+  mobile\src\screens\Searc
+hScreen.tsx:50:           
+     <View 
+className="w-10 h-10 
+rounded-xl bg-white/5 
+items-center 
+justify-center mr-4">
+> mobile\src\screens\Sessi
+onsScreen.tsx:53:         
+ {sessions.map((session, 
+i) => (
+  mobile\src\screens\Sessi
+onsScreen.tsx:54:         
+   <View key={i} className
+="bg-surface-dark border 
+border-white/5 p-4 
+rounded-3xl flex-row 
+items-center 
+justify-between">
+  mobile\src\screens\Sessi
+onsScreen.tsx:55:         
+     <View 
+className="flex-row 
+items-center flex-1 pr-4">
+> mobile\src\screens\TwoFA
+Screen.tsx:80:            
+  {code.map((digit, idx) 
+=> (
+  mobile\src\screens\TwoFA
+Screen.tsx:81:            
+    <TextInput
+  mobile\src\screens\TwoFA
+Screen.tsx:82:            
+      key={idx}
+
+

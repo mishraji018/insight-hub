@@ -1,0 +1,38 @@
+﻿src/screens/EmailVerifyScreen.tsx(93,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextInputProps): TextInput', gave the following error.
+    Type '(el: TextInput | null) => TextInput | null' is not assignable to type 'Ref<TextInput> | undefined'.
+      Type '(el: TextInput | null) => TextInput | null' is not assignable to type '(instance: TextInput | null) => void | (() => VoidOrUndefinedOnly)'.
+        Type 'TextInput | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+          Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+  Overload 2 of 2, '(props: TextInputProps, context: any): TextInput', gave the following error.
+    Type '(el: TextInput | null) => TextInput | null' is not assignable to type 'Ref<TextInput> | undefined'.
+      Type '(el: TextInput | null) => TextInput | null' is not assignable to type '(instance: TextInput | null) => void | (() => VoidOrUndefinedOnly)'.
+        Type 'TextInput | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+          Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+src/screens/ForgotPasswordScreen.tsx(141,18): error TS2304: Cannot find name 'ShieldCheck'.
+src/screens/NotificationsScreen.tsx(31,21): error TS2551: Property 'clearNotifications' does not exist on type '{ login: (credentials: LoginCredentials) => Promise<LoginResponse>; register: (data: any) => Promise<any>; logout: () => Promise<void>; ... 10 more ...; verify2FA: (email: string, otp_code: string) => Promise<...>; }'. Did you mean 'getNotifications'?
+src/screens/ProfileScreen.tsx(58,39): error TS2339: Property 'digest_enabled' does not exist on type 'User'.
+src/screens/ProfileScreen.tsx(96,35): error TS2339: Property 'action' does not exist on type '{ label: string; icon: LucideIcon; color: string; action: () => void; } | { label: string; icon: LucideIcon; color: string; right: Element; }'.
+  Property 'action' does not exist on type '{ label: string; icon: LucideIcon; color: string; right: Element; }'.
+src/screens/ProfileScreen.tsx(97,33): error TS2339: Property 'action' does not exist on type '{ label: string; icon: LucideIcon; color: string; action: () => void; } | { label: string; icon: LucideIcon; color: string; right: Element; }'.
+  Property 'action' does not exist on type '{ label: string; icon: LucideIcon; color: string; right: Element; }'.
+src/screens/ProfileScreen.tsx(104,25): error TS2339: Property 'right' does not exist on type '{ label: string; icon: LucideIcon; color: string; action: () => void; } | { label: string; icon: LucideIcon; color: string; right: Element; }'.
+  Property 'right' does not exist on type '{ label: string; icon: LucideIcon; color: string; action: () => void; }'.
+src/screens/ProfileScreen.tsx(104,38): error TS2339: Property 'right' does not exist on type '{ label: string; icon: LucideIcon; color: string; action: () => void; } | { label: string; icon: LucideIcon; color: string; right: Element; }'.
+  Property 'right' does not exist on type '{ label: string; icon: LucideIcon; color: string; action: () => void; }'.
+src/screens/TwoFAScreen.tsx(83,19): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextInputProps): TextInput', gave the following error.
+    Type '(el: TextInput | null) => TextInput | null' is not assignable to type 'Ref<TextInput> | undefined'.
+      Type '(el: TextInput | null) => TextInput | null' is not assignable to type '(instance: TextInput | null) => void | (() => VoidOrUndefinedOnly)'.
+        Type 'TextInput | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+          Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+  Overload 2 of 2, '(props: TextInputProps, context: any): TextInput', gave the following error.
+    Type '(el: TextInput | null) => TextInput | null' is not assignable to type 'Ref<TextInput> | undefined'.
+      Type '(el: TextInput | null) => TextInput | null' is not assignable to type '(instance: TextInput | null) => void | (() => VoidOrUndefinedOnly)'.
+        Type 'TextInput | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+          Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+src/store/authStore.ts(6,21): error TS2693: 'MMKV' only refers to a type, but is being used as a value here.
+src/store/authStore.ts(49,25): error TS2339: Property 'is_approved' does not exist on type 'User'.
+src/store/authStore.ts(81,13): error TS2322: Type 'User | undefined' is not assignable to type 'User'.
+  Type 'undefined' is not assignable to type 'User'.
+src/store/authStore.ts(123,26): error TS2339: Property 'is_approved' does not exist on type 'User'.

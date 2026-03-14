@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.env
+.env.development
+.env.mock
+tsc_errors.txt
+tsc_output.txt
+tsc_output_utf8.txt
+README.md

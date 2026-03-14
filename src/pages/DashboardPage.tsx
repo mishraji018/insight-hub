@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
+import { useAuthStore } from "@/store/authStore";
 import { KPICard } from "@/components/KPICard";
 import { SalesTrendChart } from "@/components/SalesTrendChart";
 import { ForecastChart } from "@/components/ForecastChart";
@@ -7,22 +8,27 @@ import { RegionalHeatmap } from "@/components/RegionalHeatmap";
 import { AnomalyAlert } from "@/components/AnomalyAlert";
 import { MLInsightCard } from "@/components/MLInsightCard";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { getAnalyticsSummary, downloadPDFReport, downloadExcelReport } from "@/api/endpoints";
-import { Calendar, Download, Loader2 } from "lucide-react";
+import { getAnalyticsSummary, downloadPDFReport, downloadExcelReport, authAPI } from "@/api/endpoints";
+import { Calendar, Download, Loader2, Activity } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OnboardingModal } from "@/components/OnboardingModal";
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws/analytics/";
 
 const DashboardPage = () => {
+  const user = useAuthStore(s => s.user);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [exporting, setExporting] = useState<"pdf" | "excel" | null>(null);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { lastMessage } = useWebSocket(WS_URL);
 
   useEffect(() => {
     getAnalyticsSummary()
-      .then((r) => setSummary(r.data))
+      .then((r) => setSummary(r))
       .catch(() => {
         // Use mock data for demo
         setSummary({
@@ -60,7 +66,14 @@ const DashboardPage = () => {
         });
       })
       .finally(() => setLoading(false));
-  }, []);
+
+    authAPI.getUserStats().then(s => setUserStats(s)).catch(() => {});
+    authAPI.trackActivity("Dashboard");
+
+    if (user && user.onboarding_complete === false) {
+      setShowOnboarding(true);
+    }
+  }, [user]);
 
   // Update KPIs from WebSocket
   useEffect(() => {
@@ -79,7 +92,7 @@ const DashboardPage = () => {
     setExporting(type);
     try {
       const fn = type === "pdf" ? downloadPDFReport : downloadExcelReport;
-      const { data } = await fn(dateFrom, dateTo);
+      const data = await fn(dateFrom, dateTo);
       const blob = new Blob([data]);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -96,8 +109,12 @@ const DashboardPage = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Sales analytics and forecasting overview</p>
+            <h1 className="text-2xl font-bold text-foreground">
+              Welcome back, {user?.name || user?.email || 'User'}!
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {user?.email} • Member since {user?.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'recently'}
+            </p>
           </div>
 
           {/* Report Export */}
@@ -144,11 +161,49 @@ const DashboardPage = () => {
         </div>
 
         {/* Regional + Insight */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {summary?.regions && <RegionalHeatmap data={summary.regions} />}
-          {summary?.insight && <MLInsightCard {...summary.insight} />}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            {summary?.regions && <RegionalHeatmap data={summary.regions} />}
+          </div>
+          <div className="lg:col-span-1">
+             <Card className="glass-card border-none shadow-xl h-full">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <Activity className="h-5 w-5 text-primary" />
+                        <CardTitle className="text-lg">Your Activity</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-2xl bg-white/5 text-center">
+                            <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Sessions</p>
+                            <p className="text-2xl font-black">{userStats?.total_logins || 0}</p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white/5 text-center">
+                            <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Active Days</p>
+                            <p className="text-2xl font-black text-primary">{userStats?.days_active || 0}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                        <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest px-1">Engagement Score</p>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary" style={{ width: `${Math.min(100, (userStats?.total_logins || 0) * 10)}%` }} />
+                        </div>
+                        <p className="text-[10px] text-right font-bold text-primary/60">Global Rank: #42</p>
+                    </div>
+                </CardContent>
+             </Card>
+          </div>
         </div>
+        
+        {summary?.insight && <MLInsightCard {...summary.insight} />}
       </div>
+      
+      <OnboardingModal 
+        open={showOnboarding} 
+        onClose={() => setShowOnboarding(false)} 
+      />
     </AppLayout>
   );
 };

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+        .header { background-color: #3b82f6; color: #ffffff; padding: 40px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.025em; font-style: italic; }
+        .header p { margin: 10px 0 0; opacity: 0.9; font-size: 14px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.1em; }
+        .content { padding: 30px; }
+        .activity-item { padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-title { font-weight: 700; font-size: 14px; margin: 0; }
+        .activity-meta { font-size: 12px; color: #64748b; }
+        .footer { background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b; }
+        .btn { display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px; font-size: 14px; }
+        .section-title { font-size: 11px; font-weight: 900; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Insight <span style="font-style: normal; font-weight: 400;">Hub</span></h1>
+            <p>Your Weekly Activity Digest</p>
+        </div>
+        <div class="content">
+            <p>Hi {{ user.first_name }},</p>
+            <p>Here's a summary of your activity on Insight Hub over the past week.</p>
+            
+            <div class="section-title">Recent Activity</div>
+            {% if activities %}
+                {% for activity in activities %}
+                <div class="activity-item">
+                    <p class="activity-title">{{ activity.feature_name }}</p>
+                    <p class="activity-meta">Visited on {{ activity.visited_at|date:"M d, Y" }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="font-style: italic; font-size: 14px; color: #94a3b8;">No major activity recorded this week.</p>
+            {% endif %}
+
+            <div style="text-align: center;">
+                <a href="{{ dashboard_url }}" class="btn">Go to Dashboard</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>You received this because you're subscribed to weekly digests.</p>
+            <p><a href="{{ profile_url }}" style="color: #3b82f6;">Manage Preferences</a> | &copy; 2026 Insight Hub</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -12,6 +12,11 @@ class SalesData(models.Model):
     class Meta:
         verbose_name_plural = "Sales Data"
         ordering = ['-date']
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['region']),
+            models.Index(fields=['product_id']),
+        ]
 
     def __str__(self):
         return f"{self.date} - {self.product_id} ({self.region})"
@@ -31,6 +36,10 @@ class Prediction(models.Model):
 
     class Meta:
         ordering = ['-date']
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['model_version']),
+        ]
 
     def __str__(self):
         return f"Prediction for {self.date} (v{self.model_version})"
@@ -58,6 +67,11 @@ class Anomaly(models.Model):
     class Meta:
         verbose_name_plural = "Anomalies"
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['severity']),
+            models.Index(fields=['region']),
+        ]
 
     def __str__(self):
         return f"Anomaly on {self.date} - {self.product_id} ({self.severity})"

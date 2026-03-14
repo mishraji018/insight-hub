@@ -10,14 +10,18 @@ export interface AuthState {
   isStaff: boolean;
   isLoading: boolean;
   error: string | null;
+  activeOrgId: number | null;
 
   setUser: (user: User | null) => void;
   setTokens: (access: string, refresh: string) => void;
-  login: (email: string, password: string) => Promise<void>;
+  setActiveOrgId: (id: number | null) => void;
+  login: (email: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   clearError: () => void;
+  updateProfile: (data: any) => Promise<void>;
+  toggleTheme: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -29,14 +33,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isStaff: false,
   isLoading: false,
   error: null,
+  activeOrgId: localStorage.getItem('activeOrgId') ? parseInt(localStorage.getItem('activeOrgId')!) : null,
 
   setUser: (user: User | null) => {
     set({
       user,
       isAuthenticated: !!user,
-      isApproved: user?.is_approved ?? true,
-      isStaff: user?.role === 'admin',
+      isApproved: user?.is_approved ?? false,
+      isStaff: user?.role === 'admin' || user?.is_staff === true,
     });
+    if (user?.theme_preference) {
+      const isDark = user.theme_preference === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+    }
   },
 
   setTokens: (access: string, refresh: string) => {
@@ -45,19 +54,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ accessToken: access, refreshToken: refresh, isAuthenticated: true });
   },
 
+  setActiveOrgId: (id: number | null) => {
+    if (id) localStorage.setItem('activeOrgId', id.toString());
+    else localStorage.removeItem('activeOrgId');
+    set({ activeOrgId: id });
+  },
+
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
 
     try {
       const response = await authAPI.login({ email, password });
 
-      // Backend returns fields directly, not nested under 'user'
-      const user: User = {
+      if (response.requires_2fa) {
+        set({ isLoading: false });
+        return response;
+      }
+
+      const user: User = response.user || {
         id: response.user_id,
         email: response.email,
         role: response.role,
-        first_name: response.full_name,
+        name: response.full_name,
         is_approved: response.is_approved,
+        is_staff: response.is_staff,
       };
 
       sessionStorage.setItem('accessToken', response.access);
@@ -68,22 +88,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         accessToken: response.access,
         refreshToken: response.refresh,
         isAuthenticated: true,
-        isApproved: response.is_approved ?? true,
-        isStaff: response.is_staff ?? false,
+        isApproved: response.is_approved,
+        isStaff: response.is_staff || user.role === 'admin',
         isLoading: false,
         error: null,
       });
-    } catch (error) {
+
+      if (user.theme_preference) {
+        document.documentElement.classList.toggle('dark', user.theme_preference === 'dark');
+      }
+    } catch (error: any) {
       let errorMessage = 'Login failed. Please try again.';
 
-      if (error instanceof Error) {
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.message) {
         errorMessage = error.message;
-      } else if (typeof error === 'object' && error !== null && 'response' in error) {
-        const axiosError = error as any;
-        errorMessage =
-          axiosError.response?.data?.message ||
-          axiosError.response?.data?.detail ||
-          'Invalid credentials';
       }
 
       set({
@@ -125,6 +145,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     if (!accessToken) {
       set({ user: null, isAuthenticated: false, isApproved: false, isStaff: false, isLoading: false });
+      // Apply system preference if not logged in
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
       return;
     }
 
@@ -137,11 +160,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         accessToken,
         refreshToken: sessionStorage.getItem('refreshToken'),
         isAuthenticated: true,
-        isApproved: user.is_approved ?? true,
-        isStaff: user.role === 'admin',
+        isApproved: user.is_approved ?? false,
+        isStaff: user.role === 'admin' || user.is_staff === true,
         isLoading: false,
         error: null,
       });
+      if (user.theme_preference) {
+        document.documentElement.classList.toggle('dark', user.theme_preference === 'dark');
+      }
     } catch (error) {
       sessionStorage.clear();
       set({
@@ -163,6 +189,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  updateProfile: async (data: any) => {
+    const updatedUser = await authAPI.updateProfile(data);
+    set((state) => ({
+      user: state.user ? { ...state.user, ...updatedUser } : null
+    }));
+  },
+
+  toggleTheme: async () => {
+    const { user } = get();
+    const newTheme = user?.theme_preference === 'light' ? 'dark' : 'light';
+    
+    if (user) {
+      await authAPI.updateProfile({ theme_preference: newTheme });
+      set((state) => ({
+        user: state.user ? { ...state.user, theme_preference: newTheme } : null
+      }));
+    }
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
   },
 }));
 
