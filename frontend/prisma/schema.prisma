@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  password              String
+  firstName             String?
+  lastName              String?
+  role                  Role      @default(USER)
+  isEmailVerified       Boolean   @default(false)
+  isActive              Boolean   @default(true)
+  avatar                String?
+  themePreference       Theme     @default(DARK)
+  twoFaEnabled          Boolean   @default(false)
+  twoFaSecret           String?
+  backupCodes           Json?
+  onboardingComplete    Boolean   @default(false)
+  onboardingStep        Int       @default(0)
+  digestEnabled         Boolean   @default(true)
+  securityAlertsEnabled Boolean   @default(true)
+  failedAttempts        Int       @default(0)
+  lockedUntil           DateTime?
+  pushToken             String?
+  stripeCustomerId      String?
+  subscriptionPlan      String?   @default("free")
+  queryUsageCount       Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  sessions      UserSession[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  activities    UserActivity[]
+  otps          OTP[]
+  loginHistory  LoginHistory[]
+  orgMembers    OrgMember[]
+  apiKeys       APIKey[]
+}
+
+enum Role {
+  ADMIN
+  USER
+  ANALYST
+  MANAGER
+  EXECUTIVE
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+model OTP {
+  id        String   @id @default(cuid())
+  userId    String
+  otp       String
+  type      OTPType
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum OTPType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  browser   String?
+  device    String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  sessionToken String   @unique
+  deviceName   String?
+  browser      String?
+  ipAddress    String?
+  lastActive   DateTime @default(now())
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id])
+}
+
+enum NotificationType {
+  SECURITY
+  SYSTEM
+  INFO
+  WARNING
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  metadata  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model UserActivity {
+  id          String   @id @default(cuid())
+  userId      String
+  featureName String
+  visitedAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Organisation {
+  id         String      @id @default(cuid())
+  name       String
+  ownerId    String
+  inviteCode String      @unique
+  createdAt  DateTime    @default(now())
+  members    OrgMember[]
+}
+
+model OrgMember {
+  id       String       @id @default(cuid())
+  userId   String
+  orgId    String
+  role     OrgRole      @default(MEMBER)
+  joinedAt DateTime     @default(now())
+  user     User         @relation(fields: [userId], references: [id])
+  org      Organisation @relation(fields: [orgId], references: [id])
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model APIKey {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  keyHash   String    @unique
+  prefix    String
+  lastUsed  DateTime?
+  isActive  Boolean   @default(true)
+  rateLimit Int       @default(100)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+}

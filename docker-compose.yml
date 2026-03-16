@@ -25,45 +25,13 @@ services:
 
   backend:
     build: 
-      context: ./backend
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+      context: .
+      dockerfile: docker/Dockerfile.backend
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-    environment:
-      - DEBUG=False
-      - SECRET_KEY=django-insecure-production-key-change-me
-      - DATABASE_URL=postgres://insight_user:insight_pass@db:5432/insight_hub
-      - REDIS_URL=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=core.settings.production
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  celery_worker:
-    build:
-      context: ./backend
-    command: celery -A core worker -l info
+      - ./backend:/app
     environment:
       - DATABASE_URL=postgres://insight_user:insight_pass@db:5432/insight_hub
       - REDIS_URL=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=core.settings.production
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  celery_beat:
-    build:
-      context: ./backend
-    command: celery -A core beat -l info
-    environment:
-      - DATABASE_URL=postgres://insight_user:insight_pass@db:5432/insight_hub
-      - REDIS_URL=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=core.settings.production
     depends_on:
       db:
         condition: service_healthy
@@ -73,17 +41,23 @@ services:
   frontend:
     build:
       context: .
-      args:
-        - VITE_API_BASE_URL=/api
+      dockerfile: docker/Dockerfile.frontend
+    environment:
+      - DATABASE_URL=postgresql://insight_user:insight_pass@db:5432/insight_hub
+      - NEXTAUTH_URL=http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:stable-alpine
     ports:
       - "80:80"
     volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
+      - frontend
       - backend
 
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
