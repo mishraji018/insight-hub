@@ -1,0 +1,15 @@
+app/(admin)/admin/dashboard/page.tsx(8,29): error TS2307: Cannot find module '../../(dashboard)/layout' or its corresponding type declarations.
+app/(dashboard)/analytics/page.tsx(54,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: Props): Line', gave the following error.
+    Type '"smooth"' is not assignable to type 'CurveType | undefined'.
+  Overload 2 of 2, '(props: Props, context: any): Line', gave the following error.
+    Type '"smooth"' is not assignable to type 'CurveType | undefined'.
+app/api/admin/users/route.ts(40,9): error TS2353: Object literal may only specify known properties, and 'lastLogin' does not exist in type 'UserSelect<DefaultArgs>'.
+app/api/auth/profile/route.ts(41,20): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+app/api/developer/keys/route.ts(49,7): error TS2322: Type '{ userId: string | undefined; name: string; keyHash: string; prefix: string; }' is not assignable to type '(Without<APIKeyCreateInput, APIKeyUncheckedCreateInput> & APIKeyUncheckedCreateInput) | (Without<...> & APIKeyCreateInput)'.
+  Type '{ userId: string | undefined; name: string; keyHash: string; prefix: string; }' is not assignable to type 'Without<APIKeyUncheckedCreateInput, APIKeyCreateInput> & APIKeyCreateInput'.
+    Type '{ userId: string | undefined; name: string; keyHash: string; prefix: string; }' is not assignable to type 'Without<APIKeyUncheckedCreateInput, APIKeyCreateInput>'.
+      Types of property 'userId' are incompatible.
+        Type 'string | undefined' is not assignable to type 'undefined'.
+          Type 'string' is not assignable to type 'undefined'.

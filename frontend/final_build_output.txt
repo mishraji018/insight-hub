@@ -1,0 +1,25 @@
+
+> insight-hub-frontend@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.29
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+.next/types/app/(dashboard)/layout.ts:28:13
+Type error: Type 'OmitWithTag<{ children: ReactNode; userRole?: string | undefined; }, keyof LayoutProps, "default">' does not satisfy the constraint '{ [x: string]: never; }'.
+  Property 'userRole' is incompatible with index signature.
+    Type 'string' is not assignable to type 'never'.
+
+[0m [90m 26 |[39m[0m
+[0m [90m 27 |[39m [90m// Check the prop type of the entry function[39m[0m
+[0m[31m[1m>[22m[39m[90m 28 |[39m checkFields[33m<[39m[33mDiff[39m[33m<[39m[33mLayoutProps[39m[33m,[39m [33mFirstArg[39m[33m<[39m[33mTEntry[39m[[32m'default'[39m][33m>[39m[33m,[39m [32m'default'[39m[33m>>[39m()[0m
+[0m [90m    |[39m             [31m[1m^[22m[39m[0m
+[0m [90m 29 |[39m[0m
+[0m [90m 30 |[39m [90m// Check the arguments and return type of the generateMetadata function[39m[0m
+[0m [90m 31 |[39m [36mif[39m ([32m'generateMetadata'[39m [36min[39m entry) {[0m
+Next.js build worker exited with code: 1 and signal: null

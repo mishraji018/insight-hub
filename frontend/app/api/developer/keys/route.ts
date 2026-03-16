@@ -8,7 +8,7 @@ import { z } from 'zod';
 export async function GET(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     });
 
     const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
-    await logAudit(session.user.id, 'API_KEY_CREATED', { name: validatedData.name }, { ip });
+    await logAudit(session.user.id as string, 'API_KEY_CREATED', { name: validatedData.name }, { ip });
 
     return NextResponse.json({ 
       id: newKey.id,

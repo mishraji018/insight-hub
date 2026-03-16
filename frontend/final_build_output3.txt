@@ -1,0 +1,29 @@
+
+> insight-hub-frontend@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.29
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+Error: Missing API key. Pass it to the constructor `new Resend("re_123")`
+    at new nK (A:\web development\insight-hub\frontend\.next\server\chunks\512.js:4:87369)
+    at 36119 (A:\web development\insight-hub\frontend\.next\server\app\api\auth\register\route.js:1:2280)
+    at t (A:\web development\insight-hub\frontend\.next\server\webpack-runtime.js:1:143)
+    at 63255 (A:\web development\insight-hub\frontend\.next\server\app\api\auth\register\route.js:1:725)
+    at t (A:\web development\insight-hub\frontend\.next\server\webpack-runtime.js:1:143)
+    at a (A:\web development\insight-hub\frontend\.next\server\app\api\auth\register\route.js:15:2453)
+    at A:\web development\insight-hub\frontend\.next\server\app\api\auth\register\route.js:15:2492
+    at t.X (A:\web development\insight-hub\frontend\.next\server\webpack-runtime.js:1:1285)
+    at A:\web development\insight-hub\frontend\.next\server\app\api\auth\register\route.js:15:2466
+    at Object.<anonymous> (A:\web development\insight-hub\frontend\.next\server\app\api\auth\register\route.js:15:2520)
+
+> Build error occurred
+Error: Failed to collect page data for /api/auth/register
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\build\utils.js:1269:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  type: 'Error'
+}

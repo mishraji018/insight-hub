@@ -51,7 +51,7 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="time" stroke="var(--muted)" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="var(--muted)" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface2)', borderRadius: '8px' }} />
-                <Line type="smooth" dataKey="value" stroke="var(--accent)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
                   stroke="none"
                 >
                   {mockDevices.map((entry, index) => (
-                    <Cell key={\`cell-\${index}\`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={"cell-" + index.toString()} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface2)', borderRadius: '8px' }} />

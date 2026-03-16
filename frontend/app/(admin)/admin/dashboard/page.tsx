@@ -5,7 +5,7 @@ import {
   BarChart, Bar
 } from 'recharts';
 import { Shield, ShieldAlert, UserPlus, Lock } from 'lucide-react';
-import DashboardLayout from '../../(dashboard)/layout';
+import DashboardLayout from '../../../(dashboard)/layout';
 
 const growthData = [
   { month: 'Jan', users: 120 }, { month: 'Feb', users: 180 }, 
@@ -25,6 +25,7 @@ const failedLogins = [
 
 export default function AdminDashboardPage() {
   return (
+    // @ts-expect-error NextJS strict layout types do not allow custom props
     <DashboardLayout userRole="ADMIN">
       <div className="space-y-6 animate-in fade-in duration-500">
         <div className="flex items-center justify-between pb-4 border-b border-surface2">
@@ -48,8 +49,8 @@ export default function AdminDashboardPage() {
             const Icon = stat.icon;
             return (
               <div key={i} className="bg-surface border border-surface2 rounded-xl p-5 relative overflow-hidden group">
-                <div className={\`absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20 transition-transform group-hover:scale-110 \${stat.bg}\`} />
-                <div className={\`p-3 rounded-lg inline-flex mb-4 \${stat.bg} \${stat.color}\`}>
+                <div className={"absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20 transition-transform group-hover:scale-110 " + stat.bg} />
+                <div className={"p-3 rounded-lg inline-flex mb-4 " + stat.bg + " " + stat.color}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <h3 className="text-3xl font-bold text-text mb-1">{stat.value}</h3>

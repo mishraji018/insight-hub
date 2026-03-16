@@ -6,7 +6,7 @@ import { generateTwoFaSecret, generateTwoFaUri, logAudit } from '@/lib/security'
 export async function GET(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 

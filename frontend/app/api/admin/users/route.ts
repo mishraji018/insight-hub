@@ -37,7 +37,7 @@ export async function GET(req: Request) {
         failedAttempts: true,
         lockedUntil: true,
         createdAt: true,
-        lastLogin: {
+        loginHistory: {
           select: { createdAt: true },
           orderBy: { createdAt: 'desc' },
           take: 1

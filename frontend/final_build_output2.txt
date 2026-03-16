@@ -1,0 +1,24 @@
+
+> insight-hub-frontend@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.29
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./app/(admin)/admin/dashboard/page.tsx:28:22
+Type error: Type '{ children: Element; userRole: string; }' is not assignable to type 'IntrinsicAttributes & { children: ReactNode; }'.
+  Property 'userRole' does not exist on type 'IntrinsicAttributes & { children: ReactNode; }'.
+
+[0m [90m 26 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
+[0m [90m 27 |[39m   [36mreturn[39m ([0m
+[0m[31m[1m>[22m[39m[90m 28 |[39m     [33m<[39m[33mDashboardLayout[39m userRole[33m=[39m[32m"ADMIN"[39m[33m>[39m[0m
+[0m [90m    |[39m                      [31m[1m^[22m[39m[0m
+[0m [90m 29 |[39m       [33m<[39m[33mdiv[39m className[33m=[39m[32m"space-y-6 animate-in fade-in duration-500"[39m[33m>[39m[0m
+[0m [90m 30 |[39m         [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex items-center justify-between pb-4 border-b border-surface2"[39m[33m>[39m[0m
+[0m [90m 31 |[39m           [33m<[39m[33mdiv[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: null

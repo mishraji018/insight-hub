@@ -64,7 +64,7 @@ export const DashboardLineChart = () => {
         <LineChart data={mockActivityData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false} />
           <XAxis dataKey="name" stroke="var(--muted)" fontSize={12} tickLine={false} axisLine={false} />
-          <YAxis stroke="var(--muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => \`\${val}\`} />
+          <YAxis stroke="var(--muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => val.toString()} />
           <Tooltip content={<CustomTooltip />} />
           <Line type="monotone" dataKey="logins" stroke="var(--accent)" strokeWidth={3} dot={{ r: 4, fill: 'var(--accent)', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
         </LineChart>

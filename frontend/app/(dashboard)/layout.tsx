@@ -25,7 +25,8 @@ const sidebarLinks = [
   { href: '/admin/dashboard', label: 'Administration', icon: Users, adminOnly: true },
 ];
 
-export default function DashboardLayout({ children, userRole }: { children: React.ReactNode, userRole?: string }) {
+export default function DashboardLayout(props: { children: React.ReactNode }) {
+  const { children, userRole } = props as { children: React.ReactNode; userRole?: string };
   const pathname = usePathname();
 
   return (

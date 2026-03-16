@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
+
+// Environment validation on startup
+if (process.env.NODE_ENV !== 'production' && !process.env.DATABASE_URL) {
+  console.warn('Warning: DATABASE_URL is missing in environment variables');
+}
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
