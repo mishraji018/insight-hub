@@ -64,6 +64,18 @@ export default function DashboardLayout(props: { children: React.ReactNode }) {
 
   const currentLabel = sidebarLinks.find(l => pathname.startsWith(l.href))?.label ?? 'Overview';
 
+  useEffect(() => {
+    if (mounted) {
+      // Fire-and-forget feature tracking
+      fetch('/api/track/feature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featureName: currentLabel }),
+        keepalive: true,
+      }).catch(() => {}); // Silently fail tracking
+    }
+  }, [pathname, currentLabel, mounted]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-background transition-colors duration-300">
 

@@ -5,51 +5,74 @@ import { prisma } from '@/lib/prisma';
 export async function GET(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
-    
-    // Strict Admin check
-    if ((session.user as any).role !== "ADMIN") {
+    if (!session?.user || (session.user as any).role !== "ADMIN") {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
-    const search = searchParams.get('q') || '';
-    
-    const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          { email: { contains: search, mode: 'insensitive' } },
-          { firstName: { contains: search, mode: 'insensitive' } },
-          { lastName: { contains: search, mode: 'insensitive' } },
-        ]
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isActive: true,
-        isEmailVerified: true,
-        twoFaEnabled: true,
-        failedAttempts: true,
-        lockedUntil: true,
-        createdAt: true,
-        loginHistory: {
-          select: { createdAt: true },
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 50
-    });
+    const q = searchParams.get('q') || '';
+    const role = searchParams.get('role');
+    const status = searchParams.get('status');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json(users, { status: 200 });
+    const where: any = {
+      OR: [
+        { email: { contains: q, mode: 'insensitive' } },
+        { firstName: { contains: q, mode: 'insensitive' } },
+        { lastName: { contains: q, mode: 'insensitive' } },
+      ]
+    };
+
+    if (role && role !== 'all') where.role = role;
+    if (status === 'active') where.isActive = true;
+    if (status === 'banned') where.isActive = false;
+
+    const [users, totalCount, stats] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          avatar: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.user.count({ where }),
+      // Aggregated stats for the header
+      Promise.all([
+        prisma.user.count(),
+        prisma.user.count({ where: { isActive: true } }),
+        prisma.user.count({ where: { isActive: false } }),
+        prisma.user.count({ 
+          where: { 
+            createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } 
+          } 
+        }),
+      ])
+    ]);
+
+    return NextResponse.json({
+      users,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      stats: {
+        total: stats[0],
+        active: stats[1],
+        banned: stats[2],
+        newThisMonth: stats[3],
+      }
+    });
   } catch (error) {
-    console.error('Admin Users Fetch Error:', error);
+    console.error('Admin Users API Error:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

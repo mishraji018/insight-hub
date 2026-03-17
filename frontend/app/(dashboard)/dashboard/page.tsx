@@ -10,20 +10,61 @@ import { Users, Activity, MousePointerClick, Clock, ArrowUpRight, ArrowDownRight
 import { Skeleton, StatCardSkeleton, ChartSkeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/utils';
 
-const stats = [
-  { label: 'Total Logins',  value: '12,450', icon: Users,            trend: '+12.5%', isUp: true,  delay: 100  },
-  { label: 'Days Active',   value: '342',     icon: Activity,         trend: '+2.1%',  isUp: true,  delay: 175  },
-  { label: 'Features Used', value: '45',      icon: MousePointerClick, trend: '-4.3%', isUp: false, delay: 250  },
-  { label: 'Avg. Session',  value: '24m',     icon: Clock,            trend: '+8.2%',  isUp: true,  delay: 325  },
-];
-
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/dashboard/stats');
+        if (res.ok) {
+          const json = await res.json();
+          setData(json);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchStats();
   }, []);
+
+  const kpis = [
+    { 
+      label: 'Total Logins',  
+      value: data?.totalLogins?.toLocaleString() ?? '0', 
+      icon: Users,            
+      trend: data?.loginsTrend ?? '0%', 
+      isUp: data?.loginsUp ?? true,  
+      delay: 100  
+    },
+    { 
+      label: 'Days Active',   
+      value: data?.daysActive?.toString() ?? '0',     
+      icon: Activity,         
+      trend: data?.daysActiveTrend ?? '0%',  
+      isUp: data?.daysActiveUp ?? true,  
+      delay: 175  
+    },
+    { 
+      label: 'Features Used', 
+      value: data?.featuresUsed?.toString() ?? '0',      
+      icon: MousePointerClick, 
+      trend: data?.featuresUsedTrend ?? '0%', 
+      isUp: data?.featuresUsedUp ?? false, 
+      delay: 250  
+    },
+    { 
+      label: 'Avg. Session',  
+      value: `${data?.avgSessionMinutes ?? 0}m`,     
+      icon: Clock,            
+      trend: data?.avgSessionTrend ?? '0%',  
+      isUp: data?.avgSessionUp ?? true,  
+      delay: 325  
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -44,8 +85,8 @@ export default function DashboardPage() {
       {/* ── Stat Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoading
-          ? stats.map((_, i) => <StatCardSkeleton key={`sk-${i}`} />)
-          : stats.map((stat, i) => {
+          ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={`sk-${i}`} />)
+          : kpis.map((stat, i) => {
               const Icon = stat.icon;
               return (
                 <div
@@ -108,7 +149,7 @@ export default function DashboardPage() {
           </div>
           {isLoading
             ? <ChartSkeleton className="h-[300px]" />
-            : <DashboardLineChart animationDelay={0} />}
+            : <DashboardLineChart data={data?.loginTrend} animationDelay={0} />}
         </div>
 
         {/* Bar Chart */}
@@ -122,7 +163,7 @@ export default function DashboardPage() {
           </div>
           {isLoading
             ? <ChartSkeleton className="h-[300px]" />
-            : <DashboardBarChart animationDelay={80} />}
+            : <DashboardBarChart data={data?.featureTrend} animationDelay={80} />}
         </div>
 
         {/* Area Chart — full width */}
@@ -136,7 +177,7 @@ export default function DashboardPage() {
           </div>
           {isLoading
             ? <ChartSkeleton className="h-[300px]" />
-            : <DashboardAreaChart animationDelay={160} />}
+            : <DashboardAreaChart data={data?.sessionTrend} animationDelay={160} />}
         </div>
 
       </div>

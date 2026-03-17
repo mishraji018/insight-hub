@@ -96,11 +96,17 @@ function ChartWrapper({ children, delay = 0, className }: {
   );
 }
 
-export const DashboardLineChart = ({ animationDelay = 0 }: { animationDelay?: number }) => {
+export const DashboardLineChart = ({ 
+  data, 
+  animationDelay = 0 
+}: { 
+  data?: any[];
+  animationDelay?: number;
+}) => {
   return (
     <ChartWrapper delay={animationDelay} className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={mockActivityData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
+        <LineChart data={data || mockActivityData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
           <defs>
             <linearGradient id="lineGlow" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%"   stopColor="var(--accent2)" />
@@ -141,11 +147,18 @@ export const DashboardLineChart = ({ animationDelay = 0 }: { animationDelay?: nu
   );
 };
 
-export const DashboardBarChart = ({ animationDelay = 0 }: { animationDelay?: number }) => {
+export const DashboardBarChart = ({ 
+  data, 
+  animationDelay = 0 
+}: { 
+  data?: any[];
+  animationDelay?: number;
+}) => {
+  const chartData = data || mockFeatureData;
   return (
     <ChartWrapper delay={animationDelay} className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={mockFeatureData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
+        <BarChart data={chartData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false} />
           <XAxis
             dataKey="name"
@@ -169,7 +182,7 @@ export const DashboardBarChart = ({ animationDelay = 0 }: { animationDelay?: num
             animationDuration={700}
             animationEasing="ease-out"
           >
-            {mockFeatureData.map((_, index) => (
+            {chartData.map((_, index) => (
               <Cell key={`cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
             ))}
           </Bar>
@@ -179,11 +192,17 @@ export const DashboardBarChart = ({ animationDelay = 0 }: { animationDelay?: num
   );
 };
 
-export const DashboardAreaChart = ({ animationDelay = 0 }: { animationDelay?: number }) => {
+export const DashboardAreaChart = ({ 
+  data, 
+  animationDelay = 0 
+}: { 
+  data?: any[];
+  animationDelay?: number;
+}) => {
   return (
     <ChartWrapper delay={animationDelay} className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={mockSessionData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
+        <AreaChart data={data || mockSessionData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
           <defs>
             <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%"  stopColor="var(--accent2)" stopOpacity={0.35} />

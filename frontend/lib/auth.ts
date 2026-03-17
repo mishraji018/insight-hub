@@ -31,13 +31,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const isValid = await comparePassword(credentials.password as string, user.password);
 
         if (!isValid) {
-          // Increment failed attempts logic would go here physically
-          // in the actual login handler to prevent DB writes in Edge
           throw new Error("Invalid credentials");
         }
 
         if (!user.isEmailVerified) {
           throw new Error("Please verify your email first");
+        }
+
+        if (!user.isActive) {
+          throw new Error("Your account has been deactivated. Please contact support.");
         }
 
         return {
@@ -50,6 +52,50 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      // Only track for credentials provider (not OAuth)
+      if (account?.provider !== "credentials" || !user?.id) return true;
+
+      try {
+        // Generate a deterministic session token tied to this login event
+        const sessionToken = `${user.id}-${Date.now()}`;
+
+        // Write LoginHistory + create/update UserSession in one transaction
+        await prisma.$transaction([
+          prisma.loginHistory.create({
+            data: {
+              userId: user.id,
+              // Browser/IP available only server-side per-request;
+              // these are omitted here (no request headers in signIn callback)
+              // and can be enriched by the /api/track/session route if needed
+            },
+          }),
+          prisma.userSession.create({
+            data: {
+              userId: user.id,
+              sessionToken,
+              isActive: true,
+              lastActive: new Date(),
+            },
+          }),
+        ]);
+
+        // Clean up sessions older than 30 days (non-blocking, best-effort)
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        prisma.userSession
+          .updateMany({
+            where: { userId: user.id, createdAt: { lt: thirtyDaysAgo } },
+            data: { isActive: false },
+          })
+          .catch(() => { /* swallow — not critical */ });
+      } catch (err) {
+        // Never block sign-in due to tracking errors
+        console.error("[auth] signIn tracking error:", err);
+      }
+
+      return true;
+    },
+
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
@@ -60,6 +106,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
+
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
@@ -70,7 +117,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 15 * 60, // 15 minutes access token duration as specified
+    maxAge: 15 * 60, // 15 minutes access token duration
   },
   pages: {
     signIn: "/login",
