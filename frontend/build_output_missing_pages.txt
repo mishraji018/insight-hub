@@ -1,0 +1,131 @@
+
+> insight-hub-frontend@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.29
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/31) ...
+Analytics Stats Error: n [Error]: Dynamic server usage: Route /api/analytics/my-stats couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (A:\web development\insight-hub\frontend\.next\server\chunks\276.js:1:37218)
+    at d (A:\web development\insight-hub\frontend\.next\server\chunks\881.js:1:3484)
+    at A:\web development\insight-hub\frontend\.next\server\chunks\881.js:377:55395
+    at d (A:\web development\insight-hub\frontend\.next\server\app\api\analytics\my-stats\route.js:1:1264)
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38417
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854) {
+  description: "Route /api/analytics/my-stats couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+2FA Setup Error: n [Error]: Dynamic server usage: Route /api/auth/2fa/setup couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (A:\web development\insight-hub\frontend\.next\server\chunks\276.js:1:37218)
+    at d (A:\web development\insight-hub\frontend\.next\server\chunks\881.js:1:3484)
+    at A:\web development\insight-hub\frontend\.next\server\chunks\881.js:377:55395
+    at p (A:\web development\insight-hub\frontend\.next\server\app\api\auth\2fa\setup\route.js:1:1025)
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38417
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854) {
+  description: "Route /api/auth/2fa/setup couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (7/31) 
+Session Fetch Error: n [Error]: Dynamic server usage: Route /api/auth/sessions couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (A:\web development\insight-hub\frontend\.next\server\chunks\276.js:1:37218)
+    at d (A:\web development\insight-hub\frontend\.next\server\chunks\881.js:1:3484)
+    at A:\web development\insight-hub\frontend\.next\server\chunks\881.js:377:55395
+    at d (A:\web development\insight-hub\frontend\.next\server\app\api\auth\sessions\route.js:1:1015)
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38417
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854) {
+  description: "Route /api/auth/sessions couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Admin Users Fetch Error: n [Error]: Dynamic server usage: Route /api/admin/users couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (A:\web development\insight-hub\frontend\.next\server\chunks\276.js:1:37218)
+    at d (A:\web development\insight-hub\frontend\.next\server\chunks\881.js:1:3484)
+    at A:\web development\insight-hub\frontend\.next\server\chunks\881.js:377:55395
+    at u (A:\web development\insight-hub\frontend\.next\server\app\api\admin\users\route.js:1:1015)
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38417
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854) {
+  description: "Route /api/admin/users couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Billing Fetch Error: n [Error]: Dynamic server usage: Route /api/billing/usage couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (A:\web development\insight-hub\frontend\.next\server\chunks\276.js:1:37218)
+    at d (A:\web development\insight-hub\frontend\.next\server\chunks\881.js:1:3484)
+    at A:\web development\insight-hub\frontend\.next\server\chunks\881.js:377:55395
+    at d (A:\web development\insight-hub\frontend\.next\server\app\api\billing\usage\route.js:1:1015)
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38417
+    at A:\web development\insight-hub\frontend\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (A:\web development\insight-hub\frontend\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854) {
+  description: "Route /api/billing/usage couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (15/31) 
+   Generating static pages (23/31) 
+ ✓ Generating static pages (31/31)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ƒ /                                    159 B          87.5 kB
+├ ○ /_not-found                          876 B          88.3 kB
+├ ○ /admin/dashboard                     3.5 kB          211 kB
+├ ○ /analytics                           9.12 kB         197 kB
+├ ƒ /api/admin/users                     0 B                0 B
+├ ƒ /api/analytics/my-stats              0 B                0 B
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/auth/2fa/enable                 0 B                0 B
+├ ƒ /api/auth/2fa/setup                  0 B                0 B
+├ ƒ /api/auth/change-password            0 B                0 B
+├ ƒ /api/auth/forgot-password            0 B                0 B
+├ ƒ /api/auth/me                         0 B                0 B
+├ ƒ /api/auth/profile                    0 B                0 B
+├ ƒ /api/auth/register                   0 B                0 B
+├ ƒ /api/auth/resend-otp                 0 B                0 B
+├ ƒ /api/auth/reset-password             0 B                0 B
+├ ƒ /api/auth/sessions                   0 B                0 B
+├ ƒ /api/auth/verify-email               0 B                0 B
+├ ƒ /api/billing/usage                   0 B                0 B
+├ ƒ /api/developer/keys                  0 B                0 B
+├ ƒ /api/notifications                   0 B                0 B
+├ ○ /billing                             159 B          87.5 kB
+├ ○ /dashboard                           5.21 kB         193 kB
+├ ○ /developer                           159 B          87.5 kB
+├ ○ /login                               1.89 kB         136 kB
+├ ○ /notifications                       159 B          87.5 kB
+├ ○ /profile                             159 B          87.5 kB
+├ ○ /register                            2.01 kB         154 kB
+├ ○ /team                                159 B          87.5 kB
+└ ○ /verify-otp                          2.28 kB         145 kB
++ First Load JS shared by all            87.4 kB
+  ├ chunks/117-769fbdb8a9093b85.js       31.8 kB
+  ├ chunks/fd9d1056-57c308b3db3b32b9.js  53.6 kB
+  └ other shared chunks (total)          2 kB
+
+
+ƒ Middleware                             103 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

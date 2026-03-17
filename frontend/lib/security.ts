@@ -75,5 +75,5 @@ export const hashApiSecret = (secretKey: string) => {
 
 // OTP (Email generation)
 export const generateDigitOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+  return Math.floor(10000000 + Math.random() * 90000000).toString(); // 8 digits
 };

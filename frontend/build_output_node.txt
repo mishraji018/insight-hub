@@ -1,0 +1,240 @@
+﻿  Γû▓ Next.js 14.2.29
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+node.exe : (node:23456) 
+[DEP0040] 
+DeprecationWarning: The 
+`punycode` module is 
+deprecated. Please use a 
+userland alternative 
+instead.
+At C:\nvm4w\nodejs\npx.ps1
+:29 char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: ((  
+  node:23456) [D...nati   
+ ve instead.:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+(Use `node 
+--trace-deprecation ...` 
+to show where the warning 
+was created)
+ ΓÜá Compiled with 
+warnings
+
+./lib/security.ts
+A Node.js module is 
+loaded ('crypto' at line 
+3) which is not supported 
+in the Edge Runtime.
+Learn More: https://nextjs
+.org/docs/messages/node-mo
+dule-in-edge-runtime
+
+Import trace for 
+requested module:
+./lib/security.ts
+./lib/auth.ts
+
+./node_modules/bcryptjs/di
+st/bcrypt.js
+A Node.js API is used 
+(process.nextTick at 
+line: 351) which is not 
+supported in the Edge 
+Runtime.
+Learn more: https://nextjs
+.org/docs/api-reference/ed
+ge-runtime
+
+Import trace for 
+requested module:
+./node_modules/bcryptjs/di
+st/bcrypt.js
+./lib/security.ts
+./lib/auth.ts
+
+./node_modules/bcryptjs/di
+st/bcrypt.js
+A Node.js API is used 
+(setImmediate at line: 
+352) which is not 
+supported in the Edge 
+Runtime.
+Learn more: https://nextjs
+.org/docs/api-reference/ed
+ge-runtime
+
+Import trace for 
+requested module:
+./node_modules/bcryptjs/di
+st/bcrypt.js
+./lib/security.ts
+./lib/auth.ts
+
+./node_modules/bcryptjs/di
+st/bcrypt.js
+A Node.js API is used 
+(setImmediate at line: 
+352) which is not 
+supported in the Edge 
+Runtime.
+Learn more: https://nextjs
+.org/docs/api-reference/ed
+ge-runtime
+
+Import trace for 
+requested module:
+./node_modules/bcryptjs/di
+st/bcrypt.js
+./lib/security.ts
+./lib/auth.ts
+
+./node_modules/bcryptjs/di
+st/bcrypt.js
+A Node.js API is used 
+(process.nextTick at 
+line: 352) which is not 
+supported in the Edge 
+Runtime.
+Learn more: https://nextjs
+.org/docs/api-reference/ed
+ge-runtime
+
+Import trace for 
+requested module:
+./node_modules/bcryptjs/di
+st/bcrypt.js
+./lib/security.ts
+./lib/auth.ts
+
+(node:37828) [DEP0040] 
+DeprecationWarning: The 
+`punycode` module is 
+deprecated. Please use a 
+userland alternative 
+instead.
+(Use `node 
+--trace-deprecation ...` 
+to show where the warning 
+was created)
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./app/api/auth/me/route.ts
+:49:7
+Type error: Type '{ 
+firstName?: string | 
+undefined; lastName?: 
+string | undefined; 
+avatar?: string | null | 
+undefined; phoneNumber?: 
+string | null | 
+undefined; gender?: 
+string | null | 
+undefined; dateOfBirth?: 
+string | ... 1 more ... | 
+undefined; ... 7 more 
+...; 
+securityAlertsEnabled?: 
+boolean | ... 1 more ... 
+| undefined; }' is not 
+assignable to type '(Witho
+ut<UserUpdateInput, 
+UserUncheckedUpdateInput> 
+& 
+UserUncheckedUpdateInput) 
+| (Without<...> & 
+UserUpdateInput)'.
+  Type '{ firstName?: 
+string | undefined; 
+lastName?: string | 
+undefined; avatar?: 
+string | null | 
+undefined; phoneNumber?: 
+string | null | 
+undefined; gender?: 
+string | null | 
+undefined; dateOfBirth?: 
+string | ... 1 more ... | 
+undefined; ... 7 more 
+...; 
+securityAlertsEnabled?: 
+boolean | ... 1 more ... 
+| undefined; }' is not 
+assignable to type 'Withou
+t<UserUncheckedUpdateInput
+, UserUpdateInput> & 
+UserUpdateInput'.
+    Type '{ firstName?: 
+string | undefined; 
+lastName?: string | 
+undefined; avatar?: 
+string | null | 
+undefined; phoneNumber?: 
+string | null | 
+undefined; gender?: 
+string | null | 
+undefined; dateOfBirth?: 
+string | ... 1 more ... | 
+undefined; ... 7 more 
+...; 
+securityAlertsEnabled?: 
+boolean | ... 1 more ... 
+| undefined; }' is not 
+assignable to type 
+'UserUpdateInput'.
+      Types of property 
+'language' are 
+incompatible.
+        Type 'string | 
+null | undefined' is not 
+assignable to type 
+'string | StringFieldUpdat
+eOperationsInput | 
+undefined'.
+          Type 'null' is 
+not assignable to type 
+'string | StringFieldUpdat
+eOperationsInput | 
+undefined'.
+
+[0m [90m 47 |[39m     
+[36mconst[39m 
+updatedUser [33m=[39m 
+[36mawait[39m prisma[33
+m.[39muser[33m.[39mupda
+te({[0m
+[0m [90m 48 |[39m      
+ where[33m:[39m { 
+id[33m:[39m session[33m
+.[39muser[33m.[39mid 
+}[33m,[39m[0m
+[0m[31m[1m>[22m[39m[
+90m 49 |[39m       
+data[33m:[39m validatedD
+ata[33m,[39m[0m
+[0m [90m    |[39m      
+ [31m[1m^[22m[39m[0m
+[0m [90m 50 |[39m      
+ select[33m:[39m {[0m
+[0m [90m 51 |[39m      
+   firstName[33m:[39m [
+36mtrue[39m[33m,[39m[0
+m
+[0m [90m 52 |[39m      
+   lastName[33m:[39m [3
+6mtrue[39m[33m,[39m[0m
+Next.js build worker 
+exited with code: 1 and 
+signal: null

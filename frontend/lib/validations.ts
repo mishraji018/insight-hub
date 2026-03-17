@@ -26,12 +26,24 @@ export const newPasswordSchema = z.object({
 });
 
 export const verifyEmailSchema = z.object({
-  otp: z.string().length(6, 'OTP must be exactly 6 characters'),
+  otp: z.string().length(8, 'OTP must be exactly 8 characters'),
 });
 
 export const profileUpdateSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
   lastName: z.string().min(2, 'Last name is required'),
+  phoneNumber: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
+  dateOfBirth: z.string().datetime().optional().nullable(),
+  bio: z.string().max(500, 'Bio must be less than 500 characters').optional().nullable(),
+  country: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  timezone: z.string().optional().nullable(),
+  language: z.string().optional(),
+  avatar: z.string().optional().nullable(), // Will expect base64 strings
+  themePreference: z.enum(['LIGHT', 'DARK']).optional(),
+  digestEnabled: z.boolean().optional(),
+  securityAlertsEnabled: z.boolean().optional(),
 });
 
 export const _2faVerifySchema = z.object({

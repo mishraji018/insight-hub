@@ -2,6 +2,48 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAudit } from '@/lib/security';
+import { profileUpdateSchema } from '@/lib/validations';
+import { z } from 'zod';
+
+export async function GET(req: Request) {
+  try {
+    const session = await auth();
+    if (!session || !session.user || !session.user.id) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        phoneNumber: true,
+        gender: true,
+        dateOfBirth: true,
+        bio: true,
+        country: true,
+        city: true,
+        timezone: true,
+        language: true,
+        themePreference: true,
+        digestEnabled: true,
+        securityAlertsEnabled: true,
+      }
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    console.error('Profile GET Error:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  }
+}
 
 export async function PATCH(req: Request) {
   try {
@@ -12,25 +54,24 @@ export async function PATCH(req: Request) {
 
     const body = await req.json();
     
-    // Validate only safe fields (no role, no email verifications)
-    const dataToUpdate: any = {};
-    if (body.firstName) dataToUpdate.firstName = body.firstName;
-    if (body.lastName) dataToUpdate.lastName = body.lastName;
-    if (body.themePreference) dataToUpdate.themePreference = body.themePreference;
-    if (body.digestEnabled !== undefined) dataToUpdate.digestEnabled = body.digestEnabled;
-    if (body.securityAlertsEnabled !== undefined) dataToUpdate.securityAlertsEnabled = body.securityAlertsEnabled;
+    // Clean nulls to undefined to satisfy Prisma validation for non-nullable optional fields
+    const cleanBody = Object.fromEntries(Object.entries(body).filter(([_, v]) => v != null));
+    
+    // Validate fields using Zod
+    const validatedData = profileUpdateSchema.partial().parse(cleanBody);
 
-    if (Object.keys(dataToUpdate).length === 0) {
+    if (Object.keys(validatedData).length === 0) {
       return NextResponse.json({ message: 'No valid fields provided' }, { status: 400 });
     }
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
-      data: dataToUpdate,
+      data: validatedData,
       select: {
         id: true,
         firstName: true,
         lastName: true,
+        avatar: true,
         themePreference: true,
         digestEnabled: true,
         securityAlertsEnabled: true,
@@ -38,7 +79,7 @@ export async function PATCH(req: Request) {
     });
 
     const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
-    await logAudit(session.user.id, 'PROFILE_UPDATED', Object.keys(dataToUpdate), { ip });
+    await logAudit(session.user.id, 'PROFILE_UPDATED', Object.keys(validatedData), { ip });
 
     return NextResponse.json(
       { message: 'Profile updated successfully', user: updatedUser },
@@ -46,6 +87,9 @@ export async function PATCH(req: Request) {
     );
   } catch (error) {
     console.error('Profile Update Error:', error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
+    }
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

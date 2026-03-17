@@ -17,7 +17,15 @@ model User {
   role                  Role      @default(USER)
   isEmailVerified       Boolean   @default(false)
   isActive              Boolean   @default(true)
-  avatar                String?
+  avatar                String?   @db.Text
+  phoneNumber           String?
+  gender                String?
+  dateOfBirth           DateTime?
+  bio                   String?   @db.Text
+  country               String?
+  city                  String?
+  timezone              String?
+  language              String    @default("en")
   themePreference       Theme     @default(DARK)
   twoFaEnabled          Boolean   @default(false)
   twoFaSecret           String?

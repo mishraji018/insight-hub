@@ -37,7 +37,12 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast.error(result.error);
+        if (result.error.includes("verify your email")) {
+          toast.error("Please verify your email first.");
+          router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+        } else {
+          toast.error(result.error);
+        }
         setIsLoading(false);
       } else {
         toast.success("Login successful");

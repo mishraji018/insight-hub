@@ -42,7 +42,11 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const validatedData = profileUpdateSchema.partial().parse(body);
+    
+    // Clean nulls to undefined to satisfy Prisma validation for non-nullable optional fields 
+    const cleanBody = Object.fromEntries(Object.entries(body).filter(([_, v]) => v != null));
+
+    const validatedData = profileUpdateSchema.partial().parse(cleanBody);
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
