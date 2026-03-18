@@ -161,15 +161,11 @@ class User(AbstractUser):
         null=True, blank=True,
         related_name='approved_users'
     )
-    approved_at = models.DateTimeField(null=True, blank=True)
     invite_token = models.ForeignKey(
         InviteToken, on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name='registered_users'
     )
-
-    def __str__(self):
-        return f"{self.email} ({self.role})"
 
 
 class LoginHistory(models.Model):

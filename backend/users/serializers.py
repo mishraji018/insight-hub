@@ -13,6 +13,9 @@ class InviteTokenSerializer(serializers.ModelSerializer):
         model = InviteToken
         fields = ('token', 'note', 'created_at', 'expires_at', 'is_used', 'used_by_email', 'is_expired')
 
+    def get_is_expired(self, obj):
+        return obj.is_expired()
+
 class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
@@ -42,9 +45,6 @@ class APIKeySerializer(serializers.ModelSerializer):
         model = APIKey
         fields = ('id', 'name', 'prefix', 'last_used', 'is_active', 'rate_limit', 'created_at')
         read_only_fields = ('prefix', 'last_used', 'created_at')
-
-    def get_is_expired(self, obj):
-        return obj.is_expired()
 
 class RegisterInviteSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)

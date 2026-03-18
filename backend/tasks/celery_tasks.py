@@ -21,17 +21,17 @@ from predictions.predictor import predict_sales
 )
 def process_csv_upload(self, file_path):
     """Async ETL pipeline — autoretry handles retries automatically."""
-    df = extract_from_csv(file_path)
-    df_clean = transform(df)
-    result = load_to_db(df_clean)
+    try:
+        df = extract_from_csv(file_path)
+        df_clean = transform(df)
+        result = load_to_db(df_clean)
 
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-    recalculate_predictions.delay()
-    retrain_model_if_needed.delay()
-
-    return result
+        recalculate_predictions.delay()
+        retrain_model_if_needed.delay()
+        return result
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 @shared_task(autoretry_for=(Exception,), max_retries=3, retry_backoff=True)
 def retrain_model_if_needed():

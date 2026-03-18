@@ -1,4 +1,4 @@
-import random
+﻿import random
 import string
 from django.utils import timezone
 from datetime import timedelta
@@ -11,8 +11,8 @@ import pyotp
 import qrcode
 import base64
 from io import BytesIO
-import json
 import secrets
+from django.db import models
 from django.db.models import Q
 from .models import InviteToken, User, LoginHistory, PasswordResetOTP, UserActivity, Notification, UserSession, AuditLog
 from .utils import log_audit
@@ -42,7 +42,7 @@ def generate_random_token(length=8):
 def generate_otp(length=6):
     return ''.join(random.choices(string.digits, k=length))
 
-def send_otp_email(email, otp, subject="Your Verification Code"):
+def send_otp_email_task(email, otp, subject="Your Verification Code"):
     message = f"Your code is: {otp}. It expires in 10 minutes."
     send_mail(
         subject,
@@ -115,7 +115,7 @@ class RegisterView(views.APIView):
                 otp=otp,
                 expires_at=timezone.now() + timedelta(minutes=10)
             )
-            send_otp_email_task.delay(user.email, otp, subject="Insight Hub - Verify Your Email")
+            send_otp_email_task(user.email, otp, subject="Insight Hub - Verify Your Email")
 
             refresh = RefreshToken.for_user(user)
             return Response({
@@ -232,7 +232,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             )
 
             # Record login history (also keeping this for compatibility/legacy analytics)
-            record_login_history_task.delay(user.id, device, browser)
+            record_login_history_task(user.id, device, browser)
 
             # Security Notification for new login
             # Check if this is a new browser/device combination
@@ -243,7 +243,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             ).exclude(timestamp__gte=timezone.now() - timedelta(seconds=1)).exists()
 
             if is_new_device:
-                create_notification_task.delay(
+                create_notification_task(
                     user.id,
                     "New Login Detected",
                     f"Your account was accessed from a new {device} using {browser}.",
@@ -277,7 +277,7 @@ class ForgotPasswordView(views.APIView):
                 otp=otp,
                 expires_at=timezone.now() + timedelta(minutes=10)
             )
-            send_otp_email_task.delay(email, otp, subject="Insight Hub - Password Reset OTP")
+            send_otp_email_task(email, otp, subject="Insight Hub - Password Reset OTP")
         
         return Response({"message": "If an account exists with this email, an OTP has been sent."}, status=status.HTTP_200_OK)
 
@@ -319,12 +319,6 @@ class VerifyEmailView(views.APIView):
             email = serializer.validated_data['email']
             otp = serializer.validated_data['otp']
             
-            reset_otp = PasswordResetOTP.objects.filter(
-                user__email=email,
-                otp=otp,
-                is_used=False
-            ).last()
-            
             otp_obj = PasswordResetOTP.objects.filter(
                 user__email=email,
                 otp=otp,
@@ -358,7 +352,7 @@ class ResendVerificationView(views.APIView):
                 otp=otp,
                 expires_at=timezone.now() + timedelta(minutes=10)
             )
-            send_otp_email(email, otp, subject="Insight Hub - New Verification Code")
+            send_otp_email_task(email, otp, subject="Insight Hub - New Verification Code")
             log_audit(request, 'EMAIL_VERIFICATION_RESENT', target_user=user)
             return Response({"message": "New code sent."}, status=status.HTTP_200_OK)
         return Response({"error": "User not found or already verified."}, status=status.HTTP_400_BAD_REQUEST)
@@ -402,7 +396,7 @@ class TrackActivityView(views.APIView):
             UserActivity.objects.create(
                 user=request.user,
                 feature_name=feature_name,
-                session_id=request.session.session_key
+                session_id=getattr(request.session, 'session_key', None)
             )
             return Response(status=status.HTTP_201_CREATED)
         return Response({"error": "Feature name is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -943,8 +937,8 @@ class GlobalSearchView(views.APIView):
         history_objs = UserActivity.objects.filter(
             user=request.user,
             feature_name__icontains=query
-        ).distinct('feature_name')[:5]
-        history = [{"title": h.feature_name, "visited_at": h.visited_at} for h in history_objs]
+        ).values('feature_name').annotate(max_visited=models.Max('visited_at')).order_by('-max_visited')[:5]
+        history = [{"title": h['feature_name'], "visited_at": h['max_visited']} for h in history_objs]
 
         # 3. Admin: Searches Users (Only if admin)
         users = []

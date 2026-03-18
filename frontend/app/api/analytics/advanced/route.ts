@@ -40,6 +40,10 @@ export async function GET(req: Request) {
       startDate = subDays(new Date(), 30);
     }
 
+    if (startDate > endDate) {
+      startDate = subDays(endDate, 30);
+    }
+
     const [
       totalUsers,
       activeToday,

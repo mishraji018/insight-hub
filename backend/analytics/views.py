@@ -14,9 +14,7 @@ from django.db.models import Sum, Avg
 from rest_framework import status, views, viewsets, permissions
 from rest_framework.response import Response
 
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
-from .models import SalesData, Prediction, MLModel
+from analytics.models import SalesData, Prediction, MLModel
 from .serializers import (
     SalesDataSerializer,
     PredictionSerializer,
@@ -38,8 +36,10 @@ class UploadCSVView(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = CSVUploadSerializer(data=request.data)
         if serializer.is_valid():
+            import uuid
             file_obj = serializer.validated_data['file']
-            tmp_path = os.path.join(settings.BASE_DIR, 'tmp_upload.csv')
+            unique_name = f"upload_{uuid.uuid4()}.csv"
+            tmp_path = os.path.join(settings.BASE_DIR, unique_name)
             with open(tmp_path, 'wb+') as destination:
                 for chunk in file_obj.chunks():
                     destination.write(chunk)
@@ -47,7 +47,8 @@ class UploadCSVView(views.APIView):
                 df = extract_from_csv(tmp_path)
                 df_clean = transform(df)
                 result = load_to_db(df_clean)
-                os.remove(tmp_path)
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
                 return Response(result, status=status.HTTP_201_CREATED)
             except Exception as e:
                 if os.path.exists(tmp_path):
@@ -99,10 +100,14 @@ class SalesPredictionView(views.APIView):
             )
 
         input_data = request.data
+        date_str = input_data.get('date')
+        if not date_str:
+            return Response({"error": "Date is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
         try:
             result = predict_sales(input_data)
             Prediction.objects.create(
-                date=pd.to_datetime(input_data.get('date')).date(),
+                date=pd.to_datetime(date_str).date(),
                 predicted_sales=result['predicted_sales'],
                 confidence_score=result['confidence'],
                 model_version="1.0.0",
