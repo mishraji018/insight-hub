@@ -1,17 +1,11 @@
-import nodemailer from "nodemailer";
+﻿import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, otp: string) => {
   try {
-    await transporter.sendMail({
-      from: `"Insight Hub" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: email,
       subject: "Verify your email - Insight Hub",
       html: `
@@ -30,8 +24,8 @@ export const sendVerificationEmail = async (email: string, otp: string) => {
 
 export const sendPasswordResetEmail = async (email: string, otp: string) => {
   try {
-    await transporter.sendMail({
-      from: `"Insight Hub" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: email,
       subject: "Reset your password - Insight Hub",
       html: `
