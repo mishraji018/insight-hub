@@ -14,9 +14,14 @@ import {
   UserX, 
   UserPlus, 
   Activity,
-  ArrowUpRight
+  ArrowUpRight,
+  Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { downloadCsv } from '@/lib/export';
+import toast from 'react-hot-toast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { LoadingSpinner } from '@/components/ui/Loading';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -117,6 +122,22 @@ export default function AdminUsersPage() {
             </h1>
             <p className="text-sm text-muted">Monitor and moderate all platform accounts</p>
           </div>
+          <button 
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/admin/users?all=true');
+                const data = await res.json();
+                downloadCsv(data.users, 'insight_hub_users');
+                toast.success('User list exported successfully');
+              } catch (err) {
+                toast.error('Failed to export user list');
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-surface2 hover:bg-surface2/80 text-text rounded-xl text-sm font-bold transition-all border border-surface2"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
         </div>
 
         {/* Stats Bar */}
@@ -183,10 +204,19 @@ export default function AdminUsersPage() {
         <div className="relative min-h-[400px]">
           {loading && (
             <div className="absolute inset-0 z-10 bg-surface/50 backdrop-blur-[1px] flex items-center justify-center rounded-xl">
-               <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+               <LoadingSpinner size="lg" />
             </div>
           )}
-          <UserTable users={users} onAction={handleAction} />
+          {!loading && users.length === 0 ? (
+            <EmptyState 
+              title="No users found"
+              description="Your search didn't match any platform accounts. Try a different query or adjust your filters."
+              icon={Users}
+              className="bg-surface border-surface2 py-24"
+            />
+          ) : (
+            <UserTable users={users} onAction={handleAction} />
+          )}
         </div>
 
         {/* Pagination */}

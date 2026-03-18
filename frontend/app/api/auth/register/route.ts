@@ -45,6 +45,16 @@ export async function POST(req: Request) {
         }
       });
 
+      // Send Welcome Notification
+      await tx.notification.create({
+        data: {
+          userId: user.id,
+          title: "Welcome to Insight Hub! 🚀",
+          message: "We're excited to have you on board. Start exploring your dashboard to see your platform analytics.",
+          type: "INFO"
+        }
+      });
+
       return user;
     });
 
@@ -54,7 +64,10 @@ export async function POST(req: Request) {
     await logAudit(newUser.id, 'USER_REGISTERED', { email: newUser.email }, { ip });
 
     return NextResponse.json(
-      { message: 'Registration successful. Please verify your email.' },
+      { 
+        message: 'Registration successful. Please verify your email.',
+        email: newUser.email 
+      },
       { status: 201 }
     );
   } catch (error) {

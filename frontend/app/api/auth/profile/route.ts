@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { logAudit } from '@/lib/security';
 import { profileUpdateSchema } from '@/lib/validations';
 import { z } from 'zod';
+import { Theme } from '@prisma/client';
 
 export async function GET(req: Request) {
   try {
@@ -31,6 +32,7 @@ export async function GET(req: Request) {
         themePreference: true,
         digestEnabled: true,
         securityAlertsEnabled: true,
+        weeklyReportEnabled: true,
       }
     });
 
@@ -55,7 +57,10 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     
     // Clean nulls to undefined to satisfy Prisma validation for non-nullable optional fields
-    const cleanBody = Object.fromEntries(Object.entries(body).filter(([_, v]) => v != null));
+    // Convert empty strings to null for nullable fields
+    const cleanBody = Object.fromEntries(
+      Object.entries(body).map(([k, v]) => [k, v === '' ? null : v])
+    );
     
     // Validate fields using Zod
     const validatedData = profileUpdateSchema.partial().parse(cleanBody);
@@ -64,9 +69,17 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: 'No valid fields provided' }, { status: 400 });
     }
 
+    // Explicitly handle themePreference type casting for Prisma Enum
+    const { fontPreference, ...validatedDataWithoutFont } = validatedData;
+    const updateData: any = { ...validatedDataWithoutFont };
+    
+    if (validatedDataWithoutFont.themePreference) {
+      updateData.themePreference = validatedDataWithoutFont.themePreference as Theme;
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
-      data: validatedData,
+      data: updateData,
       select: {
         id: true,
         firstName: true,
@@ -75,6 +88,7 @@ export async function PATCH(req: Request) {
         themePreference: true,
         digestEnabled: true,
         securityAlertsEnabled: true,
+        weeklyReportEnabled: true,
       }
     });
 
@@ -93,3 +107,5 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export const PUT = PATCH;

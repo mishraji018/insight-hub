@@ -19,7 +19,14 @@ import {
   Moon,
   Sparkles,
 } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { SessionTimeout } from '@/components/SessionTimeout';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { Logo } from '@/components/ui/Logo';
+import { UserAvatar } from '@/components/dashboard/UserAvatar';
+import { SearchModal } from '@/components/dashboard/SearchModal';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { Search, Command } from 'lucide-react';
 
 const sidebarLinks = [
   { href: '/dashboard',       label: 'Dashboard',       icon: LayoutDashboard },
@@ -32,82 +39,83 @@ const sidebarLinks = [
 ];
 
 export default function DashboardLayout(props: { children: React.ReactNode }) {
+  const { data: session } = useSession();
   const { children, userRole } = props as { children: React.ReactNode; userRole?: string };
   const pathname = usePathname();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
-    const saved = localStorage.getItem('theme') as 'dark' | 'light' | null;
-    const resolved = saved ?? 'dark';
-    setTheme(resolved);
-    if (resolved === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   }, []);
-
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    localStorage.setItem('theme', next);
-    if (next === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const currentLabel = sidebarLinks.find(l => pathname.startsWith(l.href))?.label ?? 'Overview';
 
   useEffect(() => {
     if (mounted) {
-      // Fire-and-forget feature tracking
       fetch('/api/track/feature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featureName: currentLabel }),
         keepalive: true,
-      }).catch(() => {}); // Silently fail tracking
+      }).catch(() => {});
+      
+      // Close mobile menu on route change
+      setShowMobileMenu(false);
     }
   }, [pathname, currentLabel, mounted]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background transition-colors duration-300">
+      <SessionTimeout />
 
-      {/* ────────────── SIDEBAR ────────────── */}
+      {/* ────────────── MOBILE OVERLAY ────────────── */}
+      {showMobileMenu && (
+        <div 
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[40] md:hidden animate-in fade-in duration-300" 
+          onClick={() => setShowMobileMenu(false)}
+        />
+      )}
+
+      {/* ────────────── SIDEBAR (Responsive) ────────────── */}
       <aside
         className={cn(
-          "flex-shrink-0 border-r border-surface2 bg-surface hidden md:flex flex-col relative",
-          "transition-all duration-300 ease-spring z-20",
-          isCollapsed ? "w-[72px]" : "w-64"
+          "flex-shrink-0 border-r border-surface2 bg-surface flex flex-col relative",
+          "transition-all duration-500 ease-spring z-50 md:z-20",
+          // Desktop behavior
+          isCollapsed ? "md:w-[68px]" : "md:w-56",
+          // Mobile drawer behavior
+          "fixed top-0 bottom-0 left-0 -translate-x-full md:relative md:translate-x-0 shadow-2xl md:shadow-none",
+          showMobileMenu && "translate-x-0"
         )}
       >
         {/* Logo / Brand */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-surface2">
-          <div className="flex items-center min-w-0 gap-3">
-            {/* Logo icon */}
-            <div className="w-8 h-8 bg-gradient-to-br from-accent to-accent2 rounded-lg flex items-center justify-center flex-shrink-0 shadow-glow-sm">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            {/* Brand name — hidden when collapsed */}
-            <span
-              className={cn(
-                "font-bold text-base tracking-tight text-text whitespace-nowrap overflow-hidden transition-all duration-300",
-                isCollapsed ? "w-0 opacity-0" : "w-36 opacity-100"
-              )}
-            >
-              Insight Hub
-            </span>
-          </div>
+        <div className="h-14 flex items-center justify-between px-5 border-b border-surface2 bg-surface">
+          <Logo isCollapsed={isCollapsed} />
+          <button 
+            className="md:hidden p-2 text-muted hover:text-text rounded-xl"
+            onClick={() => setShowMobileMenu(false)}
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 overflow-y-auto no-scrollbar py-5 px-2 space-y-1">
+        <nav className="flex-1 overflow-y-auto no-scrollbar py-6 px-2.5 space-y-1 grayscale-[0.3] hover:grayscale-0 transition-all duration-700">
           {sidebarLinks.map((link) => {
             if (link.adminOnly && userRole !== 'ADMIN') return null;
 
@@ -118,32 +126,26 @@ export default function DashboardLayout(props: { children: React.ReactNode }) {
               <Link
                 key={link.href}
                 href={link.href}
-                title={isCollapsed ? link.label : undefined}
                 className={cn(
-                  "relative flex items-center py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group",
-                  isCollapsed ? "justify-center px-2" : "px-3 gap-3",
+                  "relative flex items-center py-2.5 rounded-xl text-xs font-bold transition-all duration-500 group ripple",
+                  isCollapsed ? "md:justify-center md:px-0" : "px-3 gap-3",
                   isActive
-                    ? "bg-accent/10 text-accent shadow-glow-sm/50"
+                    ? "bg-accent text-white shadow-glow-sm scale-[1.02]"
                     : "text-muted hover:text-text hover:bg-surface2"
                 )}
               >
-                {/* Active indicator pill */}
-                {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-accent rounded-r-full" />
-                )}
-
                 <Icon
                   className={cn(
-                    "flex-shrink-0 transition-colors",
-                    isCollapsed ? "w-5 h-5" : "w-4.5 h-4.5",
-                    isActive ? "text-accent" : "text-muted group-hover:text-text"
+                    "flex-shrink-0 transition-transform duration-500",
+                    isCollapsed ? "md:w-6 md:h-6" : "w-4 h-4",
+                    isActive ? "scale-110 text-white" : "group-hover:scale-110"
                   )}
                 />
 
                 <span
                   className={cn(
-                    "whitespace-nowrap overflow-hidden transition-all duration-300",
-                    isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                    "whitespace-nowrap overflow-hidden transition-all duration-500",
+                    isCollapsed ? "md:w-0 md:opacity-0" : "w-auto opacity-100"
                   )}
                 >
                   {link.label}
@@ -154,20 +156,19 @@ export default function DashboardLayout(props: { children: React.ReactNode }) {
         </nav>
 
         {/* Sign out */}
-        <div className="p-3 border-t border-surface2">
+        <div className="p-4 border-t border-surface2">
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            title={isCollapsed ? "Sign out" : undefined}
             className={cn(
-              "flex items-center py-2.5 rounded-xl text-sm font-medium text-danger hover:bg-danger/10 transition-colors duration-300 w-full",
-              isCollapsed ? "justify-center px-2" : "px-3 gap-3"
+              "flex items-center py-3 rounded-2xl text-sm font-black text-danger hover:bg-danger/10 transition-all duration-300 w-full group",
+              isCollapsed ? "md:justify-center md:px-0" : "px-4 gap-4"
             )}
           >
-            <LogOut className="flex-shrink-0 w-4.5 h-4.5" />
+            <LogOut className="flex-shrink-0 w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             <span
               className={cn(
-                "whitespace-nowrap overflow-hidden transition-all duration-300",
-                isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                "whitespace-nowrap overflow-hidden transition-all duration-500",
+                isCollapsed ? "md:w-0 md:opacity-0" : "w-auto opacity-100"
               )}
             >
               Sign out
@@ -175,20 +176,17 @@ export default function DashboardLayout(props: { children: React.ReactNode }) {
           </button>
         </div>
 
-        {/* Collapse/Expand toggle button — floats on the right edge */}
+        {/* Desktop Collapse Toggle */}
         <button
           onClick={() => setIsCollapsed(prev => !prev)}
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
-            "absolute -right-3.5 top-20 z-30",
-            "w-7 h-7 rounded-full border border-surface2 bg-surface shadow-card",
-            "flex items-center justify-center text-muted hover:text-text hover:border-accent/40 hover:shadow-glow-sm",
-            "transition-all duration-300"
+            "absolute -right-3.5 top-24 z-30 hidden md:flex",
+            "w-8 h-8 rounded-full border border-surface2 bg-surface shadow-lg",
+            "items-center justify-center text-muted hover:text-accent hover:border-accent/40 hover:shadow-glow-sm",
+            "transition-all duration-500"
           )}
         >
-          {isCollapsed
-            ? <ChevronRight className="w-3.5 h-3.5" />
-            : <ChevronLeft  className="w-3.5 h-3.5" />}
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
       </aside>
 
@@ -196,78 +194,87 @@ export default function DashboardLayout(props: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
 
         {/* Header */}
-        <header className="h-16 border-b border-surface2 bg-background/80 backdrop-blur-md flex items-center justify-between px-5 z-10 transition-colors duration-300 flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <header className="h-14 border-b border-surface2 bg-background/60 backdrop-blur-xl flex items-center justify-between px-5 z-10 transition-colors duration-300 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            {/* Mobile Menu Trigger */}
+            <button 
+              className="md:hidden p-2 bg-surface2 rounded-xl text-text hover:bg-surface2/80 transition-all"
+              onClick={() => setShowMobileMenu(true)}
+            >
+              <LayoutDashboard className="w-6 h-6 text-accent" />
+            </button>
+
             {/* Page title */}
-            <div>
-              <h1 className="text-base font-semibold text-text leading-tight sm:block hidden">
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-black text-text leading-tight tracking-tight">
                 {currentLabel}
               </h1>
-              <p className="text-xs text-muted hidden sm:block leading-none mt-0.5">
+              <p className="text-[10px] text-muted font-bold uppercase tracking-widest leading-none mt-1.5 flex items-center gap-2">
+                <Sparkles className="w-3 h-3 text-accent" />
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
               </p>
             </div>
           </div>
 
-          {/* Header actions */}
-          <div className="flex items-center gap-1.5">
-
-            {/* Dark/Light toggle */}
-            {mounted && (
+          <div className="flex items-center gap-3">
+            {/* Search Trigger - Hidden on /dashboard */}
+            {pathname !== '/dashboard' && (
               <button
-                onClick={toggleTheme}
-                className={cn(
-                  "relative w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden",
-                  "text-muted hover:text-text hover:bg-surface2 transition-all duration-300",
-                  "focus-ring"
-                )}
-                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                onClick={() => setIsSearchOpen(true)}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-surface2/50 border border-surface2 rounded-xl text-muted hover:text-accent hover:border-accent/30 transition-all group"
               >
-                <Sun
-                  className={cn(
-                    "w-4.5 h-4.5 absolute transition-all duration-300",
-                    theme === 'dark'
-                      ? "opacity-100 rotate-0 scale-100"
-                      : "opacity-0 rotate-90 scale-75"
-                  )}
-                />
-                <Moon
-                  className={cn(
-                    "w-4.5 h-4.5 absolute transition-all duration-300",
-                    theme === 'light'
-                      ? "opacity-100 rotate-0 scale-100"
-                      : "opacity-0 -rotate-90 scale-75"
-                  )}
-                />
+                <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span className="text-[11px] font-bold uppercase tracking-widest">Search...</span>
+                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-background rounded-md border border-surface2 opacity-50">
+                  <Command className="w-2.5 h-2.5" />
+                  <span className="text-[9px] font-black">K</span>
+                </div>
               </button>
             )}
 
-            {/* Notifications */}
-            <button
-              className="relative w-9 h-9 rounded-xl flex items-center justify-center text-muted hover:text-text hover:bg-surface2 transition-colors focus-ring"
-              title="Notifications"
-            >
-              <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-danger rounded-full border border-background" />
-            </button>
+            <QuickActions />
 
-            {/* Divider */}
-            <div className="w-px h-5 bg-surface2 mx-1" />
+            <div className="w-px h-6 bg-surface2 mx-1" />
+            
+            <NotificationBell />
 
-            {/* User avatar */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent2 text-white flex items-center justify-center font-bold text-sm shadow-glow-sm select-none">
-              U
-            </div>
+            <div className="w-px h-6 bg-surface2 mx-1" />
+
+            <UserAvatar />
           </div>
         </header>
 
         {/* Scrollable page content */}
-        <div className="flex-1 overflow-y-auto thin-scrollbar p-6">
+        <div className="flex-1 overflow-y-auto thin-scrollbar p-4 md:p-6 pb-28 md:pb-6">
           <div className="max-w-7xl mx-auto w-full page-enter">
             {children}
           </div>
         </div>
 
+        {/* ────────────── MOBILE BOTTOM NAV ────────────── */}
+        <nav className="md:hidden fixed bottom-6 left-6 right-6 h-16 bg-surface/80 backdrop-blur-2xl border border-white/10 rounded-3xl z-50 flex items-center justify-around px-4 shadow-2xl ring-1 ring-black/20">
+           {sidebarLinks.slice(0, 4).map((link) => {
+              const isActive = pathname.startsWith(link.href);
+              const Icon = link.icon;
+              return (
+                <Link key={link.href} href={link.href} className={cn(
+                  "p-3 rounded-2xl transition-all duration-500 relative",
+                  isActive ? "text-accent scale-110" : "text-muted hover:text-text"
+                )}>
+                   <Icon className="w-6 h-6" />
+                   {isActive && <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full animate-bounce-subtle" />}
+                </Link>
+              );
+           })}
+           <button 
+             onClick={() => signOut({ callbackUrl: '/login' })}
+             className="p-3 text-danger/70"
+           >
+              <LogOut className="w-6 h-6" />
+           </button>
+        </nav>
+
+        <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       </main>
     </div>
   );

@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     const q = searchParams.get('q') || '';
     const role = searchParams.get('role');
     const status = searchParams.get('status');
+    const all = searchParams.get('all') === 'true';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
@@ -43,8 +44,7 @@ export async function GET(req: Request) {
           createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
+        ...(all ? {} : { skip, take: limit }),
       }),
       prisma.user.count({ where }),
       // Aggregated stats for the header

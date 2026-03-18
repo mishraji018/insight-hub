@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { Camera, Save, User, MapPin, Settings, Shield, Bell } from 'lucide-react';
+import { Camera, Save, User, MapPin, Settings, Shield, Bell, Clock, FileText, Globe, Loader2, LogOut, Mail, Calendar } from 'lucide-react';
+import { ThemeFontPicker } from '@/components/ui/ThemeFontPicker';
+import { useTranslation } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export default function ProfilePage() {
   const { data: session, update: updateSession } = useSession();
@@ -24,11 +27,15 @@ export default function ProfilePage() {
     city: '',
     timezone: '',
     language: 'en',
-    themePreference: 'DARK',
+    themePreference: 'cherry',
+    fontPreference: 'Inter',
     digestEnabled: true,
     securityAlertsEnabled: true,
+    weeklyReportEnabled: false,
     avatar: '',
   });
+
+  const { t } = useTranslation(formData.language);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,9 +55,11 @@ export default function ProfilePage() {
             city: data.city || '',
             timezone: data.timezone || '',
             language: data.language || 'en',
-            themePreference: data.themePreference || 'DARK',
+            themePreference: data.themePreference || 'cherry',
+            fontPreference: data.fontPreference || 'Inter',
             digestEnabled: data.digestEnabled ?? true,
             securityAlertsEnabled: data.securityAlertsEnabled ?? true,
+            weeklyReportEnabled: data.weeklyReportEnabled ?? false,
             avatar: data.avatar || '',
           });
         } else {
@@ -66,14 +75,42 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
+  const savePreference = async (updates: Partial<typeof formData>) => {
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (res.ok) {
+        toast.success(t('saved'), { id: 'pref-save' });
+      } else {
+        toast.error('Failed to save preference');
+      }
+    } catch (err) {
+      toast.error('Connection error');
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
+      savePreference({ [name]: checked });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+      if (name === 'language') {
+        localStorage.setItem('app-lang', value);
+        savePreference({ language: value });
+        // Handle RTL
+        if (value === 'ar') {
+          document.documentElement.setAttribute('dir', 'rtl');
+        } else {
+          document.documentElement.setAttribute('dir', 'ltr');
+        }
+      }
     }
   };
 
@@ -116,7 +153,7 @@ export default function ProfilePage() {
       });
       
       if (res.ok) {
-        toast.success('Profile updated successfully');
+        toast.success(t('success') + ': ' + t('saved'));
         const data = await res.json();
         // Update session if name or avatar changed
         if (session) {
@@ -128,6 +165,7 @@ export default function ProfilePage() {
             }
           });
         }
+        window.dispatchEvent(new Event('profile-updated'));
       } else {
         const err = await res.json();
         toast.error(err.message || 'Failed to update profile');
@@ -139,6 +177,8 @@ export default function ProfilePage() {
     }
   };
 
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -148,313 +188,318 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500 pb-12">
-      <div>
-        <h1 className="text-2xl font-bold text-text">Profile Settings</h1>
-        <p className="text-muted text-sm mt-1">Manage your account settings and preferences.</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Profile Photo Section */}
-        <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h2 className="text-lg font-semibold text-text mb-4 flex items-center">
-            <User className="w-5 h-5 mr-2 text-muted" />
-            Profile Photo
-          </h2>
-          <div className="flex items-center space-x-6">
-            <div className="relative w-24 h-24 rounded-full bg-surface2 border-2 border-surface2 overflow-hidden flex-shrink-0">
-              {formData.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-text font-bold text-2xl uppercase">
-                  {formData.firstName?.[0] || ''}{formData.lastName?.[0] || 'U'}
-                </div>
-              )}
-            </div>
-            <div>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileChange}
-                accept="image/*" 
-                className="hidden" 
-              />
+    <div className={cn("max-w-4xl mx-auto space-y-5 animate-in fade-in duration-500 pb-12", formData.language === 'ar' && "rtl")}>
+      {/* ── Page Header ── */}
+      <div className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <div className="w-16 h-16 rounded-full bg-accent/10 border-2 border-accent/20 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:border-accent shadow-glow-sm">
+                {formData.avatar ? (
+                  <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-accent font-black text-xl bg-accent/5 capitalize">
+                    {formData.firstName?.[0] || 'U'}
+                  </div>
+                )}
+              </div>
               <button 
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-surface2 hover:bg-surface2/80 text-text px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center"
+                className="absolute -bottom-1 -right-1 p-1 bg-accent text-white rounded-lg shadow-glow-sm hover:scale-110 active:scale-90 transition-all border border-white/20"
               >
-                <Camera className="w-4 h-4 mr-2" />
-                Choose Photo
+                <Camera className="w-3.5 h-3.5" />
               </button>
-              <p className="text-xs text-muted mt-2">JPG, GIF or PNG. Max size of 2MB.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Personal Information */}
-        <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h2 className="text-lg font-semibold text-text mb-4">Personal Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-text mb-1">First Name</label>
-              <input 
-                type="text" 
-                name="firstName" 
-                value={formData.firstName} 
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent transition-colors"
-                placeholder="John"
-              />
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text mb-1">Last Name</label>
-              <input 
-                type="text" 
-                name="lastName" 
-                value={formData.lastName} 
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent transition-colors"
-                placeholder="Doe"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-text mb-1 flex items-center">
-                Email 
-                <span className="ml-2 text-xs bg-surface2 px-2 py-0.5 rounded-md text-muted font-medium border border-surface2">Read-only</span>
-              </label>
-              <input 
-                type="email" 
-                name="email" 
-                value={formData.email} 
-                className="w-full px-4 py-2 bg-surface2/30 border border-surface2 rounded-lg text-sm text-muted cursor-not-allowed"
-                readOnly
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text mb-1">Phone Number</label>
-              <input 
-                type="tel" 
-                name="phoneNumber" 
-                value={formData.phoneNumber} 
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent transition-colors"
-                placeholder="+1 (555) 000-0000"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text mb-1">Gender</label>
-              <div className="relative">
-                <select 
-                  name="gender" 
-                  value={formData.gender} 
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent appearance-none transition-colors"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-muted">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+              <h1 className="text-xl font-black text-text tracking-tight flex items-center gap-2">
+                {formData.firstName} {formData.lastName}
+                <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] rounded-full uppercase tracking-widest font-black">Pro</span>
+              </h1>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1">
+                <p className="text-[11px] text-muted font-bold flex items-center gap-1.5 opacity-80 email-display">
+                  <Mail className="w-3 h-3" />
+                  {formData.email}
+                </p>
+                <p className="text-[11px] text-muted font-bold flex items-center gap-1.5 opacity-60">
+                  <Clock className="w-3 h-3" />
+                  Last login: 2 hours ago
+                </p>
+                <p className="text-[11px] text-muted font-bold flex items-center gap-1.5 opacity-60">
+                  <Calendar className="w-3 h-3" />
+                  Member since: Mar 2024
+                </p>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-text mb-1">Date of Birth</label>
-              <input 
-                type="date" 
-                name="dateOfBirth" 
-                value={formData.dateOfBirth} 
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent transition-colors [color-scheme:dark]"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-text mb-1">Bio / About Me</label>
-              <textarea 
-                name="bio" 
-                value={formData.bio} 
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent resize-none transition-colors"
-                placeholder="Tell us a bit about yourself..."
-              ></textarea>
-            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-surface2 hover:bg-surface2/80 text-text rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+              <Clock className="w-3.5 h-3.5" />
+              Activity
+            </button>
+            <button 
+              onClick={handleSubmit}
+              disabled={saving}
+              className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-glow-sm disabled:opacity-70 disabled:grayscale"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              {saving ? 'Saving...' : 'Save Profile'}
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Address Section */}
-        <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h2 className="text-lg font-semibold text-text mb-4 flex items-center">
-            <MapPin className="w-5 h-5 mr-2 text-muted" />
-            Location Settings
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-text mb-1">Country</label>
-              <input 
-                type="text" 
-                name="country" 
-                value={formData.country} 
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent transition-colors"
-                placeholder="e.g. United States"
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Column: Forms */}
+        <div className="lg:col-span-8 space-y-5">
+          {/* Profile Completion Bar */}
+          <section className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <h3 className="text-[10px] font-black text-muted uppercase tracking-widest">Profile Completion</h3>
+              <span className="text-[10px] font-black text-accent">{
+                Math.round(([
+                  formData.firstName, formData.lastName, formData.bio, 
+                  formData.phoneNumber, formData.avatar, formData.country, 
+                  formData.city, formData.timezone
+                ].filter(Boolean).length / 8) * 100)
+              }%</span>
+            </div>
+            <div className="w-full h-2 bg-surface2 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-accent transition-all duration-1000 ease-out shadow-glow-sm"
+                style={{ 
+                  width: `${Math.round(([
+                    formData.firstName, formData.lastName, formData.bio, 
+                    formData.phoneNumber, formData.avatar, formData.country, 
+                    formData.city, formData.timezone
+                  ].filter(Boolean).length / 8) * 100)}%` 
+                }}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-text mb-1">City</label>
-              <input 
-                type="text" 
-                name="city" 
-                value={formData.city} 
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent transition-colors"
-                placeholder="e.g. San Francisco"
-              />
+          </section>
+
+          {/* Personal Details */}
+          <section className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1.5 bg-accent/10 text-accent rounded-lg">
+                <User className="w-4 h-4" />
+              </div>
+              <h2 className="text-lg font-bold text-text">Personal Details</h2>
             </div>
-            <div className="md:col-span-2 lg:col-span-1">
-              <label className="block text-sm font-medium text-text mb-1">Timezone</label>
-              <div className="relative">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest px-1">First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-lg px-3 py-2 text-xs font-bold outline-none transition-all placeholder:text-muted/30"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest px-1">Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-lg px-3 py-2 text-xs font-bold outline-none transition-all placeholder:text-muted/30"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest px-1">Gender</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-lg px-3 py-2 text-xs font-bold outline-none transition-all cursor-pointer"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest px-1">Date of Birth</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleInputChange}
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-lg px-3 py-2 text-xs font-bold outline-none transition-all [color-scheme:dark]"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-1.5">
+                <div className="flex items-center justify-between px-1">
+                  <label className="text-[10px] font-black text-muted uppercase tracking-widest">Bio</label>
+                  <span className={cn(
+                    "text-[9px] font-bold uppercase tracking-tighter",
+                    formData.bio.length > 450 ? "text-danger" : "text-muted"
+                  )}>
+                    {formData.bio.length} / 500
+                  </span>
+                </div>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  maxLength={500}
+                  rows={3}
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-xl px-4 py-3 text-xs font-medium outline-none transition-all resize-none placeholder:text-muted/30"
+                  placeholder="Tell us about yourself..."
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Location & Contact */}
+          <section className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1.5 bg-accent/10 text-accent rounded-lg">
+                <Globe className="w-4 h-4" />
+              </div>
+              <h2 className="text-lg font-bold text-text uppercase tracking-tight">Location & Contact</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest px-1">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-lg px-3 py-2 text-xs font-bold outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-muted uppercase tracking-widest px-1">Timezone</label>
                 <select 
                   name="timezone" 
                   value={formData.timezone} 
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent appearance-none transition-colors"
+                  className="w-full bg-surface2/30 border border-surface2 focus:border-accent rounded-lg px-3 py-2 text-xs font-bold outline-none transition-all cursor-pointer"
                 >
                   <option value="">Select Timezone</option>
-                  <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
-                  <option value="America/New_York">Eastern Time (US & Canada)</option>
+                  <option value="America/Los_Angeles">Pacific Time</option>
+                  <option value="America/New_York">Eastern Time</option>
                   <option value="Europe/London">London (GMT)</option>
-                  <option value="Asia/Tokyo">Tokyo (JST)</option>
                   <option value="Asia/Kolkata">India (IST)</option>
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-muted">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
               </div>
             </div>
-          </div>
+          </section>
         </div>
 
-        {/* Preferences Section */}
-        <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h2 className="text-lg font-semibold text-text mb-4 flex items-center">
-            <Settings className="w-5 h-5 mr-2 text-muted" />
-            Preferences
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-text mb-1">Theme</label>
-                <div className="relative">
-                  <select 
-                    name="themePreference" 
-                    value={formData.themePreference} 
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent appearance-none transition-colors"
-                  >
-                    <option value="DARK">Dark Mode</option>
-                    <option value="LIGHT">Light Mode</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-muted">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </div>
-                </div>
+        {/* Right Column: Preferences & Metadata */}
+        <div className="lg:col-span-4 space-y-5">
+          <section className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1.5 bg-accent/10 text-accent rounded-lg">
+                <Settings className="w-4 h-4" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text mb-1">Language</label>
-                <div className="relative">
+              <h2 className="text-lg font-bold text-text uppercase tracking-tight">Preferences</h2>
+            </div>
+
+            <div className="space-y-3">
+                <ThemeFontPicker 
+                  currentTheme={formData.themePreference}
+                  currentFont={formData.fontPreference}
+                  onThemeChange={(id) => {
+                    setFormData(prev => ({ ...prev, themePreference: id }));
+                    savePreference({ themePreference: id });
+                  }}
+                  onFontChange={(id) => {
+                    setFormData(prev => ({ ...prev, fontPreference: id }));
+                    savePreference({ fontPreference: id });
+                  }}
+                />
+
+              <div className="flex items-center gap-3 p-3 bg-surface2/20 rounded-lg border border-surface2">
+                <div className="p-2 bg-accent/5 rounded-lg text-accent">
+                  <Globe className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[10px] font-black text-muted uppercase tracking-widest block opacity-70">{t('language')}</label>
                   <select 
                     name="language" 
                     value={formData.language} 
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 bg-background border border-surface2 rounded-lg text-sm text-text focus:outline-none focus:border-accent appearance-none transition-colors"
+                    className="w-full bg-transparent text-xs font-bold border-none outline-none p-0 cursor-pointer text-text focus:ring-0"
                   >
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                    <option value="de">German</option>
+                    <option value="en">English (US)</option>
+                    <option value="hi">Hindi (हिंदी)</option>
+                    <option value="ar">Arabic (العربية)</option>
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-muted">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="border-t border-surface2 pt-5 space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-text flex items-center">
-                    <Bell className="w-4 h-4 mr-2 text-accent" />
-                    Email Digest
-                  </p>
-                  <p className="text-xs text-muted mt-1 whitespace-pre-wrap">Receive a weekly summary of activities 
-                    and key metrics straight to your inbox.</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
+              <div className="pt-2 space-y-2">
+                <h3 className="text-[10px] font-black text-muted uppercase tracking-widest px-1">Notifications</h3>
+                <div className="flex items-center justify-between p-2.5 bg-surface2/10 rounded-lg border border-surface2/30">
+                  <span className="text-xs font-bold text-text opacity-90">{t('digest')}</span>
                   <input 
                     type="checkbox" 
                     name="digestEnabled" 
                     checked={formData.digestEnabled} 
                     onChange={handleInputChange}
-                    className="sr-only peer" 
+                    className="w-4 h-4 accent-accent cursor-pointer"
                   />
-                  <div className="w-11 h-6 bg-surface2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent ring-1 ring-white/10"></div>
-                </label>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-text flex items-center">
-                    <Shield className="w-4 h-4 mr-2 text-success" />
-                    Security Alerts
-                  </p>
-                  <p className="text-xs text-muted mt-1">Get notified immediately about new logins 
-                    and security-related events.</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
+                <div className="flex items-center justify-between p-2.5 bg-surface2/10 rounded-lg border border-surface2/30">
+                  <span className="text-xs font-bold text-text opacity-90">{t('security')}</span>
                   <input 
                     type="checkbox" 
                     name="securityAlertsEnabled" 
                     checked={formData.securityAlertsEnabled} 
                     onChange={handleInputChange}
-                    className="sr-only peer" 
+                    className="w-4 h-4 accent-accent cursor-pointer"
                   />
-                  <div className="w-11 h-6 bg-surface2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent ring-1 ring-white/10"></div>
-                </label>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="flex justify-end pt-2">
-          <button
-            type="submit"
-            disabled={saving}
-            className="bg-accent hover:bg-accent/90 disabled:opacity-70 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md shadow-accent/20 flex items-center"
-          >
-            {saving ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </>
-            )}
-          </button>
+          <section className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-accent/10 text-accent rounded-lg">
+                <FileText className="w-4 h-4" />
+              </div>
+              <h2 className="text-sm font-black text-text uppercase tracking-widest">Account Details</h2>
+            </div>
+            
+            <div className="space-y-3">
+               <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Member Since</span>
+                  <span className="text-[10px] font-black text-text uppercase">Mar 2024</span>
+               </div>
+               <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Plan</span>
+                  <span className="text-[10px] font-black text-accent uppercase">Enterprise</span>
+               </div>
+               <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Active Sessions</span>
+                  <span className="text-[10px] font-black text-success uppercase">3 Devices</span>
+               </div>
+            </div>
+            
+            <div className="pt-4 mt-4 border-t border-surface2 border-dashed">
+               <p className="text-[9px] font-black text-danger uppercase tracking-widest mb-3 italic">Danger Zone</p>
+               <button 
+                 className="w-full py-2.5 bg-danger/5 hover:bg-danger text-danger hover:text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-danger/10"
+                 onClick={() => toast.error("Account deletion requires support contact")}
+                >
+                 Delete Data & Account
+               </button>
+            </div>
+          </section>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

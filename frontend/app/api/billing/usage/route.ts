@@ -25,7 +25,13 @@ export async function GET(req: Request) {
       plan: user.subscriptionPlan,
       usage: user.queryUsageCount,
       limit: user.subscriptionPlan === 'free' ? 100 : 10000,
-      billingCycle: "Monthly"
+      billingCycle: "Monthly",
+      renewalDate: user.subscriptionPlan === 'free' ? null : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+      status: "Active",
+      paymentHistory: user.subscriptionPlan === 'free' ? [] : [
+        { id: 'INV-001', date: '2026-03-01', amount: 9.00, status: 'Paid' },
+        { id: 'INV-002', date: '2026-02-01', amount: 9.00, status: 'Paid' },
+      ]
     }, { status: 200 });
 
   } catch (error) {

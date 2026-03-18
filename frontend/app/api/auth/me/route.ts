@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { profileUpdateSchema } from '@/lib/validations';
-import { z } from 'zod';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await auth();
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -20,51 +18,16 @@ export async function GET(req: Request) {
         lastName: true,
         avatar: true,
         role: true,
-        themePreference: true,
-        twoFaEnabled: true,
-        createdAt: true,
-        isEmailVerified: true,
-        subscriptionPlan: true
       }
     });
+
+    if (!user) {
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    }
 
     return NextResponse.json(user, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
-  }
-}
-
-export async function PATCH(req: Request) {
-  try {
-    const session = await auth();
-    if (!session || !session.user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
-
-    const body = await req.json();
-    
-    // Clean nulls to undefined to satisfy Prisma validation for non-nullable optional fields 
-    const cleanBody = Object.fromEntries(Object.entries(body).filter(([_, v]) => v != null));
-
-    const validatedData = profileUpdateSchema.partial().parse(cleanBody);
-
-    const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: validatedData,
-      select: {
-        firstName: true,
-        lastName: true,
-      }
-    });
-
-    return NextResponse.json(
-      { message: 'Profile updated successfully', user: updatedUser },
-      { status: 200 }
-    );
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
-    }
+    console.error('Me GET Error:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

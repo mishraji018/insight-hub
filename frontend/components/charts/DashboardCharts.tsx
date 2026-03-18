@@ -108,6 +108,10 @@ export const DashboardLineChart = ({
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data || mockActivityData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
           <defs>
+            <linearGradient id="pinkGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}/>
+            </linearGradient>
             <linearGradient id="lineGlow" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%"   stopColor="var(--accent2)" />
               <stop offset="100%" stopColor="var(--accent)"  />
@@ -134,11 +138,11 @@ export const DashboardLineChart = ({
             type="monotone"
             dataKey="logins"
             stroke="url(#lineGlow)"
-            strokeWidth={2.5}
+            strokeWidth={3}
             dot={{ r: 4, fill: 'var(--accent)', strokeWidth: 2, stroke: 'var(--surface)' }}
             activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--accent)' }}
             isAnimationActive
-            animationDuration={800}
+            animationDuration={1500}
             animationEasing="ease-out"
           />
         </LineChart>
@@ -159,6 +163,12 @@ export const DashboardBarChart = ({
     <ChartWrapper delay={animationDelay} className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--accent2)" />
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false} />
           <XAxis
             dataKey="name"
@@ -174,18 +184,15 @@ export const DashboardBarChart = ({
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--surface2)', opacity: 0.6 }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--surface2)', opacity: 0.4 }} />
           <Bar
             dataKey="value"
-            radius={[5, 5, 0, 0]}
+            radius={[6, 6, 0, 0]}
+            fill="url(#barGradient)"
             isAnimationActive
-            animationDuration={700}
+            animationDuration={1500}
             animationEasing="ease-out"
-          >
-            {chartData.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
-            ))}
-          </Bar>
+          />
         </BarChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -205,12 +212,8 @@ export const DashboardAreaChart = ({
         <AreaChart data={data || mockSessionData} margin={{ top: 8, right: 20, bottom: 5, left: 0 }}>
           <defs>
             <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="var(--accent2)" stopOpacity={0.35} />
-              <stop offset="95%" stopColor="var(--accent2)" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="strokeSessions" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stopColor="var(--accent)"  />
-              <stop offset="100%" stopColor="var(--accent2)" />
+              <stop offset="5%"  stopColor="var(--accent)" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false} />
@@ -232,14 +235,12 @@ export const DashboardAreaChart = ({
           <Area
             type="monotone"
             dataKey="sessions"
-            stroke="url(#strokeSessions)"
-            strokeWidth={2.5}
+            stroke="var(--accent)"
+            strokeWidth={3}
             fillOpacity={1}
             fill="url(#colorSessions)"
-            dot={{ r: 3.5, fill: 'var(--accent2)', strokeWidth: 2, stroke: 'var(--surface)' }}
-            activeDot={{ r: 5.5, strokeWidth: 0. }}
             isAnimationActive
-            animationDuration={900}
+            animationDuration={1500}
             animationEasing="ease-out"
           />
         </AreaChart>

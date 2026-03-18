@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -9,61 +8,60 @@ datasource db {
 }
 
 model User {
-  id                    String    @id @default(cuid())
-  email                 String    @unique
+  id                    String         @id @default(cuid())
+  email                 String         @unique
   password              String
   firstName             String?
   lastName              String?
-  role                  Role      @default(USER)
-  isEmailVerified       Boolean   @default(false)
-  isActive              Boolean   @default(true)
-  avatar                String?   @db.Text
+  role                  Role           @default(USER)
+  isEmailVerified       Boolean        @default(false)
+  isActive              Boolean        @default(true)
+  avatar                String?
   phoneNumber           String?
   gender                String?
   dateOfBirth           DateTime?
-  bio                   String?   @db.Text
+  bio                   String?
   country               String?
   city                  String?
   timezone              String?
-  language              String    @default("en")
-  themePreference       Theme     @default(DARK)
-  twoFaEnabled          Boolean   @default(false)
+  language              String         @default("en")
+  themePreference       Theme          @default(cherry)
+  fontPreference        String?        @default("inter")
+  twoFaEnabled          Boolean        @default(false)
   twoFaSecret           String?
   backupCodes           Json?
-  onboardingComplete    Boolean   @default(false)
-  onboardingStep        Int       @default(0)
-  digestEnabled         Boolean   @default(true)
-  securityAlertsEnabled Boolean   @default(true)
-  failedAttempts        Int       @default(0)
+  onboardingComplete    Boolean        @default(false)
+  onboardingStep        Int            @default(0)
+  digestEnabled         Boolean        @default(true)
+  securityAlertsEnabled Boolean        @default(true)
+  weeklyReportEnabled   Boolean        @default(false)
+  failedAttempts        Int            @default(0)
   lockedUntil           DateTime?
   pushToken             String?
   stripeCustomerId      String?
-  subscriptionPlan      String?   @default("free")
-  queryUsageCount       Int       @default(0)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  
-  sessions      UserSession[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
-  activities    UserActivity[]
-  otps          OTP[]
-  loginHistory  LoginHistory[]
-  orgMembers    OrgMember[]
-  apiKeys       APIKey[]
-}
-
-enum Role {
-  ADMIN
-  USER
-  ANALYST
-  MANAGER
-  EXECUTIVE
-}
-
-enum Theme {
-  LIGHT
-  DARK
+  subscriptionPlan      String?        @default("free")
+  queryUsageCount       Int            @default(0)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  billingName           String?
+  billingEmail          String?
+  billingCompany        String?
+  billingPhone          String?
+  billingAddressLine1   String?
+  billingAddressLine2   String?
+  billingCity           String?
+  billingState          String?
+  billingZip            String?
+  billingCountry        String?
+  billingTaxId          String?
+  apiKeys               APIKey[]
+  auditLogs             AuditLog[]
+  loginHistory          LoginHistory[]
+  notifications         Notification[]
+  otps                  OTP[]
+  orgMembers            OrgMember[]
+  activities            UserActivity[]
+  sessions              UserSession[]
 }
 
 model OTP {
@@ -75,11 +73,6 @@ model OTP {
   isUsed    Boolean  @default(false)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
-}
-
-enum OTPType {
-  EMAIL_VERIFY
-  PASSWORD_RESET
 }
 
 model LoginHistory {
@@ -116,13 +109,6 @@ model Notification {
   user      User             @relation(fields: [userId], references: [id])
 }
 
-enum NotificationType {
-  SECURITY
-  SYSTEM
-  INFO
-  WARNING
-}
-
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
@@ -157,15 +143,8 @@ model OrgMember {
   orgId    String
   role     OrgRole      @default(MEMBER)
   joinedAt DateTime     @default(now())
-  user     User         @relation(fields: [userId], references: [id])
   org      Organisation @relation(fields: [orgId], references: [id])
-}
-
-enum OrgRole {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
+  user     User         @relation(fields: [userId], references: [id])
 }
 
 model APIKey {
@@ -179,4 +158,42 @@ model APIKey {
   rateLimit Int       @default(100)
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id])
+}
+
+enum Theme {
+  cherry
+  midnight
+  ocean
+  sunset
+  forest
+  dark
+  royal
+}
+
+enum Role {
+  ADMIN
+  USER
+  ANALYST
+  MANAGER
+  EXECUTIVE
+}
+
+enum OTPType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+  LOGIN
+}
+
+enum NotificationType {
+  SECURITY
+  SYSTEM
+  INFO
+  WARNING
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }

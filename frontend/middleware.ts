@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
 
 const publicRoutes = [
   "/login",
   "/register",
   "/forgot-password",
   "/verify-email",
+  "/verify-otp",
+  "/welcome",
 ];
 
 const publicApiPrefix = "/api/auth";
@@ -13,6 +16,24 @@ const publicApiPrefix = "/api/auth";
 export default auth((req) => {
   const { nextUrl } = req;
   const isAuthenticated = !!req.auth;
+  const ip = req.ip || req.headers.get("x-forwarded-for") || "127.0.0.1";
+
+  // 1. API Rate Limiting (100 req/min)
+  if (nextUrl.pathname.startsWith("/api")) {
+    const { success, remaining, reset } = rateLimit(ip);
+    
+    if (!success) {
+      return new NextResponse("Too Many Requests", {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": "100",
+          "X-RateLimit-Remaining": remaining.toString(),
+          "X-RateLimit-Reset": reset.toString(),
+        },
+      });
+    }
+  }
+
   const isApiAuthRoute = nextUrl.pathname.startsWith(publicApiPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
 
@@ -31,10 +52,13 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
-  // Admin access check for /admin/* paths
-  if (nextUrl.pathname.startsWith("/admin")) {
+  // 2. RBAC Enforcement
+  const isAdminPath = nextUrl.pathname.startsWith("/admin") || nextUrl.pathname.startsWith("/api/admin");
+  
+  if (isAdminPath) {
     const userRole = (req.auth?.user as any)?.role;
     if (userRole !== "ADMIN") {
+      // Redirect unauthorized users to /dashboard
       return NextResponse.redirect(new URL("/dashboard", nextUrl));
     }
   }

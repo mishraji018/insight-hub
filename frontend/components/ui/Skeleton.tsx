@@ -22,12 +22,12 @@ function Skeleton({ className, variant = 'shimmer', ...props }: SkeletonProps) {
 /** Card skeleton — matches stat card layout */
 function StatCardSkeleton() {
   return (
-    <div className="bg-surface border border-surface2 rounded-xl p-5 shadow-sm overflow-hidden">
-      <div className="flex justify-between items-start mb-4">
-        <Skeleton className="w-9 h-9 rounded-lg" />
+    <div className="premium-card p-5 overflow-hidden border border-surface2/50">
+      <div className="flex justify-between items-start mb-6">
+        <Skeleton className="w-10 h-10 rounded-xl" />
         <Skeleton className="w-16 h-5 rounded-full" />
       </div>
-      <Skeleton className="w-28 h-8 mb-2 rounded-lg" />
+      <Skeleton className="w-28 h-9 mb-2 rounded-lg" />
       <Skeleton className="w-20 h-4 rounded-md" />
     </div>
   )
