@@ -309,12 +309,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden relative">
-        <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-background/50 backdrop-blur-2xl sticky top-0 z-10">
+        <header className="h-20 border-b border-border flex items-center justify-between px-10 bg-background/80 backdrop-blur-2xl sticky top-0 z-10">
           <div className="flex items-center gap-4">
-            <div className="p-2 rounded-lg bg-white/5">
-              <Layout className="h-4 w-4 text-white/20" />
+            <div className="p-2 rounded-lg bg-muted">
+              <Layout className="h-4 w-4 text-muted-foreground" />
             </div>
-            <h2 className="text-[11px] font-black text-white/20 uppercase tracking-[0.3em]">
+            <h2 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em]">
               {location.pathname.split('/')[1] || 'Overview'}
             </h2>
           </div>
@@ -322,14 +322,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Sync status and User Profile moved here side-by-side */}
           <div className="flex items-center gap-4">
             {/* Sync Status Row */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/5">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted border border-border">
               <div className={`h-1.5 w-1.5 rounded-full ${connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-destructive'} animate-pulse`} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                 {connectionStatus === 'connected' ? 'Sync: On' : 'Sync: Off'}
               </span>
             </div>
 
-            <div className="h-6 w-px bg-white/5 mx-2" />
+            <div className="h-6 w-px bg-border mx-2" />
 
             {/* Notifications Dropdown */}
             <div className="relative">
@@ -339,7 +339,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   setShowProfileMenu(false);
                 }}
                 className={`relative p-2 rounded-xl transition-all duration-300 ${
-                  showNotifications ? 'bg-white/10 shadow-inner text-primary' : 'hover:bg-white/5 text-white/40 hover:text-white'
+                  showNotifications ? 'bg-primary/10 shadow-inner text-primary' : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Bell className="h-5 w-5" />
@@ -351,12 +351,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {showNotifications && (
-                <div className="absolute top-full right-0 mt-3 w-80 p-2 rounded-2xl bg-sidebar-accent border border-white/10 shadow-2xl z-30 backdrop-blur-3xl scale-in-center">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 mb-2 bg-white/5 rounded-t-xl">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Notifications</span>
+                <div className="absolute top-full right-0 mt-3 w-80 p-2 rounded-2xl bg-card border border-border shadow-2xl z-30 backdrop-blur-3xl scale-in-center">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
+                    <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Notifications</span>
                     <button 
                       onClick={handleClearAll}
-                      className="text-[9px] font-bold text-white/20 hover:text-destructive transition-colors uppercase tracking-tight flex items-center gap-1"
+                      className="text-[9px] font-bold text-muted-foreground hover:text-destructive transition-colors uppercase tracking-tight flex items-center gap-1"
                     >
                       <Trash2 className="h-3 w-3" /> Clear All
                     </button>
@@ -365,16 +365,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <div className="max-h-[400px] overflow-y-auto space-y-1">
                     {notifications.length === 0 ? (
                       <div className="py-10 text-center">
-                        <Bell className="h-8 w-8 text-white/5 mx-auto mb-2" />
-                        <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">No new notifications</p>
+                        <Bell className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No new notifications</p>
                       </div>
                     ) : (
                       notifications.map(notif => (
                         <div 
                           key={notif.id}
-                          className={`p-3 rounded-xl transition-all border border-transparent ${
-                            !notif.is_read ? 'bg-white/5 border-white/5' : 'opacity-60 grayscale-[0.5]'
-                          } hover:bg-white/10 group cursor-default`}
+                          className={`p-3 rounded-xl transition-all border ${
+                            !notif.is_read ? 'bg-primary/5 border-primary/10' : 'opacity-60 grayscale-[0.5] border-transparent'
+                          } hover:bg-muted group cursor-default`}
                         >
                           <div className="flex gap-3">
                             <div className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${
@@ -386,20 +386,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <p className="text-[11px] font-black text-white leading-tight truncate">{notif.title}</p>
+                                <p className="text-[11px] font-black text-foreground leading-tight truncate">{notif.title}</p>
                                 {!notif.is_read && (
                                   <button 
                                     onClick={() => handleMarkAsRead(notif.id)}
-                                    className="p-1 rounded-md text-white/10 hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                                    className="p-1 rounded-md text-muted-foreground/30 hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
                                   >
                                     <CheckCheck className="h-3 w-3" />
                                   </button>
                                 )}
                               </div>
-                              <p className="text-[10px] font-medium text-white/40 mt-1 line-clamp-2 leading-relaxed">
+                              <p className="text-[10px] font-medium text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                                 {notif.message}
                               </p>
-                              <p className="text-[8px] font-bold text-white/20 uppercase tracking-tighter mt-2 flex items-center gap-1">
+                              <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-tighter mt-2 flex items-center gap-1">
                                 {formatDistanceToNow(new Date(notif.created_at))} ago
                               </p>
                             </div>
@@ -412,14 +412,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            <div className="h-6 w-px bg-white/5 mx-2" />
+            <div className="h-6 w-px bg-border mx-2" />
 
             {/* Profile Row */}
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className={`flex items-center gap-3 p-1.5 pr-4 rounded-xl transition-all duration-300 ${
-                  showProfileMenu ? 'bg-white/10 shadow-inner' : 'hover:bg-white/5'
+                  showProfileMenu ? 'bg-muted shadow-inner' : 'hover:bg-muted'
                 }`}
               >
                 <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-xs font-black border border-primary/20 shadow-lg shadow-primary/20 overflow-hidden">
@@ -430,35 +430,35 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   )}
                 </div>
                 <div className="flex flex-col text-left">
-                  <p className="text-[11px] font-black text-white leading-tight">{displayName}</p>
-                  <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter">{user?.role || 'Guest'}</span>
+                  <p className="text-[11px] font-black text-foreground leading-tight">{displayName}</p>
+                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-tighter">{user?.role || 'Guest'}</span>
                 </div>
-                <ChevronUp className={`h-3 w-3 text-white/20 transition-transform duration-500 ${showProfileMenu ? 'rotate-180' : ''}`} />
+                <ChevronUp className={`h-3 w-3 text-muted-foreground transition-transform duration-500 ${showProfileMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showProfileMenu && (
-                <div className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-sidebar-accent border border-white/10 shadow-2xl z-30 backdrop-blur-3xl scale-in-center">
-                  <div className="px-4 py-3 border-b border-white/5 mb-2 bg-white/5 rounded-t-xl">
-                    <p className="text-xs font-black text-white truncate">{displayName}</p>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-tighter mt-0.5">{user?.role}</p>
+                <div className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-card border border-border shadow-2xl z-30 backdrop-blur-3xl scale-in-center">
+                  <div className="px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
+                    <p className="text-xs font-black text-foreground truncate">{displayName}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{user?.role}</p>
                   </div>
                   <Link
                     to="/profile"
                     onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-white/60 hover:bg-white/5 hover:text-white transition-all"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
                   >
                     <User className="h-4 w-4 text-primary/60" /> Account Settings
                   </Link>
                   <Link
                     to="/change-password"
                     onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-white/60 hover:bg-white/5 hover:text-white transition-all"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
                   >
                     <Key className="h-4 w-4 text-primary/60" /> Change Password
                   </Link>
                   <button
                     onClick={() => { logout(); navigate('/login'); }}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-all mt-1"
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-destructive/70 hover:bg-destructive/10 hover:text-destructive transition-all mt-1"
                   >
                     <LogOut className="h-4 w-4" /> Sign Out
                   </button>

@@ -82,7 +82,14 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     
     path('api/health/', HealthCheckView.as_view(), name='health'),
+
+    # ── Frontend-compatible aliases (frontend uses these exact URLs) ──────────
+    path('analytics/summary',  __import__('analytics.views', fromlist=['AnalyticsSummaryView']).AnalyticsSummaryView.as_view(),  name='analytics-summary-alias'),
+    path('analytics/sales',    __import__('analytics.views', fromlist=['UploadCSVView']).AnalyticsSummaryView.as_view(),         name='analytics-sales-alias'),
+    path('analytics/upload',   __import__('analytics.views', fromlist=['UploadCSVView']).UploadCSVView.as_view(),                name='analytics-upload-alias'),
+    path('forecast',           __import__('analytics.views', fromlist=['WeeklyForecastView']).WeeklyForecastView.as_view(),      name='forecast-alias'),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

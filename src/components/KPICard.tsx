@@ -37,8 +37,18 @@ export function KPICard({ title, value, unit, change, trend = "neutral", isLoadi
   const TrendIcon = trend === "up" ? ArrowUp : trend === "down" ? ArrowDown : ArrowRight;
   const trendColor = trend === "up" ? "text-trend-up" : trend === "down" ? "text-trend-down" : "text-trend-neutral";
 
+  const glowColor =
+    trend === "up"
+      ? "hsl(152 60% 42% / 0.4)"
+      : trend === "down"
+      ? "hsl(0 72% 51% / 0.4)"
+      : "hsl(220 70% 50% / 0.25)";
+
   return (
-    <div className="glass-card p-5 transition-shadow hover:shadow-card-hover">
+    <div
+      className="glass-card p-5 glow-on-hover transition-all duration-300 cursor-default"
+      style={{ "--glow-color": glowColor } as React.CSSProperties}
+    >
       <p className="text-sm font-medium text-muted-foreground">{title}</p>
       <div className={`mt-2 flex items-baseline gap-1 ${pulse ? "animate-pulse-value" : ""}`}>
         <span className="text-2xl font-bold text-foreground">{value}</span>
