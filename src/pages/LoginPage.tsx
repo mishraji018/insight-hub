@@ -135,9 +135,11 @@ const LoginPage: React.FC = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
+                      onFocus={(e) => e.target.placeholder = ''}
+                      onBlur={(e) => e.target.placeholder = 'Enter your password'}
                       required
                       className="w-full rounded-lg border border-input bg-background/50 pl-10 pr-10 py-2.5 text-sm outline-none transition-all"
-                      placeholder="••••••••"
+                      placeholder="Enter your password"
                     />
                     <button
                       type="button"

@@ -48,9 +48,10 @@ export const ProtectedRoute = ({
   }
 
   // Check for role-based access
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  // Admins have access to everything
+  if (allowedRoles && user && user.role !== 'admin' && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;
-};
+};

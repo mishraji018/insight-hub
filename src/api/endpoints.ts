@@ -21,6 +21,7 @@ export interface LoginResponse {
   is_staff: boolean;
   user?: User; // included in CustomTokenObtainPairView.post
   requires_2fa?: boolean;
+  date_joined?: string;
 }
 
 export interface Plan {

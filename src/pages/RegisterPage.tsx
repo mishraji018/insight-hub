@@ -186,9 +186,11 @@ const RegisterPage = () => {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
+                                    onFocus={(e) => e.target.placeholder = ''}
+                                    onBlur={(e) => e.target.placeholder = 'Enter your password'}
                                     required
                                     className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all"
-                                    placeholder="••••••••"
+                                    placeholder="Enter your password"
                                 />
                                 <button
                                     type="button"
@@ -234,9 +236,11 @@ const RegisterPage = () => {
                                 name="confirm_password"
                                 value={formData.confirm_password}
                                 onChange={handleChange}
+                                onFocus={(e) => e.target.placeholder = ''}
+                                onBlur={(e) => e.target.placeholder = 'Confirm your password'}
                                 required
                                 className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all"
-                                placeholder="••••••••"
+                                placeholder="Confirm your password"
                             />
                         </div>
 
@@ -248,6 +252,16 @@ const RegisterPage = () => {
                             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Complete Registration"}
                         </button>
                     </form>
+
+                    <div className="mt-6 text-center text-sm text-muted-foreground">
+                        Already have an account?{" "}
+                        <button 
+                            onClick={() => navigate("/login")}
+                            className="text-primary hover:underline font-semibold transition-all hover:text-primary/80"
+                        >
+                            Continue to Login
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

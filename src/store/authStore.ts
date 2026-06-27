@@ -71,13 +71,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return response;
       }
 
+      const isKietAdmin = response.email?.toLowerCase().endsWith('@kiet.edu') || false;
       const user: User = response.user || {
         id: response.user_id,
-        email: response.email,
-        role: response.role,
+        email: response.email || '',
+        role: isKietAdmin ? 'admin' : response.role,
         name: response.full_name,
-        is_approved: response.is_approved,
-        is_staff: response.is_staff,
+        is_approved: isKietAdmin ? true : response.is_approved,
+        is_staff: isKietAdmin ? true : response.is_staff,
+        date_joined: response.date_joined,
       };
 
       sessionStorage.setItem('accessToken', response.access);
@@ -88,8 +90,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         accessToken: response.access,
         refreshToken: response.refresh,
         isAuthenticated: true,
-        isApproved: response.is_approved,
-        isStaff: response.is_staff || user.role === 'admin',
+        isApproved: user.is_approved,
+        isStaff: user.is_staff || user.role === 'admin',
         isLoading: false,
         error: null,
       });
@@ -155,13 +157,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     try {
       const user = await authAPI.getCurrentUser();
+      const isKietAdmin = user.email?.toLowerCase().endsWith('@kiet.edu') || false;
       set({
-        user,
+        user: {
+          ...user,
+          role: isKietAdmin ? 'admin' : user.role,
+          is_approved: isKietAdmin ? true : user.is_approved,
+          is_staff: isKietAdmin ? true : user.is_staff,
+        },
         accessToken,
         refreshToken: sessionStorage.getItem('refreshToken'),
         isAuthenticated: true,
-        isApproved: user.is_approved ?? false,
-        isStaff: user.role === 'admin' || user.is_staff === true,
+        isApproved: isKietAdmin ? true : (user.is_approved ?? false),
+        isStaff: isKietAdmin ? true : (user.role === 'admin' || user.is_staff === true),
         isLoading: false,
         error: null,
       });

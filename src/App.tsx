@@ -18,6 +18,7 @@ const AdminTrainModelPage = lazy(() => import("./pages/AdminTrainModelPage"));
 const ChangePasswordPage = lazy(() => import("./pages/ChangePasswordPage"));
 const PendingApprovalPage = lazy(() => import("./pages/PendingApprovalPage"));
 const AdminPanelPage = lazy(() => import("./pages/AdminPanelPage"));
+const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
 const UnauthorizedPage = lazy(() => import("./pages/UnauthorizedPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
@@ -118,6 +119,7 @@ const App = () => {
                 
                 {/* Public Routes */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/verify-email" element={<EmailVerificationPage />} />

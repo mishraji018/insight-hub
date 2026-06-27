@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Insight Hub Dashboard</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="description" content="AI-powered sales analytics and ML forecasting dashboard." />
     <meta name="author" content="InsightHub" />
 
@@ -15,7 +16,96 @@
   </head>
 
   <body>
+    <style>
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
+      #splash-container {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        pointer-events: none;
+      }
+      .splash-half {
+        position: relative;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #09090b;
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+      .splash-half img {
+        position: absolute;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none !important; /* Prevent Tailwind's img { max-width: 100% } from shrinking it to 50vw */
+        object-fit: cover;
+      }
+      .splash-left img {
+        left: 0;
+      }
+      .splash-right img {
+        right: 0;
+      }
+      .splash-text {
+        position: absolute;
+        top: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ffffff;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-shadow: 0 4px 30px rgba(0,0,0,0.9);
+        z-index: 10001;
+        opacity: 0; /* starts at 0 for a fade-in effect */
+        animation: fadeInText 1s ease 0.3s forwards;
+        transition: opacity 0.4s ease, transform 0.6s ease;
+        text-align: center;
+        width: 100%;
+      }
+      @keyframes fadeInText {
+        to { opacity: 1; }
+      }
+      
+      /* Animation classes added via JS */
+      #splash-container.loaded .splash-left {
+        transform: translateX(-100%);
+      }
+      #splash-container.loaded .splash-right {
+        transform: translateX(100%);
+      }
+      #splash-container.loaded .splash-text {
+        opacity: 0 !important;
+        transform: translate(-50%, -20px);
+      }
+    </style>
+    <div id="splash-container">
+      <div class="splash-half splash-left">
+        <img src="/logo.png" alt="Insight Hub Logo Half" />
+      </div>
+      <div class="splash-half splash-right">
+        <img src="/logo.png" alt="Insight Hub Logo Half" />
+      </div>
+      <div class="splash-text">WELCOME TO INSIGHT</div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Trigger split door animation after 3 seconds
+      setTimeout(() => {
+        const splashContainer = document.getElementById('splash-container');
+        if (splashContainer) {
+          splashContainer.classList.add('loaded');
+          // Remove from DOM after transition completes
+          setTimeout(() => splashContainer.remove(), 1000); 
+        }
+      }, 3000);
+    </script>
   </body>
 </html>

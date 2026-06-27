@@ -108,7 +108,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   // User handles theme globally now
 
   const filteredNavItems = navItems.filter(item =>
-    !item.roles || (user && item.roles.includes(user.role))
+    !item.roles || (user && (user.role === 'admin' || item.roles.includes(user.role)))
   );
 
   const displayName = user?.first_name

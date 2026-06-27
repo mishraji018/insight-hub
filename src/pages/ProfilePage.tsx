@@ -150,8 +150,7 @@ const ProfilePage = () => {
         try {
             await authAPI.uploadAvatar(file);
             toast.success("Avatar updated!");
-            // Refresh page or update store
-            window.location.reload();
+            await checkAuth(); // Update store instead of reloading
         } catch (error) {
             toast.error("Upload failed.");
         } finally {
@@ -276,12 +275,6 @@ const ProfilePage = () => {
                     <div className="lg:col-span-1 space-y-8">
                         <Card className="glass-card border-none shadow-2xl overflow-hidden group">
                             <div className="h-24 bg-gradient-to-br from-primary/20 to-primary/5 relative">
-                                <button 
-                                    onClick={toggleTheme}
-                                    className="absolute top-4 right-4 p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-                                >
-                                    {user?.theme_preference === 'dark' ? '🌙' : '☀️'}
-                                </button>
                             </div>
                             <CardContent className="relative pt-0 flex flex-col items-center">
                                 <div className="relative -mt-12 mb-6 group/avatar">

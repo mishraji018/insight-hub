@@ -15,6 +15,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # FIX 2: is_approved + is_staff add kiye
         token['is_approved'] = user.is_approved
         token['is_staff'] = user.is_staff
+        token['date_joined'] = user.date_joined.isoformat() if user.date_joined else None
 
         return token
 
@@ -31,5 +32,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # FIX 3: is_approved + is_staff response mein bhi
         data['is_approved'] = self.user.is_approved
         data['is_staff'] = self.user.is_staff
+        data['date_joined'] = self.user.date_joined.isoformat() if self.user.date_joined else None
 
         return data
