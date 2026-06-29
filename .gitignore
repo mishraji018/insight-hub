@@ -9,3 +9,10 @@ frontend/node_modules
 dist
 .vercel
 .env*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.class
+backend/db.sqlite3
+*.sqlite3
