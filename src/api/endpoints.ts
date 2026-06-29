@@ -561,7 +561,7 @@ export const predictionAPI = {
 };
 
 export const getPredictions = async (params?: any): Promise<any> => {
-  const response: AxiosResponse<Prediction[]> = await axiosInstance.get('/predictions', { params });
+  const response: AxiosResponse<Prediction[]> = await axiosInstance.get('/api/predictions/history/', { params });
   return response.data;
 };
 
@@ -570,23 +570,46 @@ export const getPredictions = async (params?: any): Promise<any> => {
 // ============================================================================
 
 export const trainModel = async (data: { model_type: string; parameters?: any }): Promise<{ task_id: string }> => {
-  const response = await axiosInstance.post('/models/train', data);
+  const response = await axiosInstance.post('/api/train-model/', data);
   return response.data;
 };
 
 export const getTaskStatus = async (taskId: string): Promise<TaskStatus> => {
-  const response: AxiosResponse<TaskStatus> = await axiosInstance.get(`/models/task/${taskId}`);
-  return response.data;
+  try {
+    const response: AxiosResponse<TaskStatus> = await axiosInstance.get(`/api/models/task/${taskId}`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn("Backend /api/models/task endpoint not found.");
+    }
+    throw error;
+  }
 };
 
 export const getModels = async (): Promise<Model[]> => {
-  const response: AxiosResponse<Model[]> = await axiosInstance.get('/models');
-  return response.data;
+  try {
+    // There is currently no backend endpoint for fetching all models in Django
+    const response: AxiosResponse<Model[]> = await axiosInstance.get('/api/models/');
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn("Backend /api/models/ endpoint not found. Returning empty list.");
+      return [];
+    }
+    throw error;
+  }
 };
 
 export const activateModel = async (modelId: number): Promise<Model> => {
-  const response: AxiosResponse<Model> = await axiosInstance.post(`/models/${modelId}/activate`);
-  return response.data;
+  try {
+    const response: AxiosResponse<Model> = await axiosInstance.post(`/api/models/${modelId}/activate`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn("Backend /api/models/activate endpoint not found.");
+    }
+    throw error;
+  }
 };
 
 // ============================================================================

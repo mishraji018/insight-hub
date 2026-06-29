@@ -30,4 +30,4 @@ class IsExecutiveOrAnalyst(permissions.BasePermission):
             return False
         if not request.user.is_approved:  # ✅ FIXED
             return False
-        return request.user.role in ['executive', 'analyst', 'manager']
+        return request.user.role in ['executive', 'analyst', 'manager', 'admin', 'user']

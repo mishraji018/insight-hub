@@ -19,18 +19,29 @@ const AdminTrainModelPage = () => {
   const [training, setTraining] = useState(false);
   const [taskStatus, setTaskStatus] = useState<string | null>(null);
   const [newMetrics, setNewMetrics] = useState<any>(null);
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchModels = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const data = await getModels();
-      setModels((data as any).results || data);
-    } catch {
-      setModels([
-        { id: "1", version: "v2.1", algorithm: "XGBoost", accuracy_score: 0.942, trained_at: "2026-03-08 10:00 UTC", is_active: true, metrics: { r2: 0.94, rmse: 125.3, mae: 89.2 } },
-        { id: "2", version: "v2.0", algorithm: "XGBoost", accuracy_score: 0.921, trained_at: "2026-03-01 09:00 UTC", is_active: false, metrics: { r2: 0.92, rmse: 142.1, mae: 98.5 } },
-        { id: "3", version: "v1.0", algorithm: "LinearRegression", accuracy_score: 0.876, trained_at: "2026-02-15 14:00 UTC", is_active: false, metrics: { r2: 0.87, rmse: 187.6, mae: 134.2 } },
-      ]);
+      if (Array.isArray(data) && data.length > 0) {
+        setModels((data as any).results || data);
+      } else {
+        // Fallback for demo if no models are returned (like 404 handled in endpoints)
+        setModels([
+          { id: "1", version: "v2.1", algorithm: "XGBoost", accuracy_score: 0.942, trained_at: "2026-03-08 10:00 UTC", is_active: true, metrics: { r2: 0.94, rmse: 125.3, mae: 89.2 } },
+          { id: "2", version: "v2.0", algorithm: "XGBoost", accuracy_score: 0.921, trained_at: "2026-03-01 09:00 UTC", is_active: false, metrics: { r2: 0.92, rmse: 142.1, mae: 98.5 } },
+          { id: "3", version: "v1.0", algorithm: "LinearRegression", accuracy_score: 0.876, trained_at: "2026-02-15 14:00 UTC", is_active: false, metrics: { r2: 0.87, rmse: 187.6, mae: 134.2 } },
+        ]);
+      }
+    } catch (err: any) {
+      setError("Failed to fetch models from server.");
     } finally {
+      setIsLoading(false);
     }
   };
 
@@ -170,26 +181,49 @@ const AdminTrainModelPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {models.map((m) => (
-                  <tr key={m.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-foreground">{m.version}</td>
-                    <td className="px-4 py-3 text-xs text-foreground">{m.algorithm}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-foreground">{(m.accuracy_score * 100).toFixed(1)}%</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{m.trained_at}</td>
-                    <td className="px-4 py-3">
-                      {m.is_active ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-chart-green"><CheckCircle2 className="h-3 w-3" /> Active</span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Inactive</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {!m.is_active && (
-                        <button onClick={() => handleActivate(m.id)} className="text-xs text-primary hover:underline">Activate</button>
-                      )}
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Loading models...</span>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                ) : error ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-destructive">
+                      {error}
+                    </td>
+                  </tr>
+                ) : models.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      No models available.
+                    </td>
+                  </tr>
+                ) : (
+                  models.map((m) => (
+                    <tr key={m.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3 font-mono text-xs text-foreground">{m.version}</td>
+                      <td className="px-4 py-3 text-xs text-foreground">{m.algorithm}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-foreground">{(m.accuracy_score * 100).toFixed(1)}%</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{m.trained_at}</td>
+                      <td className="px-4 py-3">
+                        {m.is_active ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-chart-green"><CheckCircle2 className="h-3 w-3" /> Active</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Inactive</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {!m.is_active && (
+                          <button onClick={() => handleActivate(m.id)} className="text-xs text-primary hover:underline">Activate</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

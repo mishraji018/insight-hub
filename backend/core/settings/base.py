@@ -125,7 +125,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
-        'user': '100/hour',
+        'user': '1000/hour',
         'register': '5/hour' # FIXED: Rate limit registration to prevent abuse
     }
 }

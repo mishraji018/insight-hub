@@ -13,14 +13,20 @@ import { Calendar, Download, Loader2, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OnboardingModal } from "@/components/OnboardingModal";
 
-const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws/analytics/";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import { format } from "date-fns";
+
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws/dashboard/";
 
 const DashboardPage = () => {
   const user = useAuthStore(s => s.user);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [showFromCalendar, setShowFromCalendar] = useState(false);
+  const [showToCalendar, setShowToCalendar] = useState(false);
   const [exporting, setExporting] = useState<"pdf" | "excel" | null>(null);
   const [userStats, setUserStats] = useState<any>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -92,7 +98,7 @@ const DashboardPage = () => {
     setExporting(type);
     try {
       const fn = type === "pdf" ? downloadPDFReport : downloadExcelReport;
-      const data = await fn(dateFrom, dateTo);
+      const data = await fn(dateFrom.toISOString(), dateTo.toISOString());
       const blob = new Blob([data]);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -119,11 +125,46 @@ const DashboardPage = () => {
 
           {/* Report Export */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="rounded-md border border-input bg-background px-2 py-1.5 text-xs text-foreground" />
-              <span className="text-xs text-muted-foreground">to</span>
-              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="rounded-md border border-input bg-background px-2 py-1.5 text-xs text-foreground" />
+            <div className="flex items-center gap-2 relative z-50">
+              <div className="relative">
+                <button 
+                  onClick={() => { setShowFromCalendar(!showFromCalendar); setShowToCalendar(false); }}
+                  className="flex items-center gap-2 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1.5 text-xs text-foreground hover:bg-white/5 transition-colors"
+                >
+                  <Calendar className="h-4 w-4 text-primary" />
+                  {dateFrom ? format(dateFrom, "MMM d, yyyy") : "Start Date"}
+                </button>
+                {showFromCalendar && (
+                  <div className="absolute top-full left-0 mt-2 p-3 bg-card border border-border rounded-xl shadow-2xl scale-in-center">
+                    <DayPicker 
+                      mode="single" 
+                      selected={dateFrom} 
+                      onSelect={(d) => { setDateFrom(d); setShowFromCalendar(false); }} 
+                      className="text-foreground"
+                    />
+                  </div>
+                )}
+              </div>
+              <span className="text-xs font-black text-muted-foreground uppercase">to</span>
+              <div className="relative">
+                <button 
+                  onClick={() => { setShowToCalendar(!showToCalendar); setShowFromCalendar(false); }}
+                  className="flex items-center gap-2 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1.5 text-xs text-foreground hover:bg-white/5 transition-colors"
+                >
+                  <Calendar className="h-4 w-4 text-primary" />
+                  {dateTo ? format(dateTo, "MMM d, yyyy") : "End Date"}
+                </button>
+                {showToCalendar && (
+                  <div className="absolute top-full right-0 mt-2 p-3 bg-card border border-border rounded-xl shadow-2xl scale-in-center">
+                    <DayPicker 
+                      mode="single" 
+                      selected={dateTo} 
+                      onSelect={(d) => { setDateTo(d); setShowToCalendar(false); }} 
+                      className="text-foreground"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <button
               onClick={() => handleExport("pdf")}

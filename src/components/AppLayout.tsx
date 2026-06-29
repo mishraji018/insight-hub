@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { authAPI, Notification as NotificationType } from "@/api/endpoints";
@@ -38,6 +38,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [connectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Ctrl+K Shortcut
   useEffect(() => {
@@ -111,14 +127,29 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     !item.roles || (user && (user.role === 'admin' || item.roles.includes(user.role)))
   );
 
-  const displayName = user?.first_name
+  const displayName = user?.name
+    ? user.name
+    : user?.first_name
     ? `${user.first_name} ${user.last_name ?? ''}`.trim()
     : user?.email ?? 'User';
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen text-foreground relative">
+      {/* Fancy Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-background/85 z-10 backdrop-blur-[2px]" />
+        <img 
+          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" 
+          alt="background" 
+          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
+        />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-accent/10 blur-[120px] rounded-full" />
+      </div>
+
+      <div className="flex min-h-screen w-full z-10 relative">
       {/* Sidebar */}
-      <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col shrink-0 border-r border-white/5 shadow-2xl z-20">
+      <aside className="w-64 bg-sidebar/90 backdrop-blur-xl text-sidebar-foreground flex flex-col shrink-0 border-r border-white/10 shadow-2xl z-20">
         <div className="p-8 border-b border-white/5">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="p-2.5 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-all">
@@ -185,20 +216,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        <div className="px-5 mb-4">
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-primary/30 transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <Search className="h-4 w-4 text-white/40 group-hover:text-primary transition-colors" />
-              <span className="text-[12px] font-bold text-white/40 group-hover:text-white transition-colors">Search Hub...</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 bg-black/20 text-[9px] font-black text-white/20 uppercase tracking-tighter">
-              <span className="text-[10px]">⌘</span>K
-            </div>
-          </button>
-        </div>
+        {/* Search Bar Removed */}
 
         <nav className="flex-1 p-5 space-y-1.5 overflow-y-auto pt-0">
           {filteredNavItems.map((item) => {
@@ -262,13 +280,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="px-4 py-6 space-y-6">
                 <div className="flex flex-col gap-4">
                   <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Status & Alerts</div>
-                  <button className="relative flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all group w-full">
-                    <div className="relative">
-                      <Bell className="h-5 w-5 text-white/40 group-hover:text-primary transition-colors" />
-                      <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary border-2 border-sidebar" />
-                    </div>
-                    <span className="text-[11px] font-bold text-white/60">Notifications</span>
-                  </button>
 
                   <div className="p-3 rounded-xl bg-white/5 space-y-3">
                     <div className="text-[9px] font-black text-white/20 uppercase tracking-tight">Active Members</div>
@@ -308,8 +319,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden relative">
-        <header className="h-20 border-b border-border flex items-center justify-between px-10 bg-background/80 backdrop-blur-2xl sticky top-0 z-10">
+      <main className="flex-1 flex flex-col min-w-0 bg-transparent overflow-hidden relative">
+        <header className="h-20 border-b border-border/40 flex items-center justify-between px-10 bg-background/30 backdrop-blur-xl sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-lg bg-muted">
               <Layout className="h-4 w-4 text-muted-foreground" />
@@ -319,20 +330,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </h2>
           </div>
 
-          {/* Sync status and User Profile moved here side-by-side */}
+          {/* User Profile and Notifications moved here */}
           <div className="flex items-center gap-4">
-            {/* Sync Status Row */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted border border-border">
-              <div className={`h-1.5 w-1.5 rounded-full ${connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-destructive'} animate-pulse`} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                {connectionStatus === 'connected' ? 'Sync: On' : 'Sync: Off'}
-              </span>
-            </div>
-
-            <div className="h-6 w-px bg-border mx-2" />
-
+            
             {/* Notifications Dropdown */}
-            <div className="relative">
+            <div className="relative z-30" ref={notificationRef}>
               <button
                 onClick={() => {
                   setShowNotifications(!showNotifications);
@@ -351,71 +353,71 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {showNotifications && (
-                <div className="absolute top-full right-0 mt-3 w-80 p-2 rounded-2xl bg-card border border-border shadow-2xl z-30 backdrop-blur-3xl scale-in-center">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
-                    <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Notifications</span>
-                    <button 
-                      onClick={handleClearAll}
-                      className="text-[9px] font-bold text-muted-foreground hover:text-destructive transition-colors uppercase tracking-tight flex items-center gap-1"
-                    >
-                      <Trash2 className="h-3 w-3" /> Clear All
-                    </button>
-                  </div>
-                  
-                  <div className="max-h-[400px] overflow-y-auto space-y-1">
-                    {notifications.length === 0 ? (
-                      <div className="py-10 text-center">
-                        <Bell className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No new notifications</p>
-                      </div>
-                    ) : (
-                      notifications.map(notif => (
-                        <div 
-                          key={notif.id}
-                          className={`p-3 rounded-xl transition-all border ${
-                            !notif.is_read ? 'bg-primary/5 border-primary/10' : 'opacity-60 grayscale-[0.5] border-transparent'
-                          } hover:bg-muted group cursor-default`}
-                        >
-                          <div className="flex gap-3">
-                            <div className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${
-                              notif.type === 'security' ? 'bg-destructive/10 text-destructive' :
-                              notif.type === 'login' ? 'bg-primary/10 text-primary' : 'bg-emerald-500/10 text-emerald-500'
-                            }`}>
-                              {notif.type === 'security' ? <ShieldAlert className="h-3.5 w-3.5" /> :
-                               notif.type === 'login' ? <Info className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="text-[11px] font-black text-foreground leading-tight truncate">{notif.title}</p>
-                                {!notif.is_read && (
-                                  <button 
-                                    onClick={() => handleMarkAsRead(notif.id)}
-                                    className="p-1 rounded-md text-muted-foreground/30 hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
-                                  >
-                                    <CheckCheck className="h-3 w-3" />
-                                  </button>
-                                )}
+                <div className="absolute top-full right-0 mt-3 w-80 p-2 rounded-2xl bg-[#0f172a] border border-white/10 shadow-2xl z-50 scale-in-center">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
+                      <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Notifications</span>
+                      <button 
+                        onClick={handleClearAll}
+                        className="text-[9px] font-bold text-muted-foreground hover:text-destructive transition-colors uppercase tracking-tight flex items-center gap-1"
+                      >
+                        <Trash2 className="h-3 w-3" /> Clear All
+                      </button>
+                    </div>
+                    
+                    <div className="max-h-[400px] overflow-y-auto space-y-1">
+                      {notifications.length === 0 ? (
+                        <div className="py-10 text-center">
+                          <Bell className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No new notifications</p>
+                        </div>
+                      ) : (
+                        notifications.map(notif => (
+                          <div 
+                            key={notif.id}
+                            className={`p-3 rounded-xl transition-all border ${
+                              !notif.is_read ? 'bg-primary/5 border-primary/10' : 'opacity-60 grayscale-[0.5] border-transparent'
+                            } hover:bg-muted group cursor-default`}
+                          >
+                            <div className="flex gap-3">
+                              <div className={`mt-0.5 p-1.5 rounded-lg shrink-0 h-fit ${
+                                notif.type === 'security' ? 'bg-destructive/10 text-destructive' :
+                                notif.type === 'login' ? 'bg-primary/10 text-primary' : 'bg-emerald-500/10 text-emerald-500'
+                              }`}>
+                                {notif.type === 'security' ? <ShieldAlert className="h-3.5 w-3.5" /> :
+                                 notif.type === 'login' ? <Info className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                               </div>
-                              <p className="text-[10px] font-medium text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
-                                {notif.message}
-                              </p>
-                              <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-tighter mt-2 flex items-center gap-1">
-                                {formatDistanceToNow(new Date(notif.created_at))} ago
-                              </p>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-[11px] font-black text-foreground leading-tight">{notif.title}</p>
+                                  {!notif.is_read && (
+                                    <button 
+                                      onClick={() => handleMarkAsRead(notif.id)}
+                                      className="p-1 rounded-md text-muted-foreground/30 hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                                    >
+                                      <CheckCheck className="h-3 w-3" />
+                                    </button>
+                                  )}
+                                </div>
+                                <p className="text-[10px] font-medium text-muted-foreground mt-1 leading-relaxed break-words">
+                                  {notif.message}
+                                </p>
+                                <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-tighter mt-2 flex items-center gap-1">
+                                  {formatDistanceToNow(new Date(notif.created_at))} ago
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))
-                    )}
+                        ))
+                      )}
+                    </div>
                   </div>
-                </div>
               )}
             </div>
 
-            <div className="h-6 w-px bg-border mx-2" />
+            <div className="h-6 w-px bg-border/50 mx-2" />
 
             {/* Profile Row */}
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className={`flex items-center gap-3 p-1.5 pr-4 rounded-xl transition-all duration-300 ${
@@ -437,32 +439,32 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {showProfileMenu && (
-                <div className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-card border border-border shadow-2xl z-30 backdrop-blur-3xl scale-in-center">
-                  <div className="px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
-                    <p className="text-xs font-black text-foreground truncate">{displayName}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{user?.role}</p>
+                <div className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-[#0f172a] border border-white/10 shadow-2xl z-50 scale-in-center">
+                    <div className="px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
+                      <p className="text-xs font-black text-foreground truncate">{displayName}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{user?.role}</p>
+                    </div>
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all relative z-10"
+                    >
+                      <User className="h-4 w-4 text-primary/60" /> Account Settings
+                    </Link>
+                    <Link
+                      to="/change-password"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all relative z-10"
+                    >
+                      <Key className="h-4 w-4 text-primary/60" /> Change Password
+                    </Link>
+                    <button
+                      onClick={() => { logout(); navigate('/login'); }}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-destructive/70 hover:bg-destructive/10 hover:text-destructive transition-all mt-1 relative z-10"
+                    >
+                      <LogOut className="h-4 w-4" /> Sign Out
+                    </button>
                   </div>
-                  <Link
-                    to="/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
-                  >
-                    <User className="h-4 w-4 text-primary/60" /> Account Settings
-                  </Link>
-                  <Link
-                    to="/change-password"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
-                  >
-                    <Key className="h-4 w-4 text-primary/60" /> Change Password
-                  </Link>
-                  <button
-                    onClick={() => { logout(); navigate('/login'); }}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[11px] font-bold text-destructive/70 hover:bg-destructive/10 hover:text-destructive transition-all mt-1"
-                  >
-                    <LogOut className="h-4 w-4" /> Sign Out
-                  </button>
-                </div>
               )}
             </div>
           </div>
@@ -475,6 +477,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
+      </div>
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </div>
   );

@@ -16,12 +16,16 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         
         self.user = AnonymousUser()
         if token:
+            print(f"DEBUG: Token received: {token[:10]}...")
             try:
                 access_token = AccessToken(token)
                 user_id = access_token['user_id']
                 self.user = await self.get_user(user_id)
-            except Exception:
-                pass
+                print(f"DEBUG: User authenticated: {self.user.email} (Approved: {self.user.is_approved})")
+            except Exception as e:
+                print(f"DEBUG: Token validation failed: {e}")
+        else:
+            print("DEBUG: No token received in query string")
 
         if self.user.is_authenticated:
             self.role_group = f"dashboard_{self.user.role}"
