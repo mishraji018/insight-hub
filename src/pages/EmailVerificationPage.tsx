@@ -91,7 +91,7 @@ const EmailVerificationPage = () => {
                   maxLength={6}
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="w-full h-16 rounded-2xl bg-black/20 border border-white/5 focus:border-primary/50 text-center text-3xl font-black tracking-[0.6em] transition-all outline-none shadow-inner"
+                  className="w-full h-16 rounded-2xl bg-black/20 border border-black/10 dark:border-white/5 focus:border-primary/50 text-center text-3xl font-black tracking-[0.6em] transition-all outline-none shadow-inner"
                   placeholder="000000"
                 />
               </div>

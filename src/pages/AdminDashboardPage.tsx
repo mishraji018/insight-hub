@@ -250,7 +250,7 @@ const AdminDashboardPage = () => {
 
                 {/* Data Table Card */}
                 <Card className="glass-card border-none shadow-2xl overflow-hidden">
-                    <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-white/5 pb-6">
+                    <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-black/10 dark:border-white/5 pb-6">
                         <div className="flex items-center gap-6">
                             <button 
                                 onClick={() => setActiveTab('users')}
@@ -279,7 +279,7 @@ const AdminDashboardPage = () => {
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         placeholder="Search users..."
-                                        className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-xs focus:ring-2 focus:ring-primary outline-none transition-all w-64"
+                                        className="pl-10 pr-4 py-2 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-2xl text-xs focus:ring-2 focus:ring-primary outline-none transition-all w-64"
                                     />
                                 </form>
                             ) : (
@@ -291,7 +291,7 @@ const AdminDashboardPage = () => {
                                             value={auditUserFilter}
                                             onChange={(e) => setAuditUserFilter(e.target.value)}
                                             placeholder="Filter by user email..."
-                                            className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-xs focus:ring-2 focus:ring-primary outline-none transition-all w-64"
+                                            className="pl-10 pr-4 py-2 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-2xl text-xs focus:ring-2 focus:ring-primary outline-none transition-all w-64"
                                         />
                                     </div>
                                     <div className="relative">
@@ -299,7 +299,7 @@ const AdminDashboardPage = () => {
                                         <select 
                                             value={auditActionFilter}
                                             onChange={(e) => setAuditActionFilter(e.target.value)}
-                                            className="pl-9 pr-8 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer h-full"
+                                            className="pl-9 pr-8 py-2 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer h-full"
                                         >
                                             <option value="">All Actions</option>
                                             <option value="LOGIN_SUCCESS">Login Success</option>
@@ -323,7 +323,7 @@ const AdminDashboardPage = () => {
                         {activeTab === 'users' ? (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
-                                    <thead className="bg-white/5 border-b border-white/5">
+                                    <thead className="bg-black/5 dark:bg-white/5 border-b border-black/10 dark:border-white/5">
                                         <tr>
                                             <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">User Info</th>
                                             <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Security Status</th>
@@ -354,7 +354,7 @@ const AdminDashboardPage = () => {
                                             </tr>
                                         ) : (
                                             users.map((u) => (
-                                                <tr key={u.id} className="hover:bg-white/5 transition-colors group">
+                                                <tr key={u.id} className="hover:bg-black/5 dark:bg-white/5 transition-colors group">
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black">
@@ -380,7 +380,7 @@ const AdminDashboardPage = () => {
                                                             {u.two_fa_enabled ? (
                                                                 <span className="px-2 py-1 bg-blue-500/10 text-blue-500 text-[9px] font-black uppercase rounded-lg border border-blue-500/20">2FA On</span>
                                                             ) : (
-                                                                <span className="px-2 py-1 bg-white/5 text-white/40 text-[9px] font-black uppercase rounded-lg">2FA Off</span>
+                                                                <span className="px-2 py-1 bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/40 text-[9px] font-black uppercase rounded-lg">2FA Off</span>
                                                             )}
                                                         </div>
                                                     </td>
@@ -439,7 +439,7 @@ const AdminDashboardPage = () => {
                             <div className="flex flex-col">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
-                                        <thead className="bg-white/5 border-b border-white/5">
+                                        <thead className="bg-black/5 dark:bg-white/5 border-b border-black/10 dark:border-white/5">
                                             <tr>
                                                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Timestamp</th>
                                                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Action</th>
@@ -468,7 +468,7 @@ const AdminDashboardPage = () => {
                                                 </tr>
                                             ) : (
                                                 auditLogs.map((log) => (
-                                                    <tr key={log.id} className="hover:bg-white/5 transition-colors">
+                                                    <tr key={log.id} className="hover:bg-black/5 dark:bg-white/5 transition-colors">
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center gap-2">
                                                                 <Clock className="h-3 w-3 text-muted-foreground" />
@@ -509,7 +509,7 @@ const AdminDashboardPage = () => {
                                 </div>
                                 
                                 {/* Pagination Footer */}
-                                <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <div className="px-6 py-4 border-t border-black/10 dark:border-white/5 flex items-center justify-between bg-white/[0.02]">
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                         Page {auditPage} of {auditTotalPages}
                                     </p>
@@ -517,14 +517,14 @@ const AdminDashboardPage = () => {
                                         <button 
                                             onClick={() => fetchAuditLogs(auditPage - 1)}
                                             disabled={auditPage === 1 || auditLoading}
-                                            className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase hover:bg-white/10 disabled:opacity-30 transition-all"
+                                            className="px-3 py-1 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-lg text-[10px] font-black uppercase hover:bg-black/10 dark:bg-white/10 disabled:opacity-30 transition-all"
                                         >
                                             Prev
                                         </button>
                                         <button 
                                             onClick={() => fetchAuditLogs(auditPage + 1)}
                                             disabled={auditPage === auditTotalPages || auditLoading}
-                                            className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase hover:bg-white/10 disabled:opacity-30 transition-all"
+                                            className="px-3 py-1 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-lg text-[10px] font-black uppercase hover:bg-black/10 dark:bg-white/10 disabled:opacity-30 transition-all"
                                         >
                                             Next
                                         </button>

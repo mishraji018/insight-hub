@@ -28,10 +28,21 @@ const DeveloperPage = () => {
     const [newKeyName, setNewKeyName] = useState("");
     const [showKeyModal, setShowKeyModal] = useState(false);
     const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
+    const [usageData, setUsageData] = useState<{usage: number, limit: number} | null>(null);
 
     useEffect(() => {
         fetchKeys();
+        fetchUsage();
     }, []);
+
+    const fetchUsage = async () => {
+        try {
+            const data = await api.billing.getUsage();
+            setUsageData({ usage: data.usage, limit: data.limit });
+        } catch (error) {
+            console.error("Failed to fetch usage data");
+        }
+    };
 
     const fetchKeys = async () => {
         try {
@@ -118,7 +129,7 @@ const DeveloperPage = () => {
                                         value={newKeyName}
                                         onChange={e => setNewKeyName(e.target.value)}
                                         placeholder="Key name (e.g. Production Backend)"
-                                        className="flex-1 h-12 px-4 rounded-xl bg-white/5 border border-white/5 focus:border-primary outline-none transition-all font-bold text-sm"
+                                        className="flex-1 h-12 px-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 focus:border-primary outline-none transition-all font-bold text-sm"
                                     />
                                     <button 
                                         disabled={!newKeyName || isCreating}
@@ -132,26 +143,26 @@ const DeveloperPage = () => {
                                 <div className="space-y-3">
                                     {loading ? (
                                         Array.from({ length: 2 }).map((_, i) => (
-                                            <div key={i} className="h-20 w-full rounded-2xl bg-white/5 animate-pulse" />
+                                            <div key={i} className="h-20 w-full rounded-2xl bg-black/5 dark:bg-white/5 animate-pulse" />
                                         ))
                                     ) : keys.length === 0 ? (
-                                        <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-[2rem]">
-                                            <ShieldCheck className="h-10 w-10 text-white/5 mx-auto mb-3" />
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-white/20">No active keys found</p>
+                                        <div className="py-12 text-center border-2 border-dashed border-black/10 dark:border-white/5 rounded-[2rem]">
+                                            <ShieldCheck className="h-10 w-10 text-black/40 dark:text-white/5 mx-auto mb-3" />
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-black/50 dark:text-white/20">No active keys found</p>
                                         </div>
                                     ) : (
                                         keys.map(key => (
-                                            <div key={key.id} className="p-4 rounded-3xl bg-white/5 border border-white/5 flex items-center justify-between group hover:bg-white/[0.08] transition-all">
+                                            <div key={key.id} className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center justify-between group hover:bg-white/[0.08] transition-all">
                                                 <div className="flex items-center gap-4">
-                                                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center ${key.is_active ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/20'}`}>
+                                                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center ${key.is_active ? 'bg-primary/10 text-primary' : 'bg-black/5 dark:bg-white/5 text-black/50 dark:text-white/20'}`}>
                                                         <Zap className="h-5 w-5" />
                                                     </div>
                                                     <div>
                                                         <p className={`text-sm font-black ${!key.is_active && 'opacity-30'}`}>{key.name}</p>
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             <code className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{key.prefix}••••••••</code>
-                                                            <span className="h-1 w-1 rounded-full bg-white/10" />
-                                                            <p className="text-[9px] font-bold text-white/20 uppercase">
+                                                            <span className="h-1 w-1 rounded-full bg-black/10 dark:bg-white/10" />
+                                                            <p className="text-[9px] font-bold text-black/50 dark:text-white/20 uppercase">
                                                                 {key.last_used ? `Used ${new Date(key.last_used).toLocaleDateString()}` : 'Never used'}
                                                             </p>
                                                         </div>
@@ -161,14 +172,14 @@ const DeveloperPage = () => {
                                                 <div className="flex items-center gap-2">
                                                     <button 
                                                         onClick={() => handleToggleKey(key.id)}
-                                                        className={`p-2 rounded-xl transition-all ${key.is_active ? 'text-primary hover:bg-primary/10' : 'text-white/20 hover:bg-white/10'}`}
+                                                        className={`p-2 rounded-xl transition-all ${key.is_active ? 'text-primary hover:bg-primary/10' : 'text-black/50 dark:text-white/20 hover:bg-black/10 dark:bg-white/10'}`}
                                                         title={key.is_active ? "Deactivate" : "Activate"}
                                                     >
                                                         <Power className="h-4 w-4" />
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDeleteKey(key.id)}
-                                                        className="p-2 rounded-xl text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                        className="p-2 rounded-xl text-black/50 dark:text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </button>
@@ -188,11 +199,11 @@ const DeveloperPage = () => {
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-3">
+                                <div className="p-4 rounded-2xl bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/5 space-y-3">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Terminal className="h-4 w-4 text-emerald-500" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Bash / CURL</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-black/60 dark:text-white/40">Bash / CURL</span>
                                         </div>
                                         <button onClick={() => copyToClipboard('curl -H "Authorization: Bearer YOUR_KEY" https://api.insighthub.com/v1/predictions/')} className="hover:text-primary transition-colors">
                                             <Copy className="h-3 w-3" />
@@ -204,11 +215,11 @@ const DeveloperPage = () => {
                                     </code>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-3">
+                                <div className="p-4 rounded-2xl bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/5 space-y-3">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Code2 className="h-4 w-4 text-blue-500" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Node.js / Axios</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-black/60 dark:text-white/40">Node.js / Axios</span>
                                         </div>
                                     </div>
                                     <code className="block text-[11px] font-mono text-blue-400/80 leading-relaxed overflow-x-auto pb-1">
@@ -232,13 +243,22 @@ const DeveloperPage = () => {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Rate Limit</span>
-                                    <span className="text-xs font-black">1,000 req/hr</span>
+                                    <span className="text-[10px] font-black uppercase text-black/60 dark:text-white/40 tracking-widest">API Usage</span>
+                                    <span className="text-[10px] font-black text-primary">
+                                        {usageData ? Math.round((usageData.usage / usageData.limit) * 100) : 0}%
+                                    </span>
                                 </div>
-                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-primary w-1/3" />
+                                <div className="h-2 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                                    <div 
+                                        className="h-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)] rounded-full transition-all duration-1000" 
+                                        style={{ width: `${usageData ? Math.min((usageData.usage / usageData.limit) * 100, 100) : 0}%` }}
+                                    />
                                 </div>
-                                <p className="text-[9px] text-muted-foreground font-bold leading-relaxed italic">
+                                <div className="flex items-center justify-between text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                                    <span>Used: {usageData?.usage.toLocaleString() || 0}</span>
+                                    <span>Limit: {usageData?.limit.toLocaleString() || 0} / hr</span>
+                                </div>
+                                <p className="text-[9px] text-muted-foreground font-bold leading-relaxed italic border-t border-black/5 dark:border-white/5 pt-3">
                                     Enterprise customers can request higher limits via support.
                                 </p>
                             </CardContent>
@@ -252,14 +272,14 @@ const DeveloperPage = () => {
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-between group transition-all">
+                                <a href="#" className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 flex items-center justify-between group transition-all">
                                     <span className="text-xs font-bold">Comprehensive API Docs</span>
-                                    <ExternalLink className="h-3 w-3 opacity-20 group-hover:opacity-100" />
-                                </button>
-                                <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-between group transition-all">
+                                    <ExternalLink className="h-3 w-3 opacity-20 group-hover:opacity-100 group-hover:text-primary transition-all" />
+                                </a>
+                                <a href="#" className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 flex items-center justify-between group transition-all">
                                     <span className="text-xs font-bold">Webhooks Integration</span>
-                                    <ExternalLink className="h-3 w-3 opacity-20 group-hover:opacity-100" />
-                                </button>
+                                    <ExternalLink className="h-3 w-3 opacity-20 group-hover:opacity-100 group-hover:text-primary transition-all" />
+                                </a>
                                 <button className="w-full p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/10 flex items-center gap-2 justify-center py-4 font-black text-[10px] uppercase tracking-widest mt-4">
                                     <CheckCircle2 className="h-3 w-3" /> System Operational
                                 </button>
@@ -289,11 +309,11 @@ const DeveloperPage = () => {
                              <CardDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">Only shown once — Save it now!</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 pt-4">
-                            <div className="p-6 rounded-3xl bg-black/40 border border-white/5 space-y-4 text-center">
+                            <div className="p-6 rounded-3xl bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/5 space-y-4 text-center">
                                 <p className="text-xs text-muted-foreground px-4">
                                     Copy this key and store it securely. You will not be able to see it again.
                                 </p>
-                                <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5 group">
+                                <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 p-4 rounded-2xl border border-black/10 dark:border-white/5 group">
                                     <code className="flex-1 text-sm font-black tracking-wider text-primary break-all select-all">{newlyCreatedKey}</code>
                                     <button onClick={() => newlyCreatedKey && copyToClipboard(newlyCreatedKey)} className="p-2 rounded-xl hover:bg-primary/20 text-primary transition-all">
                                         <Copy className="h-4 w-4" />

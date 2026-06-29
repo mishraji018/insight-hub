@@ -308,11 +308,11 @@ const ProfilePage = () => {
                                 </div>
 
                                 <div className="w-full mt-8 space-y-3">
-                                    <div className="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
+                                    <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center gap-3">
                                         <Mail className="h-4 w-4 text-muted-foreground" />
                                         <span className="text-xs font-bold truncate">{user?.email}</span>
                                     </div>
-                                    <div className="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
+                                    <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center gap-3">
                                         <Calendar className="h-4 w-4 text-muted-foreground" />
                                         <span className="text-xs font-bold">Member since {user?.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'N/A'}</span>
                                     </div>
@@ -371,7 +371,7 @@ const ProfilePage = () => {
                                         </div>
                                         <p className="text-xs font-black">{billingUsage?.usage || 0} / {billingUsage?.limit || 100}</p>
                                     </div>
-                                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                    <div className="h-2 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden border border-black/10 dark:border-white/5">
                                         <div 
                                             className="h-full bg-primary transition-all duration-1000" 
                                             style={{ width: `${Math.min(((billingUsage?.usage || 0) / (billingUsage?.limit || 100)) * 100, 100)}%` }}
@@ -394,7 +394,7 @@ const ProfilePage = () => {
                                         <button 
                                             onClick={handlePortalRedirect}
                                             disabled={portalLoading}
-                                            className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
+                                            className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:bg-black/10 dark:bg-white/10 text-white font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
                                         >
                                             {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
                                             Manage Billing
@@ -416,7 +416,7 @@ const ProfilePage = () => {
                                 </div>
                                 <button 
                                     onClick={() => setIsEditing(!isEditing)}
-                                    className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-primary/50 transition-all group"
+                                    className="p-2 rounded-xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:border-primary/50 transition-all group"
                                 >
                                     <Edit2 className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
                                 </button>
@@ -429,7 +429,7 @@ const ProfilePage = () => {
                                             <input 
                                                 value={nameForm.first_name}
                                                 onChange={e => setNameForm({...nameForm, first_name: e.target.value})}
-                                                className="w-full h-12 px-4 rounded-xl bg-background border border-white/10 focus:border-primary outline-none transition-all font-bold" 
+                                                className="w-full h-12 px-4 rounded-xl bg-background border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-bold" 
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -437,7 +437,7 @@ const ProfilePage = () => {
                                             <input 
                                                 value={nameForm.last_name}
                                                 onChange={e => setNameForm({...nameForm, last_name: e.target.value})}
-                                                className="w-full h-12 px-4 rounded-xl bg-background border border-white/10 focus:border-primary outline-none transition-all font-bold" 
+                                                className="w-full h-12 px-4 rounded-xl bg-background border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-bold" 
                                             />
                                         </div>
                                         <div className="md:col-span-2 flex justify-end gap-3 pt-4">
@@ -473,9 +473,9 @@ const ProfilePage = () => {
                                 <CardDescription>Enhance your account security with Two-Factor Authentication</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                                     <div className="flex items-center gap-4">
-                                        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${user?.two_fa_enabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-white/5 text-white/20'}`}>
+                                        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${user?.two_fa_enabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-black/5 dark:bg-white/5 text-black/50 dark:text-white/20'}`}>
                                             <QrCode className="h-6 w-6" />
                                         </div>
                                         <div>
@@ -522,26 +522,26 @@ const ProfilePage = () => {
                                     <CardDescription>Control your notification and report frequency</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5">
                                         <div className="space-y-1">
                                             <p className="text-xs font-bold">Weekly Activity Digest</p>
                                             <p className="text-[9px] text-muted-foreground uppercase font-medium">Summary of your interaction history</p>
                                         </div>
                                         <button 
                                             onClick={() => handleUpdatePrefs('digest_enabled', !prefsForm.digest_enabled)}
-                                            className={`w-12 h-6 rounded-full transition-all relative ${prefsForm.digest_enabled ? 'bg-primary' : 'bg-white/10'}`}
+                                            className={`w-12 h-6 rounded-full transition-all relative ${prefsForm.digest_enabled ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`}
                                         >
                                             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${prefsForm.digest_enabled ? 'left-7' : 'left-1'}`} />
                                         </button>
                                     </div>
-                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5">
                                         <div className="space-y-1">
                                             <p className="text-xs font-bold">Critical Security Alerts</p>
                                             <p className="text-[9px] text-muted-foreground uppercase font-medium">Immediate notifications for new logins</p>
                                         </div>
                                         <button 
                                             onClick={() => handleUpdatePrefs('security_alerts_enabled', !prefsForm.security_alerts_enabled)}
-                                            className={`w-12 h-6 rounded-full transition-all relative ${prefsForm.security_alerts_enabled ? 'bg-primary' : 'bg-white/10'}`}
+                                            className={`w-12 h-6 rounded-full transition-all relative ${prefsForm.security_alerts_enabled ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`}
                                         >
                                             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${prefsForm.security_alerts_enabled ? 'left-7' : 'left-1'}`} />
                                         </button>
@@ -558,7 +558,7 @@ const ProfilePage = () => {
                                     <CardDescription>Export your account data for portability</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex flex-col gap-4">
+                                    <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex flex-col gap-4">
                                         <div className="flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="text-xs font-bold">Standard JSON Export</p>
@@ -567,13 +567,13 @@ const ProfilePage = () => {
                                             <button 
                                                 onClick={() => handleExport('json')}
                                                 disabled={!!exporting}
-                                                className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                                                className="px-4 py-2 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-white/20 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
                                             >
                                                 {exporting === 'json' ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileJson className="h-3 w-3" />}
                                                 JSON
                                             </button>
                                         </div>
-                                        <div className="h-px bg-white/5 w-full" />
+                                        <div className="h-px bg-black/5 dark:bg-white/5 w-full" />
                                         <div className="flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="text-xs font-bold">Official PDF Report</p>
@@ -615,15 +615,15 @@ const ProfilePage = () => {
                              <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {sessions.length === 0 ? (
-                                        <div className="col-span-full py-12 text-center border-2 border-dashed border-white/5 rounded-3xl">
-                                            <AlertCircle className="h-8 w-8 text-white/10 mx-auto mb-2" />
-                                            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">No other active sessions</p>
+                                        <div className="col-span-full py-12 text-center border-2 border-dashed border-black/10 dark:border-white/5 rounded-3xl">
+                                            <AlertCircle className="h-8 w-8 text-black/50 dark:text-white/10 mx-auto mb-2" />
+                                            <p className="text-[10px] font-bold text-black/50 dark:text-white/20 uppercase tracking-widest">No other active sessions</p>
                                         </div>
                                     ) : (
                                         sessions.map(session => (
-                                            <div key={session.id} className="p-4 rounded-3xl bg-white/5 border border-white/5 flex items-center justify-between group">
+                                            <div key={session.id} className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center justify-between group">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 rounded-2xl bg-background border border-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                    <div className="h-10 w-10 rounded-2xl bg-background border border-black/10 dark:border-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                                                         <Globe className="h-5 w-5" />
                                                     </div>
                                                     <div>
@@ -633,12 +633,12 @@ const ProfilePage = () => {
                                                                 {session.device_name}
                                                             </span>
                                                         </div>
-                                                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-tight mt-0.5">{session.ip_address || 'Hidden IP'}</p>
+                                                        <p className="text-[9px] font-bold text-black/60 dark:text-white/30 uppercase tracking-tight mt-0.5">{session.ip_address || 'Hidden IP'}</p>
                                                     </div>
                                                 </div>
                                                 <button 
                                                     onClick={() => handleRevokeSession(session.id)}
-                                                    className="p-2 rounded-xl text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                    className="p-2 rounded-xl text-black/50 dark:text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
@@ -661,7 +661,7 @@ const ProfilePage = () => {
                                 <div className="space-y-3">
                                     {loading ? (
                                         Array.from({ length: 3 }).map((_, i) => (
-                                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-background/20 border border-white/5">
+                                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
                                                 <div className="flex items-center gap-3">
                                                     <Skeleton className="h-8 w-8 rounded-lg" />
                                                     <div className="space-y-2">
@@ -678,7 +678,7 @@ const ProfilePage = () => {
                                         </div>
                                     ) : (
                                         loginHistory.slice(0, 5).map((login, idx) => (
-                                            <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-background/20 border border-white/5">
+                                            <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
                                                 <div className="flex items-center gap-3">
                                                     <div className="h-8 w-8 rounded-lg bg-primary/5 flex items-center justify-center">
                                                         {login.device_info === 'Mobile' ? <Smartphone className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
@@ -729,7 +729,7 @@ const ProfilePage = () => {
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Secret Key</p>
-                                            <code className="text-[12px] font-bold bg-white/5 py-1 px-3 rounded-lg text-primary tracking-widest select-all">{twoFAData?.secret}</code>
+                                            <code className="text-[12px] font-bold bg-black/5 dark:bg-white/5 py-1 px-3 rounded-lg text-primary tracking-widest select-all">{twoFAData?.secret}</code>
                                         </div>
                                     </div>
                                     <div className="space-y-3">
@@ -738,7 +738,7 @@ const ProfilePage = () => {
                                             value={otpCode}
                                             onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                             placeholder="000000"
-                                            className="w-full h-14 text-center text-3xl font-black tracking-[0.5em] rounded-2xl bg-white/5 border border-white/10 focus:border-primary outline-none transition-all placeholder:opacity-20"
+                                            className="w-full h-14 text-center text-3xl font-black tracking-[0.5em] rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all placeholder:opacity-20"
                                         />
                                         <button 
                                             onClick={handleEnable2FA}
@@ -759,7 +759,7 @@ const ProfilePage = () => {
                                         <h3 className="text-lg font-black text-emerald-500">2FA Enabled Successfully!</h3>
                                         <p className="text-xs text-muted-foreground">Save these backup codes in a safe place. You can use them if you lose access to your device.</p>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                    <div className="grid grid-cols-2 gap-2 bg-black/5 dark:bg-white/5 p-4 rounded-2xl border border-black/10 dark:border-white/5">
                                         {backupCodes.map(code => (
                                             <code key={code} className="text-xs font-mono font-bold text-center py-2 bg-black/20 rounded-lg">{code}</code>
                                         ))}
@@ -773,7 +773,7 @@ const ProfilePage = () => {
                                         </button>
                                         <button 
                                             onClick={() => setShow2FASetup(false)}
-                                            className="w-full py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-xs transition-all"
+                                            className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-white font-black uppercase tracking-widest text-xs transition-all"
                                         >
                                             Done
                                         </button>
@@ -805,7 +805,7 @@ const ProfilePage = () => {
                                     value={disablePassword}
                                     onChange={e => setDisablePassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 focus:border-destructive outline-none transition-all font-bold"
+                                    className="w-full h-12 px-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-destructive outline-none transition-all font-bold"
                                 />
                             </div>
                             <div className="space-y-1.5">
@@ -814,7 +814,7 @@ const ProfilePage = () => {
                                     value={otpCode}
                                     onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                     placeholder="000000"
-                                    className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 focus:border-destructive outline-none transition-all font-bold"
+                                    className="w-full h-12 px-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-destructive outline-none transition-all font-bold"
                                 />
                             </div>
                             <div className="flex gap-3 pt-4">

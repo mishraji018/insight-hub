@@ -99,7 +99,7 @@ const ForgotPasswordPage = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-sm"
+                  className="w-full h-14 pl-12 pr-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-sm"
                   placeholder="name@company.com"
                 />
               </div>
@@ -124,7 +124,7 @@ const ForgotPasswordPage = () => {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full h-14 px-4 rounded-2xl bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-2xl tracking-[0.5em] text-center"
+                className="w-full h-14 px-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-2xl tracking-[0.5em] text-center"
                 placeholder="000000"
               />
               <p className="text-[10px] font-bold text-center text-muted-foreground uppercase tracking-widest mt-2">
@@ -142,7 +142,7 @@ const ForgotPasswordPage = () => {
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-sm"
+                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-sm"
                     placeholder="Min 8 characters"
                   />
                 </div>
@@ -156,7 +156,7 @@ const ForgotPasswordPage = () => {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-white/5 border border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-sm"
+                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold text-sm"
                     placeholder="Repeat new password"
                   />
                 </div>

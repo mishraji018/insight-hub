@@ -9,7 +9,7 @@ import { AnomalyAlert } from "@/components/AnomalyAlert";
 import { MLInsightCard } from "@/components/MLInsightCard";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { getAnalyticsSummary, downloadPDFReport, downloadExcelReport, authAPI } from "@/api/endpoints";
-import { Calendar, Download, Loader2, Activity } from "lucide-react";
+import { Calendar, Download, Loader2, Activity, BarChart3, AlertTriangle, Map, Database } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OnboardingModal } from "@/components/OnboardingModal";
 
@@ -18,6 +18,21 @@ import "react-day-picker/dist/style.css";
 import { format } from "date-fns";
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws/dashboard/";
+
+const EmptySkeleton = ({ title, type, className = "h-[300px]" }: { title?: string, type: string, className?: string }) => (
+  <Card className={`glass-card border-none shadow-xl flex flex-col items-center justify-center overflow-hidden relative ${className}`}>
+    {title && (
+      <div className="absolute top-4 left-4 z-20">
+        <h3 className="text-sm font-bold text-foreground/70">{title}</h3>
+      </div>
+    )}
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 dark:via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+    <div className="flex flex-col items-center justify-center text-muted-foreground/30 z-10 space-y-4">
+      {type === 'chart' ? <BarChart3 className="h-12 w-12" /> : type === 'alerts' ? <AlertTriangle className="h-12 w-12" /> : type === 'heatmap' ? <Map className="h-12 w-12" /> : type === 'kpi' ? <Database className="h-6 w-6" /> : <Database className="h-12 w-12" />}
+      <span className={`font-black tracking-widest uppercase opacity-50 ${type === 'kpi' ? 'text-xs' : 'text-xl'}`}>Empty Data</span>
+    </div>
+  </Card>
+);
 
 const DashboardPage = () => {
   const user = useAuthStore(s => s.user);
@@ -112,7 +127,7 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 h-[calc(100vh-80px)] flex flex-col pb-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
@@ -129,7 +144,7 @@ const DashboardPage = () => {
               <div className="relative">
                 <button 
                   onClick={() => { setShowFromCalendar(!showFromCalendar); setShowToCalendar(false); }}
-                  className="flex items-center gap-2 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1.5 text-xs text-foreground hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-2 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1.5 text-xs text-foreground hover:bg-black/5 dark:bg-white/5 transition-colors"
                 >
                   <Calendar className="h-4 w-4 text-primary" />
                   {dateFrom ? format(dateFrom, "MMM d, yyyy") : "Start Date"}
@@ -149,7 +164,7 @@ const DashboardPage = () => {
               <div className="relative">
                 <button 
                   onClick={() => { setShowToCalendar(!showToCalendar); setShowFromCalendar(false); }}
-                  className="flex items-center gap-2 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1.5 text-xs text-foreground hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-2 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1.5 text-xs text-foreground hover:bg-black/5 dark:bg-white/5 transition-colors"
                 >
                   <Calendar className="h-4 w-4 text-primary" />
                   {dateTo ? format(dateTo, "MMM d, yyyy") : "End Date"}
@@ -185,60 +200,56 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {(summary?.kpis || Array(4).fill(null)).map((kpi: any, i: number) => (
-            <KPICard key={i} title={kpi?.title || ""} value={kpi?.value || ""} unit={kpi?.unit} change={kpi?.change} trend={kpi?.trend} isLoading={loading} />
-          ))}
-        </div>
-
-        {/* Alerts */}
-        {summary?.alerts && <AnomalyAlert alerts={summary.alerts} />}
-
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {summary?.salesTrend && <SalesTrendChart data={summary.salesTrend} />}
-          {summary?.forecast && <ForecastChart data={summary.forecast} />}
-        </div>
-
-        {/* Regional + Insight */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            {summary?.regions && <RegionalHeatmap data={summary.regions} />}
+        {/* Dynamic Bento Box Layout */}
+        <div className="flex flex-col gap-4 flex-1 min-h-[500px] w-full">
+          
+          {/* Top Row: KPIs + Alerts */}
+          <div className="flex-[0.8] flex gap-4 w-full">
+            {/* KPIs */}
+            <div className="flex-[2] transition-all duration-500 flex gap-4">
+              {(summary?.kpis?.length ? summary.kpis : [
+                { title: "Total Revenue" },
+                { title: "Daily Avg Sales" },
+                { title: "Active Regions" },
+                { title: "Forecast Accuracy" }
+              ]).map((kpi: any, i: number) => (
+                <div key={i} className="flex-1 hover:flex-[1.5] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
+                  {kpi.value ? (
+                    <KPICard title={kpi.title} value={kpi.value} unit={kpi.unit} change={kpi.change} trend={kpi.trend} isLoading={loading} />
+                  ) : (
+                    <EmptySkeleton title={kpi.title} type="kpi" className="h-full" />
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {/* Alerts */}
+            <div className="flex-1 hover:flex-[1.5] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
+              {summary?.alerts ? <AnomalyAlert alerts={summary.alerts} /> : <EmptySkeleton title="Anomaly Alerts" type="alerts" className="h-full" />}
+            </div>
           </div>
-          <div className="lg:col-span-1">
-             <Card className="glass-card border-none shadow-xl h-full">
-                <CardHeader>
-                    <div className="flex items-center gap-3">
-                        <Activity className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-lg">Your Activity</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl bg-white/5 text-center">
-                            <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Sessions</p>
-                            <p className="text-2xl font-black">{userStats?.total_logins || 0}</p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-white/5 text-center">
-                            <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Active Days</p>
-                            <p className="text-2xl font-black text-primary">{userStats?.days_active || 0}</p>
-                        </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                        <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest px-1">Engagement Score</p>
-                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary" style={{ width: `${Math.min(100, (userStats?.total_logins || 0) * 10)}%` }} />
-                        </div>
-                        <p className="text-[10px] text-right font-bold text-primary/60">Global Rank: #42</p>
-                    </div>
-                </CardContent>
-             </Card>
+
+          {/* Middle Row: Charts */}
+          <div className="flex-[1.2] flex gap-4 w-full">
+            <div className="flex-1 hover:flex-[1.5] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
+              {summary?.salesTrend ? <SalesTrendChart data={summary.salesTrend} /> : <EmptySkeleton title="Sales Trend" type="chart" className="h-full" />}
+            </div>
+            <div className="flex-1 hover:flex-[1.5] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
+              {summary?.forecast ? <ForecastChart data={summary.forecast} /> : <EmptySkeleton title="Forecast Prediction" type="chart" className="h-full" />}
+            </div>
+          </div>
+
+          {/* Bottom Row: Regional + Insight */}
+          <div className="flex-1 flex gap-4 w-full">
+            <div className="flex-[2] hover:flex-[3] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
+              {summary?.regions ? <RegionalHeatmap data={summary.regions} /> : <EmptySkeleton title="Regional Heatmap" type="heatmap" className="h-full" />}
+            </div>
+            
+            <div className="flex-[1.5] hover:flex-[2.5] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
+              {summary?.insight ? <MLInsightCard {...summary.insight} /> : <EmptySkeleton title="AI Business Insight" type="insight" className="h-full" />}
+            </div>
           </div>
         </div>
-        
-        {summary?.insight && <MLInsightCard {...summary.insight} />}
       </div>
       
       <OnboardingModal 

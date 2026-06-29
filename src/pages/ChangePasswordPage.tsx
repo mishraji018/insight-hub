@@ -144,7 +144,7 @@ const ChangePasswordPage = () => {
                                                 key={step}
                                                 className={`flex-1 rounded-full transition-all duration-500 ${strength >= step
                                                         ? (strength <= 2 ? 'bg-destructive' : strength === 3 ? 'bg-amber-400' : 'bg-emerald-500')
-                                                        : 'bg-white/10'
+                                                        : 'bg-black/10 dark:bg-white/10'
                                                     }`}
                                             />
                                         ))}
@@ -152,7 +152,7 @@ const ChangePasswordPage = () => {
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                                         {requirements.map((req, i) => (
                                             <div key={i} className="flex items-center gap-1.5">
-                                                <div className={`p-0.5 rounded-full ${req.test(formData.new_password) ? 'bg-emerald-500/20 text-emerald-500' : 'bg-white/5 text-white/20'}`}>
+                                                <div className={`p-0.5 rounded-full ${req.test(formData.new_password) ? 'bg-emerald-500/20 text-emerald-500' : 'bg-black/5 dark:bg-white/5 text-black/50 dark:text-white/20'}`}>
                                                     <Check className="h-3 w-3" />
                                                 </div>
                                                 <span className={`text-[10px] font-medium ${req.test(formData.new_password) ? 'text-emerald-500' : 'text-muted-foreground'}`}>{req.label}</span>

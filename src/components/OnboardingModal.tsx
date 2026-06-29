@@ -114,7 +114,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose 
                         <div className="grid grid-cols-2 gap-4">
                             <button 
                                 onClick={() => user?.theme_preference !== 'light' && toggleTheme()}
-                                className={`p-6 rounded-3xl border-2 transition-all space-y-4 text-center ${user?.theme_preference === 'light' ? 'border-primary bg-primary/5' : 'border-white/5 hover:border-white/20'}`}
+                                className={`p-6 rounded-3xl border-2 transition-all space-y-4 text-center ${user?.theme_preference === 'light' ? 'border-primary bg-primary/5' : 'border-black/10 dark:border-white/5 hover:border-white/20'}`}
                             >
                                 <div className="h-12 w-12 bg-orange-500/10 rounded-2xl flex items-center justify-center mx-auto">
                                     <Sun className="h-6 w-6 text-orange-500" />
@@ -123,7 +123,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose 
                             </button>
                             <button 
                                 onClick={() => user?.theme_preference !== 'dark' && toggleTheme()}
-                                className={`p-6 rounded-3xl border-2 transition-all space-y-4 text-center ${user?.theme_preference === 'dark' ? 'border-primary bg-primary/20' : 'border-white/5 hover:border-white/20'}`}
+                                className={`p-6 rounded-3xl border-2 transition-all space-y-4 text-center ${user?.theme_preference === 'dark' ? 'border-primary bg-primary/20' : 'border-black/10 dark:border-white/5 hover:border-white/20'}`}
                             >
                                 <div className="h-12 w-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto">
                                     <Moon className="h-6 w-6 text-blue-500" />
@@ -145,7 +145,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose 
                         <h2 className="text-xl font-bold text-center">Quick Feature Tour</h2>
                         <div className="space-y-3">
                             {tourPoints.map((point, idx) => (
-                                <div key={idx} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 ${idx === tourStep ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                <div key={idx} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 ${idx === tourStep ? 'bg-primary/10 border-primary/20' : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/5 opacity-50'}`}>
                                     <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${idx === tourStep ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                                         {point.icon}
                                     </div>
@@ -164,7 +164,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose 
                         {tourStep < tourPoints.length - 1 ? (
                             <button 
                                 onClick={() => setTourStep(tourStep + 1)}
-                                className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-bold transition-all"
+                                className="w-full py-3 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-xs font-bold transition-all"
                             >
                                 Next Feature
                             </button>
@@ -180,10 +180,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose 
 
     return (
         <Dialog open={open} onOpenChange={(o) => !o && handleComplete()}>
-            <DialogContent className="sm:max-w-[450px] bg-background/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] shadow-2xl p-8">
+            <DialogContent className="sm:max-w-[450px] bg-background/95 backdrop-blur-3xl border-black/20 dark:border-white/10 rounded-[2.5rem] shadow-2xl p-8">
                 <div className="absolute top-0 left-0 w-full p-1 space-x-1 flex">
                     {[...Array(totalSteps)].map((_, i) => (
-                        <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i + 1 <= step ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]' : 'bg-white/10'}`} />
+                        <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i + 1 <= step ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]' : 'bg-black/10 dark:bg-white/10'}`} />
                     ))}
                 </div>
 

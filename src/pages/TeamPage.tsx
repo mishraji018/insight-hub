@@ -169,7 +169,7 @@ const TeamPage = () => {
                     <div className="flex gap-3">
                         <button 
                             onClick={() => setShowJoinModal(true)}
-                            className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                            className="px-6 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:bg-black/10 dark:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
                         >
                             Join Organisation
                         </button>
@@ -188,9 +188,9 @@ const TeamPage = () => {
                         <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Your Organisations</p>
                         <div className="space-y-3">
                             {organisations.length === 0 && !loading ? (
-                                <div className="p-8 text-center glass-card border-dashed border-2 border-white/5">
-                                    <Users className="h-8 w-8 text-white/10 mx-auto mb-2" />
-                                    <p className="text-[10px] font-bold text-white/20 uppercase">No teams yet</p>
+                                <div className="p-8 text-center glass-card border-dashed border-2 border-black/10 dark:border-white/5">
+                                    <Users className="h-8 w-8 text-black/50 dark:text-white/10 mx-auto mb-2" />
+                                    <p className="text-[10px] font-bold text-black/50 dark:text-white/20 uppercase">No teams yet</p>
                                 </div>
                             ) : (
                                 organisations.map(org => (
@@ -204,12 +204,12 @@ const TeamPage = () => {
                                         className={`w-full p-4 rounded-3xl text-left transition-all border flex items-center justify-between group ${
                                             selectedOrg?.id === org.id 
                                             ? 'bg-primary/10 border-primary/20 shadow-lg shadow-primary/5' 
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                            : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={`h-10 w-10 rounded-2xl flex items-center justify-center transition-all ${
-                                                selectedOrg?.id === org.id ? 'bg-primary text-white' : 'bg-white/5 text-muted-foreground'
+                                                selectedOrg?.id === org.id ? 'bg-primary text-white' : 'bg-black/5 dark:bg-white/5 text-muted-foreground'
                                             }`}>
                                                 <Users className="h-5 w-5" />
                                             </div>
@@ -248,7 +248,7 @@ const TeamPage = () => {
                                     <Card className="glass-card border-none">
                                         <CardContent className="pt-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                                                <div className="h-12 w-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
                                                     <Users className="h-6 w-6 text-muted-foreground" />
                                                 </div>
                                                 <div>
@@ -307,13 +307,13 @@ const TeamPage = () => {
                                         <div className="space-y-4">
                                             {loading ? (
                                                  Array.from({ length: 3 }).map((_, i) => (
-                                                    <div key={i} className="h-16 w-full rounded-2xl bg-white/5 animate-pulse" />
+                                                    <div key={i} className="h-16 w-full rounded-2xl bg-black/5 dark:bg-white/5 animate-pulse" />
                                                  ))
                                             ) : (
                                                 members.map(member => (
-                                                    <div key={member.id} className="p-4 rounded-3xl bg-white/5 border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-white/[0.07] transition-all">
+                                                    <div key={member.id} className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-white/[0.07] transition-all">
                                                         <div className="flex items-center gap-4">
-                                                            <div className="h-12 w-12 rounded-2xl bg-background border border-white/5 flex items-center justify-center">
+                                                            <div className="h-12 w-12 rounded-2xl bg-background border border-black/10 dark:border-white/5 flex items-center justify-center">
                                                                 <span className="text-lg font-black text-primary">{member.user_name?.charAt(0) || '?'}</span>
                                                             </div>
                                                             <div>
@@ -343,7 +343,7 @@ const TeamPage = () => {
                                                                 )}
                                                             </div>
 
-                                                            <div className="h-10 w-px bg-white/5 hidden md:block" />
+                                                            <div className="h-10 w-px bg-black/5 dark:bg-white/5 hidden md:block" />
 
                                                             <div className="flex items-center gap-4">
                                                                 <div className="hidden md:block">
@@ -378,7 +378,7 @@ const TeamPage = () => {
                                 <div className="flex gap-4">
                                     <button 
                                         onClick={() => setShowJoinModal(true)}
-                                        className="px-8 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                        className="px-8 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:bg-black/10 dark:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
                                     >
                                         Join Existing
                                     </button>
@@ -415,7 +415,7 @@ const TeamPage = () => {
                                         value={newOrgName}
                                         onChange={e => setNewOrgName(e.target.value)}
                                         placeholder="e.g. Acme Corporation"
-                                        className="w-full h-14 px-5 rounded-2xl bg-white/5 border border-white/10 focus:border-primary outline-none transition-all font-black text-lg"
+                                        className="w-full h-14 px-5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-black text-lg"
                                     />
                                 </div>
                                 <div className="flex gap-3">
@@ -453,7 +453,7 @@ const TeamPage = () => {
                                         value={inviteCode}
                                         onChange={e => setInviteCode(e.target.value.toUpperCase())}
                                         placeholder="ABC123XYZ"
-                                        className="w-full h-14 px-5 rounded-2xl bg-white/5 border border-white/10 focus:border-primary outline-none transition-all font-black text-2xl tracking-[0.3em] text-center"
+                                        className="w-full h-14 px-5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-black text-2xl tracking-[0.3em] text-center"
                                     />
                                 </div>
                                 <div className="flex gap-3">

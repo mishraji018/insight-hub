@@ -54,7 +54,7 @@ export function MLInsightCard({ insight, confidence, generated_at }: MLInsightCa
           {/* Copy button */}
           <button
             onClick={handleCopy}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/15 text-muted-foreground hover:text-primary transition-all"
+            className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-primary/15 text-muted-foreground hover:text-primary transition-all"
             title="Copy insight"
           >
             {copied ? (

@@ -132,22 +132,22 @@ const AdminPanelPage = () => {
                     <p className="text-muted-foreground mt-1">Manage invites, approvals and user permissions</p>
                 </div>
 
-                <div className="flex p-1 bg-white/5 rounded-xl border border-white/5 w-fit">
+                <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/5 w-fit">
                     <button
                         onClick={() => setActiveTab("invites")}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'invites' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-white/40 hover:text-white'}`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'invites' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-black/60 dark:text-white/40 hover:text-white'}`}
                     >
                         Invites
                     </button>
                     <button
                         onClick={() => setActiveTab("pending")}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'pending' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-white/40 hover:text-white'}`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'pending' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-black/60 dark:text-white/40 hover:text-white'}`}
                     >
                         Pending {pendingUsers.length > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500 text-[8px] animate-pulse">{pendingUsers.length}</span>}
                     </button>
                     <button
                         onClick={() => setActiveTab("users")}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'users' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-white/40 hover:text-white'}`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'users' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-black/60 dark:text-white/40 hover:text-white'}`}
                     >
                         All Users
                     </button>
@@ -167,12 +167,12 @@ const AdminPanelPage = () => {
 
                             <div className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-white/40">Reference Note</label>
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-black/60 dark:text-white/40">Reference Note</label>
                                     <input
                                         value={inviteNote}
                                         onChange={(e) => setInviteNote(e.target.value)}
                                         placeholder="e.g. Sales Manager North Region"
-                                        className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm outline-none focus:border-primary transition-all"
+                                        className="w-full rounded-lg border border-black/20 dark:border-white/10 bg-black/20 px-4 py-2.5 text-sm outline-none focus:border-primary transition-all"
                                     />
                                 </div>
                                 <button
@@ -189,11 +189,11 @@ const AdminPanelPage = () => {
                                         <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                                         <span className="text-xs font-extrabold text-emerald-500 uppercase tracking-widest">Invite Link Ready</span>
                                     </div>
-                                    <p className="text-[10px] text-white/40 mb-4">{generatedInvite.invite_link}</p>
+                                    <p className="text-[10px] text-black/60 dark:text-white/40 mb-4">{generatedInvite.invite_link}</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => copyToClipboard(generatedInvite.invite_link)}
-                                            className="flex items-center justify-center gap-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] font-bold transition-all"
+                                            className="flex items-center justify-center gap-2 py-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-[10px] font-bold transition-all"
                                         >
                                             <Copy className="h-3.5 w-3.5" /> Copy
                                         </button>
@@ -214,7 +214,7 @@ const AdminPanelPage = () => {
 
                     <div className="xl:col-span-2">
                         <div className="glass-card p-0 overflow-hidden">
-                            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                            <div className="p-6 border-b border-black/10 dark:border-white/5 flex items-center justify-between">
                                 <h3 className="text-sm font-bold flex items-center gap-2">
                                     <ExternalLink className="h-4 w-4 text-primary" /> Active Invites
                                 </h3>
@@ -222,7 +222,7 @@ const AdminPanelPage = () => {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="bg-white/5 text-[10px] uppercase font-bold tracking-widest text-white/40">
+                                        <tr className="bg-black/5 dark:bg-white/5 text-[10px] uppercase font-bold tracking-widest text-black/60 dark:text-white/40">
                                             <th className="px-6 py-4">Token</th>
                                             <th className="px-6 py-4">For (Note)</th>
                                             <th className="px-6 py-4">Status</th>
@@ -231,12 +231,12 @@ const AdminPanelPage = () => {
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
                                         {invites.map((inv) => (
-                                            <tr key={inv.token} className="hover:bg-white/5 transition-colors group">
+                                            <tr key={inv.token} className="hover:bg-black/5 dark:bg-white/5 transition-colors group">
                                                 <td className="px-6 py-4 font-mono text-xs text-primary">{inv.token}</td>
                                                 <td className="px-6 py-4 text-xs font-medium">{inv.note || '-'}</td>
                                                 <td className="px-6 py-4">
                                                     {inv.is_used ? (
-                                                        <span className="px-2 py-0.5 rounded-full bg-white/10 text-white/40 text-[9px] font-bold">Used by {inv.used_by_email}</span>
+                                                        <span className="px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/40 text-[9px] font-bold">Used by {inv.used_by_email}</span>
                                                     ) : inv.is_expired ? (
                                                         <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 text-[9px] font-bold">Expired</span>
                                                     ) : (
@@ -265,10 +265,10 @@ const AdminPanelPage = () => {
 
             {activeTab === "pending" && (
                 <div className="glass-card p-0 overflow-hidden">
-                    <div className="p-6 border-b border-white/5 overflow-x-auto">
+                    <div className="p-6 border-b border-black/10 dark:border-white/5 overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-white/5 text-[10px] uppercase font-bold tracking-widest text-white/40">
+                                <tr className="bg-black/5 dark:bg-white/5 text-[10px] uppercase font-bold tracking-widest text-black/60 dark:text-white/40">
                                     <th className="px-6 py-4">User</th>
                                     <th className="px-6 py-4">Registered On</th>
                                     <th className="px-6 py-4">Invite Used</th>
@@ -282,7 +282,7 @@ const AdminPanelPage = () => {
                                         <td colSpan={5} className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center gap-2">
                                                 <CheckCircle2 className="h-8 w-8 text-emerald-500/20" />
-                                                <p className="text-sm font-medium text-white/20">All caught up! No pending approvals.</p>
+                                                <p className="text-sm font-medium text-black/50 dark:text-white/20">All caught up! No pending approvals.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -298,13 +298,13 @@ const AdminPanelPage = () => {
 
             {activeTab === "users" && (
                 <div className="glass-card p-0 overflow-hidden">
-                    <div className="p-6 border-b border-white/5 flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <div className="p-6 border-b border-black/10 dark:border-white/5 flex flex-col md:flex-row gap-4 justify-between items-center">
                         <div className="relative w-full md:w-64 group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20 group-focus-within:text-primary transition-colors" />
-                            <input placeholder="Search users..." className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black/50 dark:text-white/20 group-focus-within:text-primary transition-colors" />
+                            <input placeholder="Search users..." className="w-full bg-black/5 dark:bg-black/40 border border-black/20 dark:border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all" />
                         </div>
                         <div className="flex items-center gap-2">
-                            <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 transition-all">
+                            <button className="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/40 transition-all">
                                 <Filter className="h-4 w-4" />
                             </button>
                         </div>
@@ -312,7 +312,7 @@ const AdminPanelPage = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-white/5 text-[10px] uppercase font-bold tracking-widest text-white/40">
+                                <tr className="bg-black/5 dark:bg-white/5 text-[10px] uppercase font-bold tracking-widest text-black/60 dark:text-white/40">
                                     <th className="px-6 py-4">User</th>
                                     <th className="px-6 py-4">Role</th>
                                     <th className="px-6 py-4">Status</th>
@@ -322,7 +322,7 @@ const AdminPanelPage = () => {
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {allUsers.map((u) => (
-                                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                                    <tr key={u.id} className="hover:bg-black/5 dark:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold">
@@ -330,7 +330,7 @@ const AdminPanelPage = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-xs font-bold">{u.first_name} {u.last_name}</p>
-                                                    <p className="text-[10px] text-white/30">{u.email}</p>
+                                                    <p className="text-[10px] text-black/60 dark:text-white/30">{u.email}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -339,7 +339,7 @@ const AdminPanelPage = () => {
                                                 u.role === 'executive' ? 'bg-purple-500/20 text-purple-500' :
                                                 u.role === 'analyst' ? 'bg-blue-500/20 text-blue-500' :
                                                 u.role === 'manager' ? 'bg-emerald-500/20 text-emerald-500' :
-                                                'bg-white/10 text-white/40'
+                                                'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/40'
                                             }`}>
                                                 {u.role}
                                             </span>
@@ -348,10 +348,10 @@ const AdminPanelPage = () => {
                                             {u.is_approved ? (
                                                 <span className="flex items-center gap-1.5 text-emerald-500"><CheckCircle2 className="h-3 w-3" /> Approved</span>
                                             ) : (
-                                                <span className="flex items-center gap-1.5 text-white/20"><Hourglass className="h-3 w-3" /> Pending</span>
+                                                <span className="flex items-center gap-1.5 text-black/50 dark:text-white/20"><Hourglass className="h-3 w-3" /> Pending</span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 text-[10px] text-white/30">
+                                        <td className="px-6 py-4 text-[10px] text-black/60 dark:text-white/30">
                                             {new Date(u.date_joined).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -379,7 +379,7 @@ const PendingUserRow = ({ user, onApprove }: { user: PendingUser, onApprove: (id
     const [role, setRole] = useState("pending");
 
     return (
-        <tr className="hover:bg-white/5 transition-colors bg-amber-500/5 group">
+        <tr className="hover:bg-black/5 dark:bg-white/5 transition-colors bg-amber-500/5 group">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-500 text-xs font-bold">
@@ -387,24 +387,24 @@ const PendingUserRow = ({ user, onApprove }: { user: PendingUser, onApprove: (id
                     </div>
                     <div>
                         <p className="text-sm font-bold">{user.first_name} {user.last_name}</p>
-                        <p className="text-xs text-white/30">{user.email}</p>
+                        <p className="text-xs text-black/60 dark:text-white/30">{user.email}</p>
                     </div>
                 </div>
             </td>
-            <td className="px-6 py-4 text-[10px] text-white/40">
+            <td className="px-6 py-4 text-[10px] text-black/60 dark:text-white/40">
                 {new Date(user.date_joined).toLocaleString()}
             </td>
             <td className="px-6 py-4">
                 <div className="flex flex-col">
                     <span className="text-xs font-mono text-primary">{user.invite_used || 'Direct?'}</span>
-                    <span className="text-[10px] text-white/20 italic">{user.invite_note}</span>
+                    <span className="text-[10px] text-black/50 dark:text-white/20 italic">{user.invite_note}</span>
                 </div>
             </td>
             <td className="px-6 py-4">
                 <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-[10px] font-bold outline-none focus:border-primary"
+                    className="bg-black/5 dark:bg-black/40 border border-black/20 dark:border-white/10 rounded-lg px-3 py-1.5 text-[10px] font-bold outline-none focus:border-primary"
                 >
                     <option value="pending">Choose Role</option>
                     <option value="executive">Executive</option>

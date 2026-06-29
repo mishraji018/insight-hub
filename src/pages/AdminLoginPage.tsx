@@ -73,7 +73,7 @@ const AdminLoginPage = () => {
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   required
-                  className="w-full rounded-lg border border-input bg-background/50 pl-10 pr-4 py-2.5 text-sm outline-none transition-all placeholder:text-white/10 focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-lg border border-input bg-background/50 pl-10 pr-4 py-2.5 text-sm outline-none transition-all placeholder:text-black/50 dark:text-white/10 focus:border-primary focus:ring-1 focus:ring-primary"
                   placeholder="admin@kiet.edu"
                 />
               </div>

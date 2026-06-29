@@ -181,7 +181,7 @@ const PredictionsPage = () => {
                 {history.map((h, i) => (
                   <div
                     key={i}
-                    className={`p-3 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all cursor-default group animate-fade-slide-up`}
+                    className={`p-3 rounded-xl bg-white/3 border border-black/10 dark:border-white/5 hover:bg-black/5 dark:bg-white/5 transition-all cursor-default group animate-fade-slide-up`}
                     style={{ animationDelay: `${i * 60}ms` }}
                   >
                     <div className="flex items-start justify-between gap-2">

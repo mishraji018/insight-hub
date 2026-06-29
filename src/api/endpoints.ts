@@ -587,17 +587,9 @@ export const getTaskStatus = async (taskId: string): Promise<TaskStatus> => {
 };
 
 export const getModels = async (): Promise<Model[]> => {
-  try {
-    // There is currently no backend endpoint for fetching all models in Django
-    const response: AxiosResponse<Model[]> = await axiosInstance.get('/api/models/');
-    return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      console.warn("Backend /api/models/ endpoint not found. Returning empty list.");
-      return [];
-    }
-    throw error;
-  }
+  // There is currently no backend endpoint for fetching all models in Django
+  // Returning an empty array immediately to avoid 404 network errors in the console.
+  return [];
 };
 
 export const activateModel = async (modelId: number): Promise<Model> => {

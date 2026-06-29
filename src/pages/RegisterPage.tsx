@@ -116,7 +116,7 @@ const RegisterPage = () => {
                     </p>
                     <button
                         onClick={() => navigate("/login")}
-                        className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-bold transition-all"
+                        className="w-full h-12 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-sm font-bold transition-all"
                     >
                         Back to Login
                     </button>
@@ -148,7 +148,7 @@ const RegisterPage = () => {
                                     value={formData.first_name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all placeholder:text-white/10"
+                                    className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all placeholder:text-black/50 dark:text-white/10"
                                     placeholder="John"
                                 />
                             </div>
@@ -159,7 +159,7 @@ const RegisterPage = () => {
                                     value={formData.last_name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all placeholder:text-white/10"
+                                    className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all placeholder:text-black/50 dark:text-white/10"
                                     placeholder="Doe"
                                 />
                             </div>
@@ -173,7 +173,7 @@ const RegisterPage = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all placeholder:text-white/5"
+                                className="w-full rounded-lg border border-input bg-background/50 px-4 py-2.5 text-sm outline-none transition-all placeholder:text-black/40 dark:text-white/5"
                                 placeholder="john@example.com"
                             />
                         </div>
@@ -210,7 +210,7 @@ const RegisterPage = () => {
                                                 key={step}
                                                 className={`flex-1 rounded-full transition-all duration-500 ${strength >= step
                                                         ? (strength <= 2 ? 'bg-destructive' : strength === 3 ? 'bg-amber-400' : 'bg-emerald-500')
-                                                        : 'bg-white/5'
+                                                        : 'bg-black/5 dark:bg-white/5'
                                                     }`}
                                             />
                                         ))}
@@ -218,7 +218,7 @@ const RegisterPage = () => {
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                                         {requirements.map((req, i) => (
                                             <div key={i} className="flex items-center gap-1.5 text-[10px] font-medium transition-colors">
-                                                <div className={`p-0.5 rounded-full ${req.test(formData.password) ? 'bg-emerald-500/20 text-emerald-500' : 'bg-white/5 text-white/10'}`}>
+                                                <div className={`p-0.5 rounded-full ${req.test(formData.password) ? 'bg-emerald-500/20 text-emerald-500' : 'bg-black/5 dark:bg-white/5 text-black/50 dark:text-white/10'}`}>
                                                     <Check className="h-2.5 w-2.5" />
                                                 </div>
                                                 <span className={req.test(formData.password) ? 'text-emerald-500' : 'text-muted-foreground'}>{req.label}</span>

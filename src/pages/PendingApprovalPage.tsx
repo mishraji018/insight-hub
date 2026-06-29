@@ -45,8 +45,8 @@ const PendingApprovalPage = () => {
                             You will be automatically granted access once a role is assigned.
                         </p>
 
-                        <div className="p-3 rounded-lg bg-white/5 border border-white/5 inline-flex items-center gap-2 mx-auto">
-                            <Mail className="h-3.5 w-3.5 text-white/30" />
+                        <div className="p-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 inline-flex items-center gap-2 mx-auto">
+                            <Mail className="h-3.5 w-3.5 text-black/60 dark:text-white/30" />
                             <span className="text-xs font-medium text-white/60">{user?.email}</span>
                         </div>
                     </div>
@@ -57,7 +57,7 @@ const PendingApprovalPage = () => {
                                 initializeAuth();
                                 toast.success("Checking status...");
                             }}
-                            className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-bold flex items-center justify-center gap-2 transition-all group"
+                            className="w-full h-12 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-sm font-bold flex items-center justify-center gap-2 transition-all group"
                         >
                             <RefreshCw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-500" />
                             Refresh Status
@@ -73,7 +73,7 @@ const PendingApprovalPage = () => {
                     </div>
 
                     <div className="mt-8">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 animate-pulse">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/50 dark:text-white/20 animate-pulse">
                             System checking for updates...
                         </p>
                     </div>

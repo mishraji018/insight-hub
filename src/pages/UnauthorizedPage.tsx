@@ -20,7 +20,7 @@ const UnauthorizedPage = () => {
 
                 <button
                     onClick={() => navigate("/dashboard")}
-                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-bold flex items-center justify-center gap-3 transition-all group"
+                    className="w-full h-12 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-sm font-bold flex items-center justify-center gap-3 transition-all group"
                 >
                     <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-all" />
                     Retreat to Dashboard

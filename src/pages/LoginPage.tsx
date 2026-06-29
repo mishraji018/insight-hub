@@ -117,7 +117,7 @@ const LoginPage: React.FC = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-lg border border-input bg-background/50 pl-10 pr-4 py-2.5 text-sm outline-none transition-all placeholder:text-white/5"
+                      className="w-full rounded-lg border border-input bg-background/50 pl-10 pr-4 py-2.5 text-sm outline-none transition-all placeholder:text-black/40 dark:text-white/5"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -190,7 +190,7 @@ const LoginPage: React.FC = () => {
                       onChange={(e) => setOtpCode(e.target.value.replace(/\s/g, ''))}
                       required
                       autoFocus
-                      className="w-full rounded-2xl border border-input bg-white/5 pl-12 pr-4 py-4 text-xl font-black tracking-[0.2em] outline-none border-primary/20 focus:border-primary transition-all text-center"
+                      className="w-full rounded-2xl border border-input bg-black/5 dark:bg-white/5 pl-12 pr-4 py-4 text-xl font-black tracking-[0.2em] outline-none border-primary/20 focus:border-primary transition-all text-center"
                       placeholder="000000"
                     />
                   </div>

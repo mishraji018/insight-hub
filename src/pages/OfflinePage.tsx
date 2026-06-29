@@ -73,14 +73,14 @@ const OfflinePage: React.FC = () => {
         
         <button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center justify-center gap-3 w-full h-12 bg-white/5 border border-white/5 text-muted-foreground rounded-xl text-sm font-bold hover:bg-white/10 transition-all"
+          className="flex items-center justify-center gap-3 w-full h-12 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 text-muted-foreground rounded-xl text-sm font-bold hover:bg-black/10 dark:bg-white/10 transition-all"
         >
           <LayoutDashboard className="h-4 w-4" />
           View Cached Dashboard
         </button>
       </div>
 
-      <div className="mt-12 p-3 px-6 rounded-full bg-white/5 border border-white/5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+      <div className="mt-12 p-3 px-6 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
         Auto-reconnecting every 30 seconds...
       </div>
     </div>

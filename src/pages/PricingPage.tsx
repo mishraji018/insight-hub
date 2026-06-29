@@ -96,7 +96,7 @@ const PricingPage: React.FC = () => {
             className={`relative group rounded-[2rem] p-8 transition-all duration-500 hover:-translate-y-2 ${
               plan.highlight 
                 ? 'bg-gradient-to-b from-primary/20 to-primary/5 border-2 border-primary/30' 
-                : 'bg-white/5 border border-white/5 hover:bg-white/[0.07]'
+                : 'bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 hover:bg-white/[0.07]'
             }`}
           >
             {plan.highlight && (
@@ -106,7 +106,7 @@ const PricingPage: React.FC = () => {
             )}
 
             <div className="mb-8">
-              <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/5 group-hover:scale-110 transition-transform duration-500">
+              <div className="h-14 w-14 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center mb-6 border border-black/10 dark:border-white/5 group-hover:scale-110 transition-transform duration-500">
                 {plan.icon}
               </div>
               <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{plan.name}</h3>
@@ -122,7 +122,7 @@ const PricingPage: React.FC = () => {
             <ul className="space-y-4 mb-10">
               {plan.features.map((feature, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm font-medium text-gray-300">
-                  <div className="mt-1 h-5 w-5 rounded-full bg-white/5 flex items-center justify-center border border-white/5 shrink-0">
+                  <div className="mt-1 h-5 w-5 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/10 dark:border-white/5 shrink-0">
                     <Check className="h-3 w-3 text-primary" />
                   </div>
                   {feature}
@@ -135,7 +135,7 @@ const PricingPage: React.FC = () => {
               disabled={loading !== null || (user?.subscription_plan?.id === plan.id)}
               className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 ${
                 user?.subscription_plan?.id === plan.id
-                  ? 'bg-white/10 text-gray-400 cursor-default'
+                  ? 'bg-black/10 dark:bg-white/10 text-gray-400 cursor-default'
                   : plan.highlight
                     ? 'bg-primary text-black hover:bg-primary/90 shadow-xl shadow-primary/20'
                     : 'bg-white text-black hover:bg-gray-200'

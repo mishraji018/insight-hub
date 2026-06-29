@@ -8,7 +8,7 @@ import {
   BarChart3, Brain, FileSpreadsheet, LayoutDashboard, LogOut,
   Settings, Moon, Sun, Bell, User, Key, Shield, ChevronUp, Layout,
   CheckCheck, Trash2, ShieldAlert, Info, CheckCircle2, Search,
-  Users, Globe, Plus
+  Users, Globe, Plus, BookOpen, Activity
 } from "lucide-react";
 import SearchModal from "./SearchModal";
 import api from "@/api/endpoints";
@@ -34,13 +34,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const activeOrgId = useAuthStore(s => s.activeOrgId);
   const setActiveOrgId = useAuthStore(s => s.setActiveOrgId);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [userStats, setUserStats] = useState<any>(null);
   const [connectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const activityRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -49,6 +52,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       }
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
+      }
+      if (activityRef.current && !activityRef.current.contains(event.target as Node)) {
+        setShowActivity(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -80,6 +86,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       fetchNotifications();
+      authAPI.getUserStats().then(s => setUserStats(s)).catch(() => {});
       fetchOrgs();
       const interval = setInterval(fetchNotifications, 60000);
       return () => clearInterval(interval);
@@ -149,7 +156,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-h-screen w-full z-10 relative">
       {/* Sidebar */}
-      <aside className="w-64 bg-sidebar/90 backdrop-blur-xl text-sidebar-foreground flex flex-col shrink-0 border-r border-white/10 shadow-2xl z-20">
+      <aside className="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl text-white flex flex-col shrink-0 border-r border-white/10 shadow-2xl z-20">
         <div className="p-8 border-b border-white/5">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="p-2.5 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-all">
@@ -228,7 +235,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 ${
                   active
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 translate-x-1"
-                    : "text-sidebar-foreground/40 hover:bg-white/5 hover:text-white"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <item.icon className={`h-4 w-4 ${active ? 'text-primary-foreground' : 'text-primary/60'}`} />
@@ -247,7 +254,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 ${
                   location.pathname === "/admin/dashboard"
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 translate-x-1"
-                    : "text-sidebar-foreground/40 hover:bg-white/5 hover:text-white"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <LayoutDashboard className={`h-4 w-4 ${location.pathname === "/admin/dashboard" ? 'text-primary-foreground' : 'text-primary/60'}`} />
@@ -258,7 +265,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 ${
                   location.pathname === "/admin/panel"
                     ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 translate-x-1"
-                    : "text-sidebar-foreground/40 hover:bg-white/5 hover:text-white"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <Shield className={`h-4 w-4 ${location.pathname === "/admin/panel" ? 'text-black' : 'text-amber-500/60'}`} />
@@ -269,7 +276,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 ${
                   location.pathname === "/admin/train-model"
                     ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-lg translate-x-1"
-                    : "text-sidebar-foreground/40 hover:bg-white/5 hover:text-white"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <Settings className={`h-4 w-4 ${location.pathname === "/admin/train-model" ? 'text-white' : 'text-white/20'}`} />
@@ -304,7 +311,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           )}
         </nav>
 
-        {/* Sidebar Footer - Only Theme Toggle left or moved? User only mentioned moving Sync and Profile */}
+        {/* Sidebar Footer */}
         <div className="p-5 border-t border-white/5">
           <button 
             onClick={toggleTheme} 
@@ -313,14 +320,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <span className="text-[10px] font-black uppercase tracking-widest text-white/30 group-hover:text-white transition-colors">
               {user?.theme_preference === 'light' ? 'Light Mode' : 'Dark Mode'}
             </span>
-            {user?.theme_preference === 'light' ? <Moon className="h-4 w-4 text-white/40" /> : <Sun className="h-4 w-4 text-white/40" />}
+            {user?.theme_preference === 'light' ? <Moon className="h-4 w-4 text-white/40 group-hover:text-white transition-colors" /> : <Sun className="h-4 w-4 text-white/40 group-hover:text-white transition-colors" />}
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 bg-transparent overflow-hidden relative">
-        <header className="h-20 border-b border-border/40 flex items-center justify-between px-10 bg-background/30 backdrop-blur-xl sticky top-0 z-10">
+        <header className="h-20 border-b border-border/40 flex items-center justify-between px-10 bg-background/30 backdrop-blur-xl sticky top-0 z-50">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-lg bg-muted">
               <Layout className="h-4 w-4 text-muted-foreground" />
@@ -332,6 +339,50 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* User Profile and Notifications moved here */}
           <div className="flex items-center gap-4">
+
+            {/* Activity Dropdown */}
+            <div className="relative z-30" ref={activityRef}>
+              <button
+                onClick={() => {
+                  setShowActivity(!showActivity);
+                  setShowNotifications(false);
+                  setShowProfileMenu(false);
+                }}
+                className={`relative p-2 rounded-xl transition-all duration-300 ${
+                  showActivity ? 'bg-primary/10 shadow-inner text-primary' : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Activity className="h-5 w-5" />
+              </button>
+
+              {showActivity && (
+                <div className="absolute top-full right-0 mt-3 w-64 p-2 rounded-2xl bg-popover border border-border shadow-2xl z-50 scale-in-center">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
+                      <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Your Activity</span>
+                    </div>
+                    
+                    <div className="p-2 space-y-4">
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 text-center transition-colors hover:bg-black/10 dark:hover:bg-white/10">
+                                <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Sessions</p>
+                                <p className="text-lg font-black text-foreground">{userStats?.total_logins || 0}</p>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 text-center transition-colors hover:bg-black/10 dark:hover:bg-white/10">
+                                <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Active Days</p>
+                                <p className="text-lg font-black text-primary">{userStats?.days_active || 0}</p>
+                            </div>
+                        </div>
+                        <div className="space-y-1.5 px-1">
+                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest">Engagement Score</p>
+                            <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary transition-all duration-1000 ease-out" style={{ width: `${Math.min(100, (userStats?.total_logins || 0) * 10)}%` }} />
+                            </div>
+                            <p className="text-[9px] text-right font-bold text-primary/60 pt-1">Global Rank: #42</p>
+                        </div>
+                    </div>
+                </div>
+              )}
+            </div>
             
             {/* Notifications Dropdown */}
             <div className="relative z-30" ref={notificationRef}>
@@ -353,7 +404,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {showNotifications && (
-                <div className="absolute top-full right-0 mt-3 w-80 p-2 rounded-2xl bg-[#0f172a] border border-white/10 shadow-2xl z-50 scale-in-center">
+                <div className="absolute top-full right-0 mt-3 w-80 p-2 rounded-2xl bg-popover border border-border shadow-2xl z-50 scale-in-center">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
                       <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Notifications</span>
                       <button 
@@ -439,7 +490,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
 
               {showProfileMenu && (
-                <div className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-[#0f172a] border border-white/10 shadow-2xl z-50 scale-in-center">
+                <div className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-popover border border-border shadow-2xl z-50 scale-in-center">
                     <div className="px-4 py-3 border-b border-border mb-2 bg-muted/50 rounded-t-xl">
                       <p className="text-xs font-black text-foreground truncate">{displayName}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5">{user?.role}</p>

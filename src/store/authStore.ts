@@ -71,14 +71,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return response;
       }
 
-      const isKietAdmin = response.email?.toLowerCase().endsWith('@kiet.edu') || false;
       const user: User = response.user || {
         id: response.user_id,
         email: response.email || '',
-        role: isKietAdmin ? 'admin' : response.role,
+        role: response.role,
         name: response.full_name,
-        is_approved: isKietAdmin ? true : response.is_approved,
-        is_staff: isKietAdmin ? true : response.is_staff,
+        is_approved: response.is_approved,
+        is_staff: response.is_staff,
         date_joined: response.date_joined,
       };
 
@@ -157,19 +156,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     try {
       const user = await authAPI.getCurrentUser();
-      const isKietAdmin = user.email?.toLowerCase().endsWith('@kiet.edu') || false;
       set({
         user: {
           ...user,
-          role: isKietAdmin ? 'admin' : user.role,
-          is_approved: isKietAdmin ? true : user.is_approved,
-          is_staff: isKietAdmin ? true : user.is_staff,
         },
         accessToken,
         refreshToken: sessionStorage.getItem('refreshToken'),
         isAuthenticated: true,
-        isApproved: isKietAdmin ? true : (user.is_approved ?? false),
-        isStaff: isKietAdmin ? true : (user.role === 'admin' || user.is_staff === true),
+        isApproved: user.is_approved ?? false,
+        isStaff: user.role === 'admin' || user.is_staff === true,
         isLoading: false,
         error: null,
       });

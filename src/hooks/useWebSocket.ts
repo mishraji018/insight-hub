@@ -94,6 +94,8 @@ export function useWebSocket(url: string): UseWebSocketReturn {
         if ((wsRef.current as any)._mockInterval) {
           clearInterval((wsRef.current as any)._mockInterval);
         }
+        // Remove onclose handler so it doesn't trigger a reconnect when intentionally unmounting
+        wsRef.current.onclose = null;
         wsRef.current.close();
         wsRef.current = null;
       }

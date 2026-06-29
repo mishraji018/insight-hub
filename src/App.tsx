@@ -37,11 +37,11 @@ const ErrorBoundary = lazy(() => import("@/components/ErrorBoundary"));
 const PageLoader = () => (
   <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 space-y-4">
     <Skeleton className="h-12 w-64 bg-primary/10" />
-    <Skeleton className="h-4 w-48 bg-white/5" />
+    <Skeleton className="h-4 w-48 bg-black/5 dark:bg-white/5" />
     <div className="grid grid-cols-3 gap-4 w-full max-w-2xl mt-8">
-      <Skeleton className="h-32 rounded-2xl bg-white/5" />
-      <Skeleton className="h-32 rounded-2xl bg-white/5" />
-      <Skeleton className="h-32 rounded-2xl bg-white/5" />
+      <Skeleton className="h-32 rounded-2xl bg-black/5 dark:bg-white/5" />
+      <Skeleton className="h-32 rounded-2xl bg-black/5 dark:bg-white/5" />
+      <Skeleton className="h-32 rounded-2xl bg-black/5 dark:bg-white/5" />
     </div>
   </div>
 );
