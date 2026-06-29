@@ -60,7 +60,21 @@ export default function RootLayout({
             {children}
             <ThemeSelector />
           </div>
-          <Toaster position="top-right" />
+          <Toaster 
+            position="top-right" 
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#0a0a0a',
+                color: '#F9FAFB',
+                border: '1px solid rgba(255,255,255,0.05)',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em'
+              },
+            }}
+          />
         </Providers>
       </body>
     </html>

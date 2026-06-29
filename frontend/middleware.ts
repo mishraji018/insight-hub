@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 import { rateLimit } from "@/lib/rate-limit";
 
 const publicRoutes = [
@@ -12,6 +13,8 @@ const publicRoutes = [
 ];
 
 const publicApiPrefix = "/api/auth";
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;

@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isApproved: false,
   isStaff: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
   activeOrgId: localStorage.getItem('activeOrgId') ? parseInt(localStorage.getItem('activeOrgId')!) : null,
 

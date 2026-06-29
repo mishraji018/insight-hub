@@ -1,501 +1,319 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
+import { AppLayout } from '@/components/AppLayout';
+import api, { APIKey } from '@/api/endpoints';
 import { 
-  Zap, Key, Plus, Copy, Trash2, ShieldCheck, 
-  Code, Terminal, Globe, Activity, Check, 
-  AlertCircle, Clock, ExternalLink, ChevronRight,
-  Lock, RefreshCw
+  Key, 
+  Plus, 
+  Trash2, 
+  Power, 
+  Copy, 
+  CheckCircle2, 
+  Loader2, 
+  Terminal, 
+  Code2, 
+  BookOpen, 
+  ShieldCheck,
+  Zap,
+  Clock,
+  ExternalLink,
+  Info
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import toast from 'react-hot-toast';
-import { Skeleton, StatCardSkeleton } from '@/components/ui/Skeleton';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer 
-} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { toast } from 'react-hot-toast';
 
-interface APIKey {
-  id: string;
-  name: string;
-  prefix: string;
-  lastUsed: string | null;
-  isActive: boolean;
-  rateLimit: number;
-  createdAt: string;
-}
+const DeveloperPage = () => {
+    const [keys, setKeys] = useState<APIKey[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isCreating, setIsCreating] = useState(false);
+    const [newKeyName, setNewKeyName] = useState("");
+    const [showKeyModal, setShowKeyModal] = useState(false);
+    const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
 
-interface UsageStats {
-  totalCallsMonth: number;
-  callsToday: number;
-  successRate: number;
-  activeKeysCount: number;
-  rateLimit: {
-    limit: number;
-    remaining: number;
-    resetIn: string;
-  };
-}
+    useEffect(() => {
+        fetchKeys();
+    }, []);
 
-const mockUsageData = [
-  { time: '00:00', calls: 120 },
-  { time: '04:00', calls: 80 },
-  { time: '08:00', calls: 450 },
-  { time: '12:00', calls: 860 },
-  { time: '16:00', calls: 1200 },
-  { time: '20:00', calls: 950 },
-  { time: '23:59', calls: 300 },
-];
+    const fetchKeys = async () => {
+        try {
+            const data = await api.developer.getKeys();
+            setKeys(data);
+        } catch (error) {
+            toast.error("Failed to load API keys");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-export default function DeveloperPage() {
-  const [keys, setKeys] = useState<APIKey[]>([]);
-  const [stats, setStats] = useState<UsageStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [newKey, setNewKey] = useState<{ name: string; key: string } | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+    const handleCreateKey = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newKeyName.trim()) return;
+        setIsCreating(true);
+        try {
+            const response = await api.developer.createKey(newKeyName);
+            setKeys([...keys, response]);
+            setNewlyCreatedKey(response.key);
+            setShowKeyModal(true);
+            setNewKeyName("");
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Failed to create key");
+        } finally {
+            setIsCreating(false);
+        }
+    };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    const handleToggleKey = async (id: number) => {
+        try {
+            const { is_active } = await api.developer.toggleKey(id);
+            setKeys(keys.map(k => k.id === id ? { ...k, is_active } : k));
+            toast.success(is_active ? "Key activated" : "Key deactivated");
+        } catch (error) {
+            toast.error("Failed to toggle key status");
+        }
+    };
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [keysRes, statsRes] = await Promise.all([
-        fetch('/api/developer/keys'),
-        fetch('/api/developer/stats')
-      ]);
-      
-      if (keysRes.ok && statsRes.ok) {
-        setKeys(await keysRes.json());
-        setStats(await statsRes.json());
-      }
-    } catch (error) {
-      toast.error('Failed to load developer data');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleDeleteKey = async (id: number) => {
+        if (!window.confirm("Permanently delete this API key?")) return;
+        try {
+            await api.developer.deleteKey(id);
+            setKeys(keys.filter(k => k.id !== id));
+            toast.success("Key deleted");
+        } catch (error) {
+            toast.error("Failed to delete key");
+        }
+    };
 
-  const generateKey = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('keyName') as string;
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        toast.success("Copied to clipboard!");
+    };
 
-    if (!name) return;
-
-    setCreating(true);
-    try {
-      const res = await fetch('/api/developer/keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setNewKey({ name: data.name, key: data.key });
-        await fetchData();
-        toast.success('API Key generated successfully');
-        e.currentTarget.reset();
-      } else {
-        toast.error('Failed to generate API Key');
-      }
-    } catch (error) {
-      toast.error('An error occurred');
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const revokeKey = async (id: string) => {
-    if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) return;
-
-    try {
-      const res = await fetch(`/api/developer/keys/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setKeys(keys.filter(k => k.id !== id));
-        toast.success('API Key revoked');
-        fetchData();
-      } else {
-        toast.error('Failed to revoke key');
-      }
-    } catch (error) {
-      toast.error('Error revoking key');
-    }
-  };
-
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    toast.success('Copied to clipboard');
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  return (
-    <div className="space-y-8 pb-20 page-enter">
-      
-      {/* ── Header Section ── */}
-      <div className="bg-surface/70 backdrop-blur-xl border border-surface2 p-8 rounded-3xl shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl -mr-32 -mt-32" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-accent/10 rounded-2xl">
-                <Zap className="w-6 h-6 text-accent animate-pulse-subtle" />
-              </div>
-              <h1 className="text-3xl font-black text-text tracking-tighter uppercase">Developer Portal</h1>
-            </div>
-            <p className="text-sm font-medium text-muted/80 max-w-lg italic">
-              Empower your applications with Insight Hub's high-performance APIs and real-time data syncs.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 bg-surface2/50 rounded-xl border border-surface2 text-[10px] font-black uppercase tracking-widest text-muted">
-              < Globe className="w-3.5 h-3.5 text-accent" />
-              API V1.0 - Stable
-            </div>
-            <button 
-              onClick={fetchData}
-              className="p-2.5 bg-surface2/50 hover:bg-surface2 rounded-xl transition-all border border-surface2 text-muted hover:text-accent"
-            >
-              <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Usage Stats ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {loading && !stats ? (
-          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
-        ) : (
-          <>
-            <div className="card p-6 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-accent/10 rounded-lg text-accent">
-                  <Activity className="w-4 h-4" />
+    return (
+        <AppLayout>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-4xl font-black tracking-tight text-foreground italic">
+                            Developer <span className="text-primary not-italic">Portal</span>
+                        </h1>
+                        <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em]">Programmatic Access & Integrations</p>
+                    </div>
                 </div>
-                <span className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">Usage</span>
-              </div>
-              <h3 className="text-2xl font-black text-text">{stats?.totalCallsMonth.toLocaleString()}</h3>
-              <p className="text-[10px] text-muted font-bold mt-1 uppercase">Monthly Requests</p>
-            </div>
 
-            <div className="card p-6 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-success/10 rounded-lg text-success">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <span className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">Health</span>
-              </div>
-              <h3 className="text-2xl font-black text-text">{stats?.successRate}%</h3>
-              <div className="w-full bg-surface2 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div className="bg-success h-full shadow-glow-sm" style={{ width: `${stats?.successRate}%` }}></div>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Key Management Section */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <Card className="glass-card border-none shadow-2xl overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-xl">API Credentials</CardTitle>
+                                    <CardDescription>Secure keys to access our public endpoints</CardDescription>
+                                </div>
+                                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                                    <Key className="h-5 w-5 text-primary" />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <form onSubmit={handleCreateKey} className="flex gap-3">
+                                    <input 
+                                        value={newKeyName}
+                                        onChange={e => setNewKeyName(e.target.value)}
+                                        placeholder="Key name (e.g. Production Backend)"
+                                        className="flex-1 h-12 px-4 rounded-xl bg-white/5 border border-white/5 focus:border-primary outline-none transition-all font-bold text-sm"
+                                    />
+                                    <button 
+                                        disabled={!newKeyName || isCreating}
+                                        className="px-6 h-12 rounded-xl bg-primary text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap"
+                                    >
+                                        {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                        Generate Key
+                                    </button>
+                                </form>
 
-            <div className="card p-6 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-warning/10 rounded-lg text-warning">
-                  <Clock className="w-4 h-4" />
-                </div>
-                <span className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">Speed</span>
-              </div>
-              <h3 className="text-2xl font-black text-text">124ms</h3>
-              <p className="text-[10px] text-muted font-bold mt-1 uppercase">Avg Latency</p>
-            </div>
+                                <div className="space-y-3">
+                                    {loading ? (
+                                        Array.from({ length: 2 }).map((_, i) => (
+                                            <div key={i} className="h-20 w-full rounded-2xl bg-white/5 animate-pulse" />
+                                        ))
+                                    ) : keys.length === 0 ? (
+                                        <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-[2rem]">
+                                            <ShieldCheck className="h-10 w-10 text-white/5 mx-auto mb-3" />
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-white/20">No active keys found</p>
+                                        </div>
+                                    ) : (
+                                        keys.map(key => (
+                                            <div key={key.id} className="p-4 rounded-3xl bg-white/5 border border-white/5 flex items-center justify-between group hover:bg-white/[0.08] transition-all">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center ${key.is_active ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/20'}`}>
+                                                        <Zap className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className={`text-sm font-black ${!key.is_active && 'opacity-30'}`}>{key.name}</p>
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <code className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{key.prefix}••••••••</code>
+                                                            <span className="h-1 w-1 rounded-full bg-white/10" />
+                                                            <p className="text-[9px] font-bold text-white/20 uppercase">
+                                                                {key.last_used ? `Used ${new Date(key.last_used).toLocaleDateString()}` : 'Never used'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-            <div className="card p-6 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-accent/10 rounded-lg text-accent">
-                  <Lock className="w-4 h-4" />
-                </div>
-                <span className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">Quota</span>
-              </div>
-              <h3 className="text-2xl font-black text-text">
-                {stats ? ((stats.rateLimit.remaining / stats.rateLimit.limit) * 100).toFixed(0) : 0}%
-              </h3>
-              <p className="text-[10px] text-muted font-bold mt-1 uppercase tracking-tighter italic">Resets in {stats?.rateLimit.resetIn}</p>
-            </div>
-          </>
-        )}
-      </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                        onClick={() => handleToggleKey(key.id)}
+                                                        className={`p-2 rounded-xl transition-all ${key.is_active ? 'text-primary hover:bg-primary/10' : 'text-white/20 hover:bg-white/10'}`}
+                                                        title={key.is_active ? "Deactivate" : "Activate"}
+                                                    >
+                                                        <Power className="h-4 w-4" />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteKey(key.id)}
+                                                        className="p-2 rounded-xl text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* ── API Keys & Chart (Left/Center) ── */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Usage Chart */}
-          <div className="card p-6 overflow-hidden">
-            <h3 className="text-xs font-black text-text uppercase tracking-widest mb-6 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-accent" />
-              API Traffic (Last 24h)
-            </h3>
-            <div className="h-[240px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockUsageData}>
-                  <defs>
-                    <linearGradient id="usageGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false} />
-                  <XAxis 
-                    dataKey="time" 
-                    stroke="var(--muted)" 
-                    fontSize={10} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tick={{ fontWeight: 800 }}
-                  />
-                  <YAxis 
-                    stroke="var(--muted)" 
-                    fontSize={10} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tickFormatter={(v) => `${v}`}
-                    tick={{ fontWeight: 800 }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--surface2)', borderRadius: '12px' }}
-                    labelStyle={{ fontWeight: 800, color: 'var(--text)', fontSize: '12px', marginBottom: '4px' }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="calls" 
-                    stroke="var(--accent)" 
-                    strokeWidth={3}
-                    fillOpacity={1} 
-                    fill="url(#usageGradient)" 
-                    animationDuration={2000}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                        <Card className="glass-card border-none shadow-xl">
+                            <CardHeader>
+                                <div className="flex items-center gap-3">
+                                    <BookOpen className="h-5 w-5 text-primary" />
+                                    <CardTitle className="text-lg">Quick Start Guide</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Terminal className="h-4 w-4 text-emerald-500" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Bash / CURL</span>
+                                        </div>
+                                        <button onClick={() => copyToClipboard('curl -H "Authorization: Bearer YOUR_KEY" https://api.insighthub.com/v1/predictions/')} className="hover:text-primary transition-colors">
+                                            <Copy className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                    <code className="block text-[11px] font-mono text-emerald-500/80 leading-relaxed overflow-x-auto whitespace-nowrap pb-2">
+                                        curl -H "Authorization: Bearer <span className="text-emerald-500">ih_xxxx.yyyy</span>" \<br/>
+                                        &nbsp;&nbsp;https://api.insighthub.com/v1/predictions/
+                                    </code>
+                                </div>
 
-          {/* API Keys Management */}
-          <div className="card p-8">
-            <div className="flex items-center justify-between mb-8">
-              <div className="space-y-1">
-                <h2 className="text-xl font-black text-text tracking-tight uppercase">API Keys</h2>
-                <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60 italic">Manage keys used to authenticate requests</p>
-              </div>
-            </div>
+                                <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Code2 className="h-4 w-4 text-blue-500" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Node.js / Axios</span>
+                                        </div>
+                                    </div>
+                                    <code className="block text-[11px] font-mono text-blue-400/80 leading-relaxed overflow-x-auto pb-1">
+                                        const response = await axios.get('/api/v1/usage', &#123;<br/>
+                                        &nbsp;&nbsp;headers: &#123; Authorization: `Bearer $&#123;API_KEY&#125;` &#125;<br/>
+                                        &#125;);
+                                    </code>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-            <div className="space-y-4">
-              {loading && keys.length === 0 ? (
-                Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="h-20 bg-surface2/50 animate-pulse rounded-2xl" />
-                ))
-              ) : keys.length === 0 ? (
-                <div className="text-center py-16 bg-background/30 rounded-3xl border-2 border-dashed border-surface2/50">
-                   <div className="w-16 h-16 bg-surface2/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Key className="w-8 h-8 text-muted/30" />
-                   </div>
-                  <p className="text-xs font-black text-text uppercase tracking-widest">No API keys found</p>
-                  <p className="text-[10px] text-muted mt-2 font-bold uppercase tracking-tighter italic">Generate your first secret key below to get started</p>
-                </div>
-              ) : (
-                keys.map((key) => (
-                   <div key={key.id} className="group flex items-center justify-between p-5 bg-background/50 border border-surface2 rounded-2xl hover:border-accent/30 hover:bg-accent/5 transition-all transition-bounce">
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-surface2/50 flex items-center justify-center text-muted group-hover:text-accent group-hover:bg-accent/10 transition-colors shadow-sm">
-                          <Terminal className="w-6 h-6" />
+                    {/* API Status / Meta */}
+                    <div className="space-y-6">
+                        <Card className="glass-card border-none shadow-xl bg-gradient-to-br from-primary/5 to-transparent">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center gap-3">
+                                    <ShieldCheck className="h-5 w-5 text-primary" />
+                                    <CardTitle>Usage Limits</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Rate Limit</span>
+                                    <span className="text-xs font-black">1,000 req/hr</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-primary w-1/3" />
+                                </div>
+                                <p className="text-[9px] text-muted-foreground font-bold leading-relaxed italic">
+                                    Enterprise customers can request higher limits via support.
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="glass-card border-none shadow-xl">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center gap-3">
+                                    <Clock className="h-5 w-5 text-amber-500" />
+                                    <CardTitle>Documentation</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-between group transition-all">
+                                    <span className="text-xs font-bold">Comprehensive API Docs</span>
+                                    <ExternalLink className="h-3 w-3 opacity-20 group-hover:opacity-100" />
+                                </button>
+                                <button className="w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-between group transition-all">
+                                    <span className="text-xs font-bold">Webhooks Integration</span>
+                                    <ExternalLink className="h-3 w-3 opacity-20 group-hover:opacity-100" />
+                                </button>
+                                <button className="w-full p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/10 flex items-center gap-2 justify-center py-4 font-black text-[10px] uppercase tracking-widest mt-4">
+                                    <CheckCircle2 className="h-3 w-3" /> System Operational
+                                </button>
+                            </CardContent>
+                        </Card>
+
+                        <div className="p-6 rounded-[2rem] bg-amber-500/5 border border-amber-500/10 flex gap-4">
+                            <Info className="h-5 w-5 text-amber-500 shrink-0" />
+                            <p className="text-[10px] font-bold text-amber-500/80 leading-relaxed uppercase tracking-tighter">
+                                API Keys grant full access to your account. Never share them or commit them to source control.
+                            </p>
                         </div>
-                        <div>
-                          <p className="text-xs font-black text-text uppercase tracking-tight">{key.name}</p>
-                          <div className="flex items-center gap-2 font-mono text-[10px] mt-1.5">
-                             <span className="text-muted/60">ih_{key.prefix}****************</span>
-                             <button 
-                               onClick={() => copyToClipboard(`ih_${key.prefix}...`, key.id)}
-                               className="hover:text-accent p-1 transition-colors"
-                             >
-                               {copiedId === key.id ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5 text-muted/40" />}
-                             </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-[9px] text-muted uppercase font-black opacity-50 tracking-widest">Last Used</p>
-                          <p className="text-[10px] font-black text-text uppercase mt-0.5">
-                            {key.lastUsed ? new Date(key.lastUsed).toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) : 'Never'}
-                          </p>
-                        </div>
-                        <button 
-                          onClick={() => revokeKey(key.id)}
-                          className="p-3 text-muted/40 hover:text-danger hover:bg-danger/10 rounded-xl transition-all"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                   </div>
-                ))
-              )}
-            </div>
-
-            {/* Create New Key Form */}
-            <div className="mt-10 pt-8 border-t border-surface2/50">
-              <h3 className="text-[10px] font-black text-muted uppercase tracking-widest mb-4 italic">Generate Master Secret</h3>
-              <form onSubmit={generateKey} className="flex flex-col sm:flex-row gap-3">
-                <input 
-                  type="text" 
-                  name="keyName"
-                  placeholder="Production Server, Home Automation, etc."
-                  required
-                  className="flex-1 bg-background/50 border border-surface2 rounded-2xl px-5 py-3.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all placeholder:text-muted/40"
-                />
-                <button 
-                  type="submit"
-                  disabled={creating}
-                  className="px-8 py-3.5 bg-accent hover:bg-accent/90 disabled:opacity-50 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-glow-sm flex items-center justify-center gap-2 group"
-                >
-                  {creating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4 group-hover:scale-125 transition-transform" />}
-                  Generate Key
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* New Key Display (One-time) */}
-          {newKey && (
-            <div className="bg-accent/10 border border-accent/20 rounded-3xl p-8 relative overflow-hidden animate-in zoom-in-95 duration-500 shadow-glow-sm">
-              <div className="absolute top-0 right-0 p-6">
-                <button onClick={() => setNewKey(null)} className="text-accent/50 hover:text-accent p-2 hover:bg-accent/10 rounded-xl transition-all">
-                  <XCircle className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="flex items-center gap-3 mb-4">
-                 <div className="p-2 bg-accent/20 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-accent" />
-                 </div>
-                 <h4 className="text-sm font-black text-accent uppercase tracking-widest">Security Warning</h4>
-              </div>
-              <p className="text-xs text-text/80 mb-6 leading-relaxed font-bold uppercase tracking-tight">
-                This secret key for <span className="text-accent">"{newKey.name}"</span> is shown only once. <span className="underline">Please save it immediately</span> in a secure vault.
-              </p>
-              <div className="bg-surface2/50 backdrop-blur-md border border-accent/20 rounded-2xl p-5 flex items-center justify-between gap-4 font-mono text-sm overflow-hidden">
-                <code className="text-accent font-black break-all">{newKey.key}</code>
-                <button 
-                  onClick={() => copyToClipboard(newKey.key, 'new')}
-                  className="flex-shrink-0 p-3 bg-accent text-white rounded-xl transition-all shadow-glow-sm hover:scale-105 active:scale-95"
-                >
-                  {copiedId === 'new' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Documentation & Resources (Right) ── */}
-        <div className="space-y-6">
-          <div className="card p-8">
-            <h3 className="text-xs font-black text-text uppercase tracking-widest flex items-center gap-2 mb-8">
-              <Code className="w-5 h-5 text-accent" />
-              Developer Docs
-            </h3>
-            
-            <div className="space-y-8">
-              <div className="group">
-                <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-4 opacity-70 group-hover:text-accent transition-colors">Authentication</p>
-                <div className="bg-background/50 rounded-2xl p-4 border border-surface2 font-mono text-xs relative overflow-hidden group/box">
-                  <div className="flex items-center justify-between text-muted mb-3 opacity-60">
-                    <span className="text-[9px] font-black uppercase tracking-tighter italic">cURL Request</span>
-                    <button onClick={() => copyToClipboard('curl -H "Authorization: Bearer YOUR_KEY"', 'doc1')}><Copy className="w-3.5 h-3.5 hover:text-accent transition-colors" /></button>
-                  </div>
-                  <code className="text-text/80 block leading-relaxed tracking-tighter overflow-x-auto whitespace-pre italic">
-                    <span className="text-accent">curl</span> -X GET "https://api.ih.io/v1/health" \<br/>
-                    -H <span className="text-success">"Authorization: Bearer ih_..."</span>
-                  </code>
+                    </div>
                 </div>
-              </div>
-
-              <div className="group">
-                <p className="text-[10px] font-black text-muted uppercase tracking-widest mb-4 opacity-70 group-hover:text-accent transition-colors">SDK Examples</p>
-                <div className="bg-background/50 rounded-2xl p-4 border border-surface2 font-mono text-xs group/box">
-                  <div className="flex items-center justify-between text-muted mb-3 opacity-60">
-                    <span className="text-[9px] font-black uppercase tracking-tighter italic">Node.js ES6</span>
-                    <button onClick={() => copyToClipboard('const hub = new InsightHub(...)', 'doc2')}><Copy className="w-3.5 h-3.5 hover:text-accent transition-colors" /></button>
-                  </div>
-                  <code className="text-text/60 block leading-relaxed overflow-x-auto whitespace-pre italic">
-                    <span className="text-accent">import</span> &#123; Hub &#125; <span className="text-accent">from</span> <span className="text-success">'insighthub'</span>;<br/><br/>
-                    <span className="text-accent">const</span> client = <span className="text-accent">new</span> Hub(&#123;<br/>
-                    &nbsp;&nbsp;apiKey: <span className="text-success">'ih_...'</span><br/>
-                    &#125;);
-                  </code>
-                </div>
-              </div>
-
-              <div className="bg-accent/5 p-6 rounded-2xl border border-accent/10 relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-                    <ShieldCheck className="w-12 h-12 text-accent" />
-                 </div>
-                 <p className="text-[11px] font-black text-text flex items-center gap-2 uppercase tracking-tight">
-                   Security Guidelines
-                 </p>
-                 <ul className="mt-4 space-y-3">
-                    {[
-                      'Rotate keys every 90 days',
-                      'Never commit keys to Git',
-                      'Restrict IP access in settings'
-                    ].map((tip, i) => (
-                      <li key={i} className="text-[10px] text-muted flex items-center gap-3 font-bold uppercase tracking-tight italic">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                        {tip}
-                      </li>
-                    ))}
-                 </ul>
-              </div>
-
-              <a 
-                href="#" 
-                className="flex items-center justify-between p-4 bg-surface2/50 hover:bg-accent hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm group/link"
-              >
-                Full API Reference
-                <ExternalLink className="w-4 h-4 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-              </a>
             </div>
-          </div>
 
-          <div className="card p-8 bg-surface/40">
-             <div className="flex items-center gap-3 mb-4">
-                <Terminal className="w-5 h-5 text-accent" />
-                <h4 className="text-xs font-black text-text uppercase tracking-widest">Webhooks</h4>
-             </div>
-             <p className="text-[10px] font-medium text-muted/70 leading-relaxed uppercase tracking-widest italic">
-               Receive real-time notifications about events in your account. Webhook management is coming in <span className="text-accent font-black">V1.1</span>.
-             </p>
-          </div>
-        </div>
+            {/* Newly Created Key Modal */}
+            {showKeyModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+                    <Card className="relative w-full max-w-md glass-card border-none shadow-[0_0_100px_rgba(var(--primary),0.3)] rounded-[2.5rem] overflow-hidden">
+                        <CardHeader className="text-center pb-2">
+                             <div className="h-16 w-16 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-bounce">
+                                <CheckCircle2 className="h-8 w-8 text-primary" />
+                             </div>
+                             <CardTitle className="text-2xl font-black italic">Key <span className="not-italic text-primary">Generated</span></CardTitle>
+                             <CardDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">Only shown once — Save it now!</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-4">
+                            <div className="p-6 rounded-3xl bg-black/40 border border-white/5 space-y-4 text-center">
+                                <p className="text-xs text-muted-foreground px-4">
+                                    Copy this key and store it securely. You will not be able to see it again.
+                                </p>
+                                <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5 group">
+                                    <code className="flex-1 text-sm font-black tracking-wider text-primary break-all select-all">{newlyCreatedKey}</code>
+                                    <button onClick={() => newlyCreatedKey && copyToClipboard(newlyCreatedKey)} className="p-2 rounded-xl hover:bg-primary/20 text-primary transition-all">
+                                        <Copy className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => { setShowKeyModal(false); setNewlyCreatedKey(null); }}
+                                className="w-full py-5 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-xs hover:scale-[1.02] shadow-xl shadow-primary/20 transition-all"
+                            >
+                                I've saved the key
+                            </button>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+        </AppLayout>
+    );
+};
 
-      </div>
-    </div>
-  );
-}
-
-// Reuse existing Lucide icon correctly if needed
-function XCircle(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="m15 9-6 6" />
-      <path d="m9 9 6 6" />
-    </svg>
-  );
-}
+export default DeveloperPage;

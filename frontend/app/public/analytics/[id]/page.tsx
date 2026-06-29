@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { TrendingUp, Laptop, Share2, ShieldCheck, Globe } from 'lucide-react';
 import { AnalyticsStats } from '@/components/analytics/AnalyticsStats';
-import { ChartSkeleton } from '@/components/ui/Skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const COLORS = ['var(--accent)', 'var(--success)', 'var(--warning)', 'var(--danger)'];
 
@@ -77,7 +77,7 @@ export default function PublicAnalyticsPage({ params }: { params: { id: string }
            <div className="lg:col-span-8 bg-surface border border-surface2 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-text mb-6">Login Activity (Last 30 Days)</h3>
               <div className="h-[300px] w-full">
-                {isLoading ? <ChartSkeleton /> : (
+                {isLoading ? <Skeleton className="w-full h-full" /> : (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data?.charts.loginActivity}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false} />

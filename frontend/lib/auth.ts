@@ -2,8 +2,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { comparePassword } from "./security";
+import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: "credentials",
@@ -72,6 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       // Only track for credentials provider (not OAuth)
       if (account?.provider !== "credentials" || !user?.id) return true;
@@ -124,33 +127,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
-
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-      }
-      if (trigger === "update" && session) {
-        token = { ...token, ...session };
-      }
-      return token;
-    },
-
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = token.role;
-      }
-      return session;
-    }
-  },
-  session: {
-    strategy: "jwt",
-    maxAge: 15 * 60, // 15 minutes access token duration
-  },
-  pages: {
-    signIn: "/login",
-    error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 });

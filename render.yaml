@@ -1,0 +1,58 @@
+databases:
+  - name: insight-db
+    databaseName: insight_hub
+    user: insight_user
+    plan: free
+
+services:
+  # 1. Redis for Celery & Channels
+  - type: redis
+    name: insight-redis
+    ipAllowList: [] # Allows internal connections
+    plan: free
+
+  # 2. Django Backend (Web Service)
+  - type: web
+    name: insight-backend
+    env: docker
+    dockerfilePath: ./docker/Dockerfile.backend
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: insight-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: insight-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+        
+  # 3. Celery Worker
+  # NOTE: Render does NOT offer a free tier for Background Workers.
+  # If you want to use Celery on Render, you must be on a paid plan.
+  # If you upgrade, simply uncomment the section below:
+  #
+  # - type: worker
+  #   name: insight-celery
+  #   env: docker
+  #   dockerfilePath: ./docker/Dockerfile.backend
+  #   dockerCommand: celery -A core worker -l info
+  #   envVars:
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: insight-db
+  #         property: connectionString
+  #     - key: REDIS_URL
+  #       fromService:
+  #         type: redis
+  #         name: insight-redis
+  #         property: connectionString
+  #     - key: SECRET_KEY
+  #       value: "your-secret-key-here"
