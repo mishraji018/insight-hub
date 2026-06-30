@@ -65,18 +65,11 @@ const AnalyticsPage = () => {
       setTableData((data as any).results || []);
       setTotalPages(Math.ceil(((data as any).count || 0) / 10));
       setPage(p);
-    } catch {
-      // Use mock data
-      setTableData(
-        Array.from({ length: 10 }, (_, i) => ({
-          date: `2026-03-${String(i + 1).padStart(2, "0")}`,
-          product_id: `PROD-${1000 + i}`,
-          region: ["North", "South", "East", "West"][i % 4],
-          sales_amount: (2000 + Math.random() * 5000).toFixed(2),
-          marketing_spend: (500 + Math.random() * 1500).toFixed(2),
-        }))
-      );
-      setTotalPages(5);
+    } catch (error) {
+      console.error("Failed to load table data", error);
+      toast.error("Failed to load analytics data.");
+      setTableData([]);
+      setTotalPages(1);
       setPage(p);
     } finally {
       setLoadingTable(false);

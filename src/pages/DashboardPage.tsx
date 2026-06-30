@@ -50,41 +50,9 @@ const DashboardPage = () => {
   useEffect(() => {
     getAnalyticsSummary()
       .then((r) => setSummary(r))
-      .catch(() => {
-        // Use mock data for demo
-        setSummary({
-          kpis: [
-            { title: "Total Revenue", value: "$1.2M", unit: "", change: 12.5, trend: "up" },
-            { title: "Daily Avg Sales", value: "4,280", unit: "units", change: -3.2, trend: "down" },
-            { title: "Active Regions", value: "12", unit: "", change: 0, trend: "neutral" },
-            { title: "Forecast Accuracy", value: "94.2", unit: "%", change: 2.1, trend: "up" },
-          ],
-          salesTrend: Array.from({ length: 30 }, (_, i) => ({
-            date: `Mar ${i + 1}`,
-            actual_sales: 3000 + Math.random() * 2000,
-            predicted_sales: 3200 + Math.random() * 1800,
-          })),
-          forecast: Array.from({ length: 7 }, (_, i) => ({
-            date: `Apr ${i + 1}`,
-            predicted_sales: 4000 + Math.random() * 1000,
-            confidence: 300 + Math.random() * 200,
-          })),
-          regions: [
-            { region: "North", sales: 12000, predicted: 13500 },
-            { region: "South", sales: 9800, predicted: 9200 },
-            { region: "East", sales: 11200, predicted: 12100 },
-            { region: "West", sales: 8500, predicted: 9800 },
-          ],
-          alerts: [
-            { region: "South", date: "Mar 28", description: "Sales dropped 15% below forecast", severity: "high" as const },
-            { region: "East", date: "Mar 27", description: "Unusual spike in marketing spend", severity: "medium" as const },
-          ],
-          insight: {
-            insight: "North region shows consistent upward momentum. Consider increasing marketing budget allocation by 20% to capitalize on growth trend.",
-            confidence: 0.87,
-            generated_at: "2026-03-09 14:30 UTC",
-          },
-        });
+      .catch((error) => {
+        console.error("Failed to fetch summary", error);
+        toast.error("Failed to load dashboard data. Please check your data source.");
       })
       .finally(() => setLoading(false));
 
