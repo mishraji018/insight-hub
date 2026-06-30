@@ -52,6 +52,34 @@ class CreateCheckoutSessionView(views.APIView):
             logger.error(f"Stripe Checkout Error: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class VerifyCheckoutSessionView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        session_id = request.data.get('session_id')
+        if not session_id:
+            return Response({'error': 'Session ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            if session.payment_status == 'paid':
+                metadata = session.metadata
+                if metadata and 'user_id' in metadata and 'plan_id' in metadata:
+                    user_id = metadata['user_id']
+                    plan_id = metadata['plan_id']
+                    
+                    user = User.objects.get(id=user_id)
+                    plan = Plan.objects.get(id=plan_id)
+                    
+                    user.subscription_plan = plan
+                    user.save()
+                    
+                    return Response({'message': 'Subscription activated successfully'})
+            return Response({'error': 'Payment not successful or already processed'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Verify Checkout Error: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class StripeWebhookView(views.APIView):
     permission_classes = [permissions.AllowAny] # Stripe webhooks are public
 

@@ -58,34 +58,37 @@ export function useAIInsight() {
   const [history, setHistory] = useState<AIInsight[]>([]);
   const [demoIndex, setDemoIndex] = useState(0);
 
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 
   const generate = useCallback(
     async (context?: string) => {
       setIsLoading(true);
 
       try {
-        // ── Gemini API mode ─────────────────────────────────────────────────
+        // ── Groq API mode ─────────────────────────────────────────────────
         if (apiKey) {
           const prompt = context
             ? `You are an enterprise analytics AI. Analyze the following dashboard context and generate one concise, actionable business insight in 2-3 sentences. Focus on trends, anomalies, or opportunities. Context: ${context}`
             : "You are an enterprise analytics AI. Generate one concise, actionable business insight about sales performance in 2-3 sentences.";
 
           const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://api.groq.com/openai/v1/chat/completions`,
             {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+              },
               body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
+                model: "llama3-8b-8192",
+                messages: [{ role: "user", content: prompt }]
               }),
             }
           );
 
           if (res.ok) {
             const data = await res.json();
-            const text =
-              data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+            const text = data?.choices?.[0]?.message?.content ?? "";
             const newInsight: AIInsight = {
               insight: text,
               confidence: 0.88 + Math.random() * 0.1,

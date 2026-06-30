@@ -1,4 +1,4 @@
-﻿import random
+import random
 import string
 from django.utils import timezone
 from datetime import timedelta
@@ -146,7 +146,8 @@ class MeView(views.APIView):
             "role": user.role,
             "is_approved": user.is_approved,
             "is_staff": user.is_staff,
-            "date_joined": user.date_joined
+            "date_joined": user.date_joined,
+            "plan_name": getattr(user.subscription_plan, 'name', 'free').capitalize() if user.subscription_plan else 'Free'
         })
 
 class LoginHistoryView(views.APIView):
@@ -595,17 +596,29 @@ class DataExportView(views.APIView):
         user = request.user
         export_type = request.query_params.get('format', 'json')
 
+        def serialize_qs(qs):
+            res = []
+            for item in qs:
+                new_item = {}
+                for k, v in item.items():
+                    if hasattr(v, 'isoformat'):
+                        new_item[k] = v.isoformat()
+                    else:
+                        new_item[k] = v
+                res.append(new_item)
+            return res
+
         data = {
             "profile": {
                 "email": user.email,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "role": user.role,
-                "date_joined": user.date_joined.isoformat(),
+                "date_joined": user.date_joined.isoformat() if user.date_joined else None,
             },
-            "login_history": list(LoginHistory.objects.filter(user=user).values()),
-            "activity_log": list(UserActivity.objects.filter(user=user).values()),
-            "notifications": list(Notification.objects.filter(user=user).values())
+            "login_history": serialize_qs(LoginHistory.objects.filter(user=user).values()),
+            "activity_log": serialize_qs(UserActivity.objects.filter(user=user).values()),
+            "notifications": serialize_qs(Notification.objects.filter(user=user).values())
         }
 
         if export_type == 'pdf':
@@ -623,7 +636,8 @@ class DataExportView(views.APIView):
             y -= 20
             p.drawString(120, y, f"Name: {user.first_name} {user.last_name}")
             y -= 15
-            p.drawString(120, y, f"Joined: {user.date_joined.strftime('%Y-%m-%d')}")
+            joined_str = user.date_joined.strftime('%Y-%m-%d') if user.date_joined else "N/A"
+            p.drawString(120, y, f"Joined: {joined_str}")
             
             y -= 40
             p.drawString(100, y, "Recent Logins:")

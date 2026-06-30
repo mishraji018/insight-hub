@@ -77,6 +77,32 @@ const ProfilePage = () => {
     }, [user]);
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        const status = urlParams.get('status');
+
+        if (status === 'success' && sessionId) {
+            const verifyPayment = async () => {
+                try {
+                    await api.billing.verifyCheckout(sessionId);
+                    toast.success("Congratulations you are our pro user!", { duration: 3000 });
+                    
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    
+                    // Refresh auth state which now includes plan_name
+                    await checkAuth();
+                    const billingData = await api.billing.getUsage();
+                    setBillingUsage(billingData);
+                } catch (error) {
+                    console.error("Verification failed", error);
+                }
+            };
+            verifyPayment();
+        }
+    }, [checkAuth]);
+
+    useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -302,9 +328,9 @@ const ProfilePage = () => {
                                     <h2 className="text-xl font-black">
                                         {loading ? <Skeleton className="h-6 w-32 mx-auto" /> : (user?.name || 'Incomplete Profile')}
                                     </h2>
-                                    <p className="text-[10px] uppercase font-bold text-primary tracking-widest">
+                                    <div className="text-[10px] uppercase font-bold text-primary tracking-widest">
                                         {loading ? <Skeleton className="h-3 w-16 mx-auto" /> : user?.role}
-                                    </p>
+                                    </div>
                                 </div>
 
                                 <div className="w-full mt-8 space-y-3">
@@ -383,7 +409,7 @@ const ProfilePage = () => {
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
-                                    {billingUsage?.plan_name === 'free' || !billingUsage?.plan_name ? (
+                                    {billingUsage?.plan_name?.toLowerCase() === 'free' || !billingUsage?.plan_name ? (
                                         <button 
                                             onClick={() => window.location.href = '/pricing'}
                                             className="w-full py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20"
@@ -394,7 +420,7 @@ const ProfilePage = () => {
                                         <button 
                                             onClick={handlePortalRedirect}
                                             disabled={portalLoading}
-                                            className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:bg-black/10 dark:bg-white/10 text-white font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
+                                            className="w-full py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:bg-black/10 dark:bg-white/10 text-foreground font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
                                         >
                                             {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
                                             Manage Billing

@@ -339,6 +339,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* User Profile and Notifications moved here */}
           <div className="flex items-center gap-4">
+            
+            {/* Dynamic Tier Shortcut */}
+            <Link 
+              to="/profile" 
+              className={`hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full ${user?.plan_name !== 'Free' ? 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/20 text-amber-500 shadow-amber-500/5' : 'bg-primary/10 hover:bg-primary/20 border-primary/20 text-primary shadow-primary/5'} transition-all border group shadow-sm`}
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest">{user?.plan_name || 'Free'} Tier</span>
+              <span className="text-[10px] font-bold group-hover:translate-x-1 transition-transform">→</span>
+            </Link>
 
             {/* Activity Dropdown */}
             <div className="relative z-30" ref={activityRef}>
@@ -521,8 +530,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-10 lg:p-12 max-w-[1600px] mx-auto w-full">
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 max-w-[1600px] mx-auto w-full flex flex-col">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 flex-1 flex flex-col">
             {children}
           </div>
         </div>

@@ -388,6 +388,11 @@ export const billingAPI = {
     return response.data;
   },
 
+  verifyCheckout: async (session_id: string): Promise<{ message: string }> => {
+    const response = await axiosInstance.post('/api/billing/verify-checkout/', { session_id });
+    return response.data;
+  },
+
   createPortal: async (): Promise<{ url: string }> => {
     const response = await axiosInstance.post('/api/billing/portal/');
     return response.data;

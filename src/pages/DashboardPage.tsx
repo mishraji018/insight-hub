@@ -127,8 +127,8 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4 h-[calc(100vh-80px)] flex flex-col pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-4 flex-1 flex flex-col pb-2 h-[calc(100vh-130px)] lg:h-[calc(100vh-146px)]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shrink-0">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
               Welcome back, {user?.name || user?.email || 'User'}!
@@ -201,12 +201,12 @@ const DashboardPage = () => {
         </div>
 
         {/* Dynamic Bento Box Layout */}
-        <div className="flex flex-col gap-4 flex-1 min-h-[500px] w-full">
+        <div className="flex flex-col gap-3 flex-1 min-h-0 w-full">
           
           {/* Top Row: KPIs + Alerts */}
-          <div className="flex-[0.8] flex gap-4 w-full">
+          <div className="flex-[0.8] flex gap-3 w-full min-h-0">
             {/* KPIs */}
-            <div className="flex-[2] transition-all duration-500 flex gap-4">
+            <div className="flex-[2] transition-all duration-500 flex gap-3">
               {(summary?.kpis?.length ? summary.kpis : [
                 { title: "Total Revenue" },
                 { title: "Daily Avg Sales" },
@@ -230,7 +230,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Middle Row: Charts */}
-          <div className="flex-[1.2] flex gap-4 w-full">
+          <div className="flex-[1.2] flex gap-3 w-full min-h-0">
             <div className="flex-1 hover:flex-[1.5] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
               {summary?.salesTrend ? <SalesTrendChart data={summary.salesTrend} /> : <EmptySkeleton title="Sales Trend" type="chart" className="h-full" />}
             </div>
@@ -240,7 +240,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Bottom Row: Regional + Insight */}
-          <div className="flex-1 flex gap-4 w-full">
+          <div className="flex-1 flex gap-3 w-full min-h-0">
             <div className="flex-[2] hover:flex-[3] transition-all duration-500 min-w-0 h-full rounded-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1">
               {summary?.regions ? <RegionalHeatmap data={summary.regions} /> : <EmptySkeleton title="Regional Heatmap" type="heatmap" className="h-full" />}
             </div>
