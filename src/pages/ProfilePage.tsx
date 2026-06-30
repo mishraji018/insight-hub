@@ -37,7 +37,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const ProfilePage = () => {
     const user = useAuthStore(s => s.user);
   const updateProfile = useAuthStore(s => s.updateProfile);
-  const toggleTheme = useAuthStore(s => s.toggleTheme);
+
   const checkAuth = useAuthStore(s => s.checkAuth);
     const [loginHistory, setLoginHistory] = useState<any[]>([]);
     const [stats, setStats] = useState<any>(null);
@@ -84,7 +84,7 @@ const ProfilePage = () => {
         if (status === 'success' && sessionId) {
             const verifyPayment = async () => {
                 try {
-                    await api.billing.verifyCheckout(sessionId);
+                    await billingAPI.verifyCheckout(sessionId);
                     toast.success("Congratulations you are our pro user!", { duration: 3000 });
                     
                     // Clean URL
@@ -92,7 +92,7 @@ const ProfilePage = () => {
                     
                     // Refresh auth state which now includes plan_name
                     await checkAuth();
-                    const billingData = await api.billing.getUsage();
+                    const billingData = await billingAPI.getUsage();
                     setBillingUsage(billingData);
                 } catch (error) {
                     console.error("Verification failed", error);

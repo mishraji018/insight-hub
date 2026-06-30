@@ -9,9 +9,10 @@ import { AnomalyAlert } from "@/components/AnomalyAlert";
 import { MLInsightCard } from "@/components/MLInsightCard";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { getAnalyticsSummary, downloadPDFReport, downloadExcelReport, authAPI } from "@/api/endpoints";
-import { Calendar, Download, Loader2, Activity, BarChart3, AlertTriangle, Map, Database } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar, Download, Loader2, BarChart3, AlertTriangle, Map, Database } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { OnboardingModal } from "@/components/OnboardingModal";
+import toast from "react-hot-toast";
 
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -43,7 +44,7 @@ const DashboardPage = () => {
   const [showFromCalendar, setShowFromCalendar] = useState(false);
   const [showToCalendar, setShowToCalendar] = useState(false);
   const [exporting, setExporting] = useState<"pdf" | "excel" | null>(null);
-  const [userStats, setUserStats] = useState<any>(null);
+
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { lastMessage } = useWebSocket(WS_URL);
 
@@ -56,7 +57,7 @@ const DashboardPage = () => {
       })
       .finally(() => setLoading(false));
 
-    authAPI.getUserStats().then(s => setUserStats(s)).catch(() => {});
+    authAPI.getUserStats().catch(() => {});
     authAPI.trackActivity("Dashboard");
 
     if (user && user.onboarding_complete === false) {

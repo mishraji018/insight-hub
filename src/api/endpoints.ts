@@ -56,6 +56,7 @@ export interface User {
   stripe_customer_id?: string | null;
   query_usage_count?: number;
   last_usage_reset?: string;
+  plan_name?: string;
 }
 
 export interface RegisterData {

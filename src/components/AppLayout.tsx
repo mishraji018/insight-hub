@@ -7,8 +7,8 @@ import toast from "react-hot-toast";
 import {
   BarChart3, Brain, FileSpreadsheet, LayoutDashboard, LogOut,
   Settings, Moon, Sun, Bell, User, Key, Shield, ChevronUp, Layout,
-  CheckCheck, Trash2, ShieldAlert, Info, CheckCircle2, Search,
-  Users, Globe, Plus, BookOpen, Activity
+  CheckCheck, Trash2, ShieldAlert, Info, CheckCircle2,
+  Users, Globe, Plus, Activity
 } from "lucide-react";
 import SearchModal from "./SearchModal";
 import api from "@/api/endpoints";
@@ -38,7 +38,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [userStats, setUserStats] = useState<any>(null);
-  const [connectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
