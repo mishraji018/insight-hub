@@ -5,7 +5,9 @@
       "framework": "vite"
     },
     "backend": {
-      "root": "backend"
+      "root": "backend",
+      "framework": "django",
+      "entrypoint": "core/wsgi.py"
     }
   },
   "rewrites": [
