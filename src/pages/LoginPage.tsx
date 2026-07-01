@@ -38,7 +38,11 @@ const LoginPage: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate('/dashboard');
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -83,8 +87,13 @@ const LoginPage: React.FC = () => {
       sessionStorage.setItem('accessToken', response.access);
       sessionStorage.setItem('refreshToken', response.refresh);
       await useAuthStore.getState().initializeAuth();
+      const currentUser = useAuthStore.getState().user;
       toast.success("Login Successful");
-      navigate('/dashboard');
+      if (currentUser?.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Invalid code");
     }

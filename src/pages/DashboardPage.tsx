@@ -109,7 +109,7 @@ const DashboardPage = () => {
 
           {/* Report Export */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-2 relative z-50">
+            <div className="flex items-center gap-2 relative z-20">
               <div className="relative">
                 <button 
                   onClick={() => { setShowFromCalendar(!showFromCalendar); setShowToCalendar(false); }}

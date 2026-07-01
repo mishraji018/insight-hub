@@ -137,37 +137,37 @@ const App = () => {
 
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={
-                  <ProtectedRoute allowedRoles={['executive', 'manager']}>
+                  <ProtectedRoute allowedRoles={['executive', 'manager', 'user', 'admin']}>
                     <DashboardPage />
                   </ProtectedRoute>
                 } />
 
                 <Route path="/analytics" element={
-                  <ProtectedRoute allowedRoles={['executive', 'analyst', 'manager']}>
+                  <ProtectedRoute allowedRoles={['executive', 'analyst', 'manager', 'user', 'admin']}>
                     <AnalyticsPage />
                   </ProtectedRoute>
                 } />
 
                 <Route path="/predictions" element={
-                  <ProtectedRoute allowedRoles={['executive', 'analyst', 'manager']}>
+                  <ProtectedRoute allowedRoles={['executive', 'analyst', 'manager', 'user', 'admin']}>
                     <PredictionsPage />
                   </ProtectedRoute>
                 } />
 
                 <Route path="/admin/dashboard" element={
-                  <ProtectedRoute requireStaff={true}>
+                  <ProtectedRoute allowedRoles={['admin']}>
                     <AdminDashboardPage />
                   </ProtectedRoute>
                 } />
 
                 <Route path="/admin/panel" element={
-                  <ProtectedRoute requireStaff={true}>
+                  <ProtectedRoute allowedRoles={['admin']}>
                     <AdminPanelPage />
                   </ProtectedRoute>
                 } />
 
                 <Route path="/admin/train-model" element={
-                  <ProtectedRoute requireStaff={true}>
+                  <ProtectedRoute allowedRoles={['admin']}>
                     <AdminTrainModelPage />
                   </ProtectedRoute>
                 } />

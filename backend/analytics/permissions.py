@@ -6,7 +6,7 @@ class IsExecutive(permissions.BasePermission):
             return False
         if not request.user.is_approved:  # ✅ FIXED
             return False
-        return request.user.role == 'executive'
+        return request.user.role in ['executive', 'admin']
 
 class IsAnalyst(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -14,7 +14,7 @@ class IsAnalyst(permissions.BasePermission):
             return False
         if not request.user.is_approved:  # ✅ FIXED
             return False
-        return request.user.role == 'analyst'
+        return request.user.role in ['analyst', 'admin']
 
 class IsManager(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -22,7 +22,7 @@ class IsManager(permissions.BasePermission):
             return False
         if not request.user.is_approved:  # ✅ FIXED
             return False
-        return request.user.role == 'manager'
+        return request.user.role in ['manager', 'admin']
 
 class IsExecutiveOrAnalyst(permissions.BasePermission):
     def has_permission(self, request, view):

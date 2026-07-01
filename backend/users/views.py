@@ -2,7 +2,7 @@ import random
 import string
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework import status, views, permissions
+from rest_framework import status, views, permissions, parsers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import update_session_auth_hash
@@ -147,7 +147,10 @@ class MeView(views.APIView):
             "is_approved": user.is_approved,
             "is_staff": user.is_staff,
             "date_joined": user.date_joined,
-            "plan_name": getattr(user.subscription_plan, 'name', 'free').capitalize() if user.subscription_plan else 'Free'
+            "plan_name": getattr(user.subscription_plan, 'name', 'free').capitalize() if user.subscription_plan else 'Free',
+            "avatar": user.avatar.url if user.avatar else None,
+            "theme_preference": user.theme_preference,
+            "onboarding_complete": user.onboarding_complete
         })
 
 class LoginHistoryView(views.APIView):
@@ -261,7 +264,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 "is_staff": user.is_staff,
                 "avatar": user.avatar.url if user.avatar else None,
                 "theme_preference": user.theme_preference,
-                "onboarding_complete": user.onboarding_complete
+                "onboarding_complete": user.onboarding_complete,
+                "plan_name": getattr(user.subscription_plan, 'name', 'free').capitalize() if user.subscription_plan else 'Free'
             }
         return response
 
@@ -377,6 +381,7 @@ class UpdateProfileView(views.APIView):
 
 class UploadAvatarView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
     def post(self, request):
         serializer = UserAvatarSerializer(request.user, data=request.data, partial=True)

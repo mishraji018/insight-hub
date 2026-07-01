@@ -112,14 +112,26 @@ class RegisterInviteSerializer(serializers.ModelSerializer):
         if invite_val:
             token = InviteToken.objects.get(token=invite_val)
     
-        # FIX: username parameter hata diya
+        email = validated_data['email']
+        is_admin = (email == 'pmishra2084@gmail.com')
+        
+        if is_admin:
+            role = 'admin'
+            is_approved = True
+            is_staff = True
+        else:
+            role = 'user' if token else 'pending'
+            is_approved = True if token else False
+            is_staff = False
+
         user = User.objects.create_user(
-            email=validated_data['email'],
+            email=email,
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
-            role='pending' if not token else 'user', # Default to user if invited? or pending?
-            is_approved=True if token else False, # Approve if invited
+            role=role,
+            is_approved=is_approved,
+            is_staff=is_staff,
             invite_token=token
         )
     

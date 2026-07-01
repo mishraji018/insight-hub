@@ -6,7 +6,6 @@ import {
   User, 
   Mail, 
   Calendar, 
-  Shield, 
   History, 
   Smartphone, 
   Globe,
@@ -14,8 +13,6 @@ import {
   Edit2,
   Loader2,
   CheckCircle2,
-  Activity,
-  Trophy,
   Download,
   FileJson,
   FileSpreadsheet,
@@ -28,19 +25,24 @@ import {
   ShieldAlert,
   CreditCard,
   BarChart3,
-  ExternalLink
+  ExternalLink,
+  Lock,
+  Eye,
+  Moon,
+  Sun
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfilePage = () => {
     const user = useAuthStore(s => s.user);
   const updateProfile = useAuthStore(s => s.updateProfile);
+  const toggleTheme = useAuthStore(s => s.toggleTheme);
 
   const checkAuth = useAuthStore(s => s.checkAuth);
     const [loginHistory, setLoginHistory] = useState<any[]>([]);
-    const [stats, setStats] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [uploading, setUploading] = useState(false);
     
@@ -56,6 +58,8 @@ const ProfilePage = () => {
     const [disablePassword, setDisablePassword] = useState("");
     const [billingUsage, setBillingUsage] = useState<any>(null);
     const [portalLoading, setPortalLoading] = useState(false);
+    const [showAllSessions, setShowAllSessions] = useState(false);
+    const [showAllLogs, setShowAllLogs] = useState(false);
     
     const [nameForm, setNameForm] = useState({
         first_name: user?.first_name || '',
@@ -106,14 +110,13 @@ const ProfilePage = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [history, userStats, activeSessions, billingData] = await Promise.all([
+                const [history, _userStats, activeSessions, billingData] = await Promise.all([
                     authAPI.getLoginHistory(),
                     authAPI.getUserStats(),
                     authAPI.getSessions(),
                     billingAPI.getUsage()
                 ]);
                 setLoginHistory(history);
-                setStats(userStats);
                 setSessions(activeSessions);
                 setBillingUsage(billingData);
             } catch (error) {
@@ -306,7 +309,7 @@ const ProfilePage = () => {
                                 <div className="relative -mt-12 mb-6 group/avatar">
                                     <div className="h-32 w-32 rounded-3xl bg-background border-4 border-background shadow-2xl overflow-hidden relative">
                                         {user?.avatar ? (
-                                            <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar" className="h-full w-full object-cover" />
+                                            <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar" className="h-full w-full object-contain bg-black/5 dark:bg-white/5" />
                                         ) : (
                                             <div className="h-full w-full flex items-center justify-center bg-primary/10">
                                                 <User className="h-16 w-16 text-primary" />
@@ -318,57 +321,114 @@ const ProfilePage = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <label className="absolute bottom-0 right-0 h-10 w-10 bg-primary text-white rounded-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-xl border-4 border-background">
+                                    <label className="absolute bottom-0 right-0 h-10 w-10 bg-primary text-white rounded-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-xl border-4 border-background z-10">
                                         <Camera className="h-5 w-5" />
                                         <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                                     </label>
+                                    {user?.is_approved && (
+                                        <div className="absolute top-0 right-0 h-8 w-8 bg-background rounded-full flex items-center justify-center border-4 border-background shadow-sm z-10" title="Official Verified">
+                                            <CheckCircle2 className="h-full w-full text-emerald-500" />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="text-center space-y-1">
-                                    <h2 className="text-xl font-black">
-                                        {loading ? <Skeleton className="h-6 w-32 mx-auto" /> : (user?.name || 'Incomplete Profile')}
-                                    </h2>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <h2 className="text-xl font-black">
+                                            {loading ? <Skeleton className="h-6 w-32 mx-auto" /> : (user?.name || 'Incomplete Profile')}
+                                        </h2>
+                                        {!isEditing && (
+                                            <button 
+                                                onClick={() => setIsEditing(true)}
+                                                className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:border-primary/50 transition-all group"
+                                            >
+                                                <Edit2 className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="text-[10px] uppercase font-bold text-primary tracking-widest">
                                         {loading ? <Skeleton className="h-3 w-16 mx-auto" /> : user?.role}
                                     </div>
+                                    <p className="text-[9px] text-muted-foreground font-medium mt-1">Update your public facing identity</p>
                                 </div>
 
-                                <div className="w-full mt-8 space-y-3">
-                                    <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center gap-3">
-                                        <Mail className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-xs font-bold truncate">{user?.email}</span>
-                                    </div>
-                                    <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center gap-3">
-                                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-xs font-bold">Member since {user?.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'N/A'}</span>
-                                    </div>
-                                    <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/10 flex items-center gap-3">
-                                        <Shield className="h-4 w-4 text-emerald-500" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">
-                                            {user?.is_approved ? 'Official Verified' : 'Awaiting Check'}
-                                        </span>
-                                    </div>
+                                <div className="w-full mt-6 space-y-3 text-left">
+                                    {isEditing ? (
+                                        <form onSubmit={handleUpdateName} className="space-y-4 animate-in slide-in-from-top-2">
+                                            <div className="space-y-3">
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</label>
+                                                    <input 
+                                                        value={nameForm.first_name}
+                                                        onChange={e => setNameForm({...nameForm, first_name: e.target.value})}
+                                                        className="w-full h-10 px-3 rounded-xl bg-background border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-bold text-sm" 
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Last Name</label>
+                                                    <input 
+                                                        value={nameForm.last_name}
+                                                        onChange={e => setNameForm({...nameForm, last_name: e.target.value})}
+                                                        className="w-full h-10 px-3 rounded-xl bg-background border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-bold text-sm" 
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1 flex items-center gap-1.5">
+                                                        <Lock className="h-2.5 w-2.5" /> Email
+                                                    </label>
+                                                    <input 
+                                                        value={user?.email || ''}
+                                                        disabled
+                                                        className="w-full h-10 px-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 text-muted-foreground font-bold cursor-not-allowed opacity-60 text-sm" 
+                                                    />
+                                                    <p className="text-[8px] text-muted-foreground/60 font-medium ml-1 flex items-center gap-1">
+                                                        <Lock className="h-2 w-2" /> Cannot be changed
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-end gap-2 pt-2">
+                                                <button type="button" onClick={() => setIsEditing(false)} className="px-4 h-9 rounded-xl font-bold text-[10px] uppercase tracking-widest">Cancel</button>
+                                                <button type="submit" className="px-4 h-9 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-widest shadow-md shadow-primary/20">Save</button>
+                                            </div>
+                                        </form>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 space-y-1">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <Mail className="h-4 w-4 text-muted-foreground" />
+                                                        <span className="text-xs font-bold truncate">{user?.email}</span>
+                                                    </div>
+                                                    <Lock className="h-3 w-3 text-muted-foreground/50" />
+                                                </div>
+                                                <p className="text-[9px] text-muted-foreground/60 font-medium ml-6">Email is linked to your account and cannot be changed</p>
+                                            </div>
+                                            <div className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center gap-3">
+                                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <span className="text-xs font-bold">Member since {user?.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'N/A'}</span>
+                                            </div>
+                                            <button 
+                                                onClick={toggleTheme} 
+                                                className="w-full p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center justify-between group hover:border-primary/50 transition-all cursor-pointer"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    {user?.theme_preference === 'light' ? (
+                                                        <Sun className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                    ) : (
+                                                        <Moon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                    )}
+                                                    <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">
+                                                        {user?.theme_preference === 'light' ? 'Light Mode' : 'Dark Mode'}
+                                                    </span>
+                                                </div>
+                                                <div className="h-2 w-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Mini Stats */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="glass-card p-4 rounded-3xl text-center space-y-1">
-                                <Activity className="h-4 w-4 text-primary mx-auto mb-2" />
-                                <div className="text-xl font-black">
-                                    {loading ? <Skeleton className="h-6 w-10 mx-auto" /> : (stats?.total_logins || 0)}
-                                </div>
-                                <div className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Sessions</div>
-                            </div>
-                            <div className="glass-card p-4 rounded-3xl text-center space-y-1">
-                                <Trophy className="h-4 w-4 text-amber-500 mx-auto mb-2" />
-                                <div className="text-xl font-black">
-                                    {loading ? <Skeleton className="h-6 w-10 mx-auto" /> : (stats?.days_active || 0)}
-                                </div>
-                                <div className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Days Active</div>
-                            </div>
-                        </div>
 
                         {/* Subscription & Usage */}
                         <Card className="glass-card border-none shadow-2xl overflow-hidden">
@@ -433,61 +493,7 @@ const ProfilePage = () => {
 
                     {/* Main Content Area */}
                     <div className="lg:col-span-3 space-y-8">
-                        {/* Interactive Edit Section */}
-                        <Card className="glass-card border-none shadow-2xl overflow-hidden">
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-xl">Personal Information</CardTitle>
-                                    <CardDescription>Update your public facing identity</CardDescription>
-                                </div>
-                                <button 
-                                    onClick={() => setIsEditing(!isEditing)}
-                                    className="p-2 rounded-xl bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 hover:border-primary/50 transition-all group"
-                                >
-                                    <Edit2 className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
-                                </button>
-                            </CardHeader>
-                            <CardContent>
-                                {isEditing ? (
-                                    <form onSubmit={handleUpdateName} className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-2">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</label>
-                                            <input 
-                                                value={nameForm.first_name}
-                                                onChange={e => setNameForm({...nameForm, first_name: e.target.value})}
-                                                className="w-full h-12 px-4 rounded-xl bg-background border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-bold" 
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Last Name</label>
-                                            <input 
-                                                value={nameForm.last_name}
-                                                onChange={e => setNameForm({...nameForm, last_name: e.target.value})}
-                                                className="w-full h-12 px-4 rounded-xl bg-background border border-black/20 dark:border-white/10 focus:border-primary outline-none transition-all font-bold" 
-                                            />
-                                        </div>
-                                        <div className="md:col-span-2 flex justify-end gap-3 pt-4">
-                                            <button type="button" onClick={() => setIsEditing(false)} className="px-6 h-12 rounded-xl font-bold text-xs uppercase tracking-widest">Cancel</button>
-                                            <button type="submit" className="px-6 h-12 rounded-xl bg-primary text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Save Changes</button>
-                                        </div>
-                                    </form>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 py-4">
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Full Name</p>
-                                            <p className="text-lg font-bold">{user?.first_name} {user?.last_name}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Verified Email</p>
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-lg font-bold">{user?.email}</p>
-                                                {user?.is_email_verified && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+
 
                         {/* Security Section (2FA) */}
                         <Card className="glass-card border-none shadow-2xl overflow-hidden">
@@ -619,108 +625,130 @@ const ProfilePage = () => {
                              </Card>
                         </div>
 
-                        {/* Session Manager */}
-                        <Card className="glass-card border-none shadow-2xl">
-                             <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <div className="flex items-center gap-3">
-                                        <Monitor className="h-5 w-5 text-primary" />
-                                        <CardTitle>Browser Sessions</CardTitle>
+                        {/* Sessions & Logs — compact 2-col grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Browser Sessions */}
+                            <Card className="glass-card border-none shadow-2xl">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <Monitor className="h-5 w-5 text-primary" />
+                                            <CardTitle className="text-lg">Browser Sessions</CardTitle>
+                                        </div>
+                                        {sessions.length > 0 && (
+                                            <button 
+                                                onClick={handleRevokeAll}
+                                                className="text-[9px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-400 transition-colors"
+                                            >
+                                                Sign out all
+                                            </button>
+                                        )}
                                     </div>
-                                    <CardDescription>Devices that are currently logged into your account</CardDescription>
-                                </div>
-                                {sessions.length > 0 && (
-                                    <button 
-                                        onClick={handleRevokeAll}
-                                        className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-400 transition-colors"
-                                    >
-                                        Sign out all devices
-                                    </button>
-                                )}
-                             </CardHeader>
-                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <CardDescription className="text-xs">Active login sessions</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
                                     {sessions.length === 0 ? (
-                                        <div className="col-span-full py-12 text-center border-2 border-dashed border-black/10 dark:border-white/5 rounded-3xl">
-                                            <AlertCircle className="h-8 w-8 text-black/50 dark:text-white/10 mx-auto mb-2" />
-                                            <p className="text-[10px] font-bold text-black/50 dark:text-white/20 uppercase tracking-widest">No other active sessions</p>
+                                        <div className="py-8 text-center border-2 border-dashed border-black/10 dark:border-white/5 rounded-2xl">
+                                            <AlertCircle className="h-6 w-6 text-black/50 dark:text-white/10 mx-auto mb-2" />
+                                            <p className="text-[9px] font-bold text-black/50 dark:text-white/20 uppercase tracking-widest">No other active sessions</p>
                                         </div>
                                     ) : (
-                                        sessions.map(session => (
-                                            <div key={session.id} className="p-4 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center justify-between group">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 rounded-2xl bg-background border border-black/10 dark:border-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                                        <Globe className="h-5 w-5" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="text-xs font-black text-white">{session.browser}</p>
-                                                            <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-black uppercase tracking-tighter">
-                                                                {session.device_name}
-                                                            </span>
+                                        <>
+                                            <div className="space-y-2">
+                                                {sessions.slice(0, 2).map(session => (
+                                                    <div key={session.id} className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center justify-between group">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-8 w-8 rounded-xl bg-background border border-black/10 dark:border-white/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                                <Globe className="h-4 w-4" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <p className="text-[11px] font-black">{session.browser}</p>
+                                                                    <span className="text-[7px] px-1 py-0.5 rounded-full bg-primary/20 text-primary font-black uppercase tracking-tighter">
+                                                                        {session.device_name}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-tight mt-0.5">{session.ip_address || 'Hidden IP'}</p>
+                                                            </div>
                                                         </div>
-                                                        <p className="text-[9px] font-bold text-black/60 dark:text-white/30 uppercase tracking-tight mt-0.5">{session.ip_address || 'Hidden IP'}</p>
+                                                        <button 
+                                                            onClick={() => handleRevokeSession(session.id)}
+                                                            className="p-1.5 rounded-lg text-black/50 dark:text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                        >
+                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                        </button>
                                                     </div>
-                                                </div>
-                                                <button 
-                                                    onClick={() => handleRevokeSession(session.id)}
-                                                    className="p-2 rounded-xl text-black/50 dark:text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
+                                                ))}
                                             </div>
-                                        ))
+                                            {sessions.length > 2 && (
+                                                <button 
+                                                    onClick={() => setShowAllSessions(true)}
+                                                    className="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all flex items-center justify-center gap-1.5"
+                                                >
+                                                    <Eye className="h-3 w-3" /> View All ({sessions.length})
+                                                </button>
+                                            )}
+                                        </>
                                     )}
-                                </div>
-                             </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
 
-                        {/* Detailed History */}
-                        <Card className="glass-card border-none shadow-2xl">
-                             <CardHeader>
-                                <div className="flex items-center gap-3">
-                                    <History className="h-5 w-5 text-primary" />
-                                    <CardTitle>Security Logs</CardTitle>
-                                </div>
-                             </CardHeader>
-                              <CardContent>
-                                <div className="space-y-3">
+                            {/* Security Logs */}
+                            <Card className="glass-card border-none shadow-2xl">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center gap-3">
+                                        <History className="h-5 w-5 text-primary" />
+                                        <CardTitle className="text-lg">Security Logs</CardTitle>
+                                    </div>
+                                    <CardDescription className="text-xs">Recent login activity</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
                                     {loading ? (
-                                        Array.from({ length: 3 }).map((_, i) => (
-                                            <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
-                                                <div className="flex items-center gap-3">
-                                                    <Skeleton className="h-8 w-8 rounded-lg" />
-                                                    <div className="space-y-2">
-                                                        <Skeleton className="h-4 w-24" />
-                                                        <Skeleton className="h-3 w-32" />
-                                                    </div>
+                                        Array.from({ length: 2 }).map((_, i) => (
+                                            <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
+                                                <Skeleton className="h-7 w-7 rounded-lg" />
+                                                <div className="space-y-1.5">
+                                                    <Skeleton className="h-3 w-20" />
+                                                    <Skeleton className="h-2.5 w-28" />
                                                 </div>
                                             </div>
                                         ))
                                     ) : loginHistory.length === 0 ? (
-                                        <div className="py-10 text-center opacity-20">
-                                            <History className="h-10 w-10 mx-auto mb-2" />
-                                            <p className="text-[10px] font-black uppercase tracking-widest">No history recorded</p>
+                                        <div className="py-8 text-center opacity-20">
+                                            <History className="h-6 w-6 mx-auto mb-2" />
+                                            <p className="text-[9px] font-black uppercase tracking-widest">No history recorded</p>
                                         </div>
                                     ) : (
-                                        loginHistory.slice(0, 5).map((login, idx) => (
-                                            <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 rounded-lg bg-primary/5 flex items-center justify-center">
-                                                        {login.device_info === 'Mobile' ? <Smartphone className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
+                                        <>
+                                            <div className="space-y-2">
+                                                {loginHistory.slice(0, 2).map((login, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-7 w-7 rounded-lg bg-primary/5 flex items-center justify-center">
+                                                                {login.device_info === 'Mobile' ? <Smartphone className="h-3.5 w-3.5" /> : <Globe className="h-3.5 w-3.5" />}
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[11px] font-bold">{login.browser_info} on {login.device_info}</p>
+                                                                <p className="text-[8px] text-muted-foreground uppercase">{new Date(login.timestamp).toLocaleString()}</p>
+                                                            </div>
+                                                        </div>
+                                                        <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[7px] font-black uppercase tracking-wider">Verified</span>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-xs font-bold">{login.browser_info} on {login.device_info}</p>
-                                                        <p className="text-[9px] text-muted-foreground uppercase">{new Date(login.timestamp).toLocaleString()}</p>
-                                                    </div>
-                                                </div>
-                                                <span className="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase tracking-[0.2em]">Verified Login</span>
+                                                ))}
                                             </div>
-                                        ))
+                                            {loginHistory.length > 2 && (
+                                                <button 
+                                                    onClick={() => setShowAllLogs(true)}
+                                                    className="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all flex items-center justify-center gap-1.5"
+                                                >
+                                                    <Eye className="h-3 w-3" /> View All ({loginHistory.length})
+                                                </button>
+                                            )}
+                                        </>
                                     )}
-                                </div>
-                              </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -858,6 +886,72 @@ const ProfilePage = () => {
                     </Card>
                 </div>
             )}
+
+            {/* View All Sessions Modal */}
+            <Dialog open={showAllSessions} onOpenChange={setShowAllSessions}>
+                <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-lg font-black">
+                            <Monitor className="h-5 w-5 text-primary" /> All Browser Sessions
+                        </DialogTitle>
+                        <DialogDescription className="text-xs">Devices currently logged into your account</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 overflow-y-auto max-h-[60vh] pr-1">
+                        {sessions.map(session => (
+                            <div key={session.id} className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 flex items-center justify-between group">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-8 w-8 rounded-xl bg-background border border-black/10 dark:border-white/5 flex items-center justify-center text-primary">
+                                        <Globe className="h-4 w-4" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-1.5">
+                                            <p className="text-[11px] font-black">{session.browser}</p>
+                                            <span className="text-[7px] px-1 py-0.5 rounded-full bg-primary/20 text-primary font-black uppercase tracking-tighter">
+                                                {session.device_name}
+                                            </span>
+                                        </div>
+                                        <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-tight mt-0.5">{session.ip_address || 'Hidden IP'}</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => handleRevokeSession(session.id)}
+                                    className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* View All Security Logs Modal */}
+            <Dialog open={showAllLogs} onOpenChange={setShowAllLogs}>
+                <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-lg font-black">
+                            <History className="h-5 w-5 text-primary" /> All Security Logs
+                        </DialogTitle>
+                        <DialogDescription className="text-xs">Complete login history</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 overflow-y-auto max-h-[60vh] pr-1">
+                        {loginHistory.map((login, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-background/20 border border-black/10 dark:border-white/5">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-7 w-7 rounded-lg bg-primary/5 flex items-center justify-center">
+                                        {login.device_info === 'Mobile' ? <Smartphone className="h-3.5 w-3.5" /> : <Globe className="h-3.5 w-3.5" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-bold">{login.browser_info} on {login.device_info}</p>
+                                        <p className="text-[8px] text-muted-foreground uppercase">{new Date(login.timestamp).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[7px] font-black uppercase tracking-wider">Verified</span>
+                            </div>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 };

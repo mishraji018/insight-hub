@@ -5,30 +5,74 @@ from analytics.models import SalesData
 from analytics.services.forecasting import get_season
 
 def extract_from_csv(file_path: str) -> pd.DataFrame:
-    """Reads a CSV file and validates required columns."""
-    required_columns = [
-        'date', 'product_id', 'region', 'sales_amount', 
-        'customers', 'marketing_spend'
-    ]
-    
+    """Reads a CSV file and flexibly maps columns to required format."""
     try:
         df = pd.read_csv(file_path)
     except Exception as e:
         raise ValidationError(f"Error reading CSV file: {str(e)}")
         
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        raise ValidationError(f"Missing required columns: {', '.join(missing_cols)}")
+    # Standardize column names
+    df.columns = df.columns.str.lower().str.strip().str.replace(' ', '_')
+    
+    # Flexible fuzzy column mapping
+    mapping = {
+        'date': ['date', 'time', 'timestamp', 'day', 'created_at', 'order_date'],
+        'product_id': ['product_id', 'product', 'item', 'sku', 'item_id', 'id'],
+        'region': ['region', 'location', 'city', 'state', 'country', 'store', 'market'],
+        'sales_amount': ['sales_amount', 'sales', 'revenue', 'amount', 'total', 'price', 'value'],
+        'customers': ['customers', 'buyers', 'users', 'clients', 'traffic', 'visits'],
+        'marketing_spend': ['marketing_spend', 'marketing', 'spend', 'cost', 'ad_spend', 'budget', 'expenses']
+    }
+    
+    for standard_col, variants in mapping.items():
+        if standard_col not in df.columns:
+            for variant in variants:
+                if variant in df.columns:
+                    df.rename(columns={variant: standard_col}, inplace=True)
+                    break
+                    
+    # Fill missing columns with defaults to accept ANY CSV
+    if 'date' not in df.columns:
+        df['date'] = pd.Timestamp('today').date()
+    if 'product_id' not in df.columns:
+        df['product_id'] = 'UNKNOWN_PRODUCT'
+    if 'region' not in df.columns:
+        df['region'] = 'Global'
+    if 'sales_amount' not in df.columns:
+        df['sales_amount'] = 0.0
+    if 'customers' not in df.columns:
+        df['customers'] = 0
+    if 'marketing_spend' not in df.columns:
+        df['marketing_spend'] = 0.0
         
+    required_columns = ['date', 'product_id', 'region', 'sales_amount', 'customers', 'marketing_spend']
+    # If the user uploaded a completely irrelevant CSV, just take what we have mapped
+    for col in required_columns:
+        if col not in df.columns:
+             df[col] = 0
+    df = df[required_columns]
+    
     return df
 
 def transform(df: pd.DataFrame) -> pd.DataFrame:
-    """Cleans data and performs feature engineering."""
+    """Cleans data and performs feature engineering safely."""
+    # Coerce numeric types to avoid crashes
+    df['sales_amount'] = pd.to_numeric(df['sales_amount'], errors='coerce').fillna(0)
+    df['customers'] = pd.to_numeric(df['customers'], errors='coerce').fillna(0)
+    df['marketing_spend'] = pd.to_numeric(df['marketing_spend'], errors='coerce').fillna(0)
+    
     # Drop rows with null or negative sales
     df = df[df['sales_amount'] > 0].copy()
     
-    # Parse date
-    df['date'] = pd.to_datetime(df['date'])
+    if df.empty:
+        raise ValidationError("No valid sales data (amount > 0) found in the CSV.")
+        
+    # Parse date safely
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    df = df.dropna(subset=['date']).copy()
+    
+    if df.empty:
+        raise ValidationError("No valid dates could be parsed from the CSV.")
     
     # Time-based features
     df['day_of_week'] = df['date'].dt.dayofweek
@@ -61,17 +105,6 @@ def load_to_db(df: pd.DataFrame) -> dict:
     # In a real heavy ETL, this might need optimization (e.g. temporary table merge)
     for _, row in df.iterrows():
         try:
-            # Check for existing record
-            exists = SalesData.objects.filter(
-                date=row['date'].date(),
-                product_id=row['product_id'],
-                region=row['region']
-            ).exists()
-            
-            if exists:
-                skipped += 1
-                continue
-                
             records_to_create.append(SalesData(
                 date=row['date'],
                 product_id=row['product_id'],

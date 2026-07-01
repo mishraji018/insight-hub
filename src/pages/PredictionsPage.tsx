@@ -21,11 +21,8 @@ const PredictionsPage = () => {
   // ── EXISTING logic — UNTOUCHED ────────────────────────────────────────────
   const { data, isLoading } = useForecast();
 
-  const forecastData = data?.forecast || Array.from({ length: 7 }, (_, i) => ({
-    date: `Apr ${i + 1}`,
-    predicted_sales: 4000 + Math.random() * 1000,
-    confidence: 300 + Math.random() * 200,
-  }));
+  const forecastData = data?.forecast || [];
+  const hasData = forecastData.length > 0;
 
   // ── NEW — AI Insight hook ─────────────────────────────────────────────────
   const { insight, isLoading: insightLoading, generate, history } = useAIInsight();
@@ -45,8 +42,20 @@ const PredictionsPage = () => {
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-72 w-full" />
           </div>
-        ) : (
+        ) : hasData ? (
           <ForecastChart data={forecastData} />
+        ) : (
+          <div className="glass-card p-12 text-center flex flex-col items-center justify-center space-y-4 border-dashed border-2 border-primary/20">
+            <div className="p-4 rounded-full bg-primary/10">
+              <Sparkles className="h-8 w-8 text-primary/60" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-foreground">No Forecast Data</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+                Upload your CSV data in the Analytics section to train the model and generate a sales forecast.
+              </p>
+            </div>
+          </div>
         )}
 
         {/* ════════════════════════════════════════════════════════════════════

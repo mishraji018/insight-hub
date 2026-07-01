@@ -31,7 +31,7 @@ from predictions.predictor import predict_sales, forecast_week
 # ============================================
 
 class UploadCSVView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated, IsExecutive]
+    permission_classes = [permissions.IsAuthenticated, IsExecutiveOrAnalyst]
 
     def post(self, request, *args, **kwargs):
         serializer = CSVUploadSerializer(data=request.data)
@@ -53,17 +53,29 @@ class UploadCSVView(views.APIView):
             except Exception as e:
                 if os.path.exists(tmp_path):
                     os.remove(tmp_path)
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                # DRF exceptions often appear as lists or dicts inside e, but str(e) handles basic ones.
+                # However, ValidationError might need its message extracted.
+                error_msg = str(e)
+                if hasattr(e, 'messages'):
+                    error_msg = e.messages[0]
+                return Response({"detail": error_msg}, status=status.HTTP_400_BAD_REQUEST)
+        
+        err_msg = "Invalid upload request"
+        if serializer.errors:
+            err_msg = str(next(iter(serializer.errors.values()))[0])
+        return Response({"detail": err_msg}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AnalyticsSummaryView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, IsExecutiveOrAnalyst]
 
     def get(self, request):
-        today = timezone.now().date()
-        start_of_month = today.replace(day=1)
-        queryset = SalesData.objects.filter(date__gte=start_of_month)
+        latest_record = SalesData.objects.order_by('-date').first()
+        if latest_record:
+            start_of_month = latest_record.date.replace(day=1)
+            queryset = SalesData.objects.filter(date__gte=start_of_month)
+        else:
+            queryset = SalesData.objects.none()
 
         total_revenue = queryset.aggregate(Sum('sales_amount'))['sales_amount__sum'] or 0
         avg_daily = queryset.aggregate(Avg('sales_amount'))['sales_amount__avg'] or 0
