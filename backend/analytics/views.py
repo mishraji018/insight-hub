@@ -243,8 +243,8 @@ class HealthCheckView(views.APIView):
         try:
             connection.ensure_connection()
             health["services"]["db"] = "ok"
-        except Exception:
-            health["services"]["db"] = "fail"
+        except Exception as e:
+            health["services"]["db"] = f"fail: {str(e)}"
             health["status"] = "error"
 
         try:
@@ -253,7 +253,7 @@ class HealthCheckView(views.APIView):
                 health["services"]["redis"] = "ok"
             else:
                 raise Exception("Cache mismatch")
-        except Exception:
+        except Exception as e:
             health["services"]["redis"] = "fail"
             health["status"] = "error"
 
