@@ -15,7 +15,7 @@ import { Calendar, Download, Loader2, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OnboardingModal } from "@/components/OnboardingModal";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/analytics/";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "wss://insight-backend-6sub.onrender.com/ws/analytics/";
 
 const DashboardPage = () => {
   const user = useAuthStore(s => s.user);
