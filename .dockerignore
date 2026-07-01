@@ -8,3 +8,6 @@ tsc_errors.txt
 tsc_output.txt
 tsc_output_utf8.txt
 README.md
+venv/
+backend/venv/
+__pycache__/

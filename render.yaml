@@ -1,9 +1,3 @@
-databases:
-  - name: insight-db
-    databaseName: insight_hub
-    user: insight_user
-    plan: free
-
 services:
   # 1. Redis for Celery & Channels
   - type: redis
@@ -19,9 +13,7 @@ services:
     plan: free
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: insight-db
-          property: connectionString
+        value: postgresql://neondb_owner:npg_dhb4W0toxPMl@ep-restless-feather-a1g4y7xx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
       - key: REDIS_URL
         fromService:
           type: redis
