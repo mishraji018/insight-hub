@@ -25,7 +25,7 @@ class HealthCheckView(APIView):
             health_status["database"] = "ok"
         except Exception as e:
             logger.error(f"Database health check failed: {str(e)}")
-            health_status["database"] = "err"
             health_status["status"] = "error"
+            health_status["database"] = f"fail: {str(e)}"
 
         return Response(health_status)
