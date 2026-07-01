@@ -230,7 +230,7 @@ class Notification(models.Model):
 
 class UserSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='active_sessions')
-    session_token = models.CharField(max_length=255, unique=True)
+    session_token = models.TextField(unique=True)
     device_name = models.CharField(max_length=255)
     browser = models.CharField(max_length=255)
     ip_address = models.GenericIPAddressField(null=True, blank=True)

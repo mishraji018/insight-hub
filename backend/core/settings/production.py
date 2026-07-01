@@ -12,17 +12,12 @@ CSRF_COOKIE_SECURE = True
 
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=False)
-import dj_database_url
-import os
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    )
+    'default': env.db('DATABASE_URL')
 }
+DATABASES['default']['CONN_MAX_AGE'] = 600
 
 # Email Settings
 EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
