@@ -254,7 +254,7 @@ class HealthCheckView(views.APIView):
             else:
                 raise Exception("Cache mismatch")
         except Exception as e:
-            health["services"]["redis"] = "fail"
+            health["services"]["redis"] = f"fail: {str(e)}"
             health["status"] = "error"
 
         http_status = status.HTTP_200_OK if health["status"] == "ok" \
