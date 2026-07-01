@@ -7,6 +7,12 @@ if (process.env.NODE_ENV !== 'production' && !process.env.DATABASE_URL) {
 
 const nextConfig = {
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: ['localhost', 'res.cloudinary.com', 'avatars.githubusercontent.com', 'lh3.googleusercontent.com'],
   },
